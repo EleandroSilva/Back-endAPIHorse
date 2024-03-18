@@ -11,6 +11,8 @@ type
     function IdEmpresa                  : Integer;                  overload;
     function Nome(Value : String)       : iEntidadeGrupoProduto<T>; overload;
     function Nome                       : String;                   overload;
+    function NCM(Value : Integer)       : iEntidadeGrupoProduto<T>; overload;
+    function NCM                        : Integer;                  overload;
     function Ativo(Value : Integer)     : iEntidadeGrupoProduto<T>; overload;
     function Ativo                      : Integer;                  overload;
 

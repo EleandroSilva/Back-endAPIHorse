@@ -1,0 +1,7 @@
+unit Model.Entidade.Marca.Produto;
+
+interface
+
+implementation
+
+end.

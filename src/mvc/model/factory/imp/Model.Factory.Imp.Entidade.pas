@@ -18,7 +18,8 @@ uses
   Model.DAO.Empresa.Interfaces,
   Model.DAO.IMp.Empresa,
   Model.DAO.Grupo.Produto.Interfaces,
-  Model.DAO.Imp.Grupo.Produto;
+  Model.DAO.Imp.Grupo.Produto,
+  Model.DAO.Marca.Produto.Interfaces, Model.DAO.Imp.Marca.Produto;
 
 type
   TFactoryEntidade = class(TInterfacedObject, iFactoryEntidade)
@@ -26,6 +27,7 @@ type
       FDAOUsuario      : iDAOUsuario;
       FDAOEmpresa      : iDAOEmpresa;
       FDAOGrupoProduto : iDAOGrupoProduto;
+      FDAOMarcaProduto : iDAOMarcaProduto;
     public
       constructor Create;
       destructor Destroy; override;
@@ -34,6 +36,7 @@ type
       function DAOUsuario      : iDAOUsuario;
       function DAOEmpresa      : iDAOEmpresa;
       function DAOGrupoProduto : iDAOGrupoProduto;
+      function DAOMarcaProduto : iDAOMarcaProduto;
   end;
 
 implementation
@@ -78,6 +81,14 @@ begin
     FDAOGrupoProduto := TDAOGrupoProduto.New;
 
   Result := FDAOGrupoProduto;
+end;
+
+function TFactoryEntidade.DAOMarcaProduto: iDAOMarcaProduto;
+begin
+  if not Assigned(FDAOMarcaProduto) then
+    FDAOMarcaProduto := TDAOMarcaProduto.New;
+
+  Result := FDAOMarcaProduto;
 end;
 
 end.

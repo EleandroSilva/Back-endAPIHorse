@@ -40,7 +40,12 @@ uses
   Model.DAO.Grupo.Produto.Interfaces in 'src\mvc\model\dao\interfaces\Model.DAO.Grupo.Produto.Interfaces.pas',
   Model.DAO.Imp.Grupo.Produto in 'src\mvc\model\dao\imp\Model.DAO.Imp.Grupo.Produto.pas',
   Model.Entidade.Imp.Grupo.Produto in 'src\mvc\model\entidade\imp\Model.Entidade.Imp.Grupo.Produto.pas',
-  View.Controller.Grupo.Produto in 'src\mvc\view\controller\View.Controller.Grupo.Produto.pas';
+  View.Controller.Grupo.Produto in 'src\mvc\view\controller\View.Controller.Grupo.Produto.pas',
+  Model.Entidade.Marca.Produto.Interfaces in 'src\mvc\model\entidade\interfaces\Model.Entidade.Marca.Produto.Interfaces.pas',
+  Model.Entidade.Imp.Marca.Produto in 'src\mvc\model\entidade\imp\Model.Entidade.Imp.Marca.Produto.pas',
+  Model.DAO.Marca.Produto.Interfaces in 'src\mvc\model\dao\interfaces\Model.DAO.Marca.Produto.Interfaces.pas',
+  Model.DAO.Imp.Marca.Produto in 'src\mvc\model\dao\imp\Model.DAO.Imp.Marca.Produto.pas',
+  View.Controller.Marca.Produto in 'src\mvc\view\controller\View.Controller.Marca.Produto.pas';
 
 begin
   ReportMemoryLeaksOnShutdown := True;
@@ -56,6 +61,7 @@ begin
   TViewControllerUsuario.Create;
   TViewControllerEmpresa.Create;
   TViewControllerGrupoProduto.Create;
+  TViewControllerMarcaProduto.Create;
 
   THorse.Listen(9000,
   procedure

@@ -33,6 +33,7 @@ type
             'gp.id, '+
             'gp.idempresa, '+
             'gp.nome, '+
+            'gp.ncm, '+
             'gp.ativo '+
             'from grupoproduto gp');
     public
@@ -153,12 +154,14 @@ const
   LSQL=('insert into grupoproduto('+
                              'idempresa, '+
                              'nome, '+
+                             'ncm, '+
                              'ativo '+
                            ')'+
                              ' values '+
                            '('+
                              ':idempresa, '+
                              ':nome, '+
+                             ':ncm, '+
                              ':ativo ' +
                             ')'
        );
@@ -172,6 +175,7 @@ begin
         .SQL(LSQL)
           .Params('idempresa ', FGrupoProduto.IdEmpresa)
           .Params('nome'      , FGrupoProduto.Nome)
+          .Params('ncm'       , FGrupoProduto.NCM)
           .Params('ativo'     , FGrupoProduto.Ativo)
         .ExecSQL;
     except
@@ -193,6 +197,7 @@ const
   LSQL=('update grupoproduto set '+
         'idempresa=:idempresa, '+
         'nome=:nome, '+
+        'ncm=:ncm, '+
         'ativo=:ativo '+
         'where id=:id '
        );
@@ -207,6 +212,7 @@ begin
           .Params('id'        , FGrupoProduto.Id)
           .Params('idempresa' , FGrupoProduto.IdEmpresa)
           .Params('nome'      , FGrupoProduto.Nome)
+          .Params('ncm'       , FGrupoProduto.NCM)
           .Params('ativo'     , FGrupoProduto.Ativo)
         .ExecSQL;
     except

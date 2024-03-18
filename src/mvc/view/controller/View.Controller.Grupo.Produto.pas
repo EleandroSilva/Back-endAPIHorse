@@ -118,6 +118,7 @@ begin
             .This
               .IdEmpresa(FBody.GetValue<integer>('idempresa'))
               .Nome     (FBody.GetValue<String> ('nome'))
+              .NCM      (FBody.GetValue<integer> ('ncm'))
               .Ativo    (FBody.GetValue<integer>('ativo'))
             .&End
           .Post;
@@ -142,6 +143,7 @@ begin
               .Id       (Req.Params['id'].ToInt64)
               .IdEmpresa(FBody.GetValue<Integer>('idempresa'))
               .Nome     (FBody.GetValue<String> ('nome'))
+              .NCM      (FBody.GetValue<integer> ('ncm'))
               .Ativo    (FBody.GetValue<Integer>('ativo'))
             .&End
           .Put;

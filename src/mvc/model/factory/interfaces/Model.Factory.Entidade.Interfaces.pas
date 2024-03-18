@@ -14,7 +14,8 @@ interface
 uses
   Model.DAO.Usuario.Interfaces,
   Model.DAO.Empresa.Interfaces,
-  Model.DAO.Grupo.Produto.Interfaces;
+  Model.DAO.Grupo.Produto.Interfaces,
+  Model.DAO.Marca.Produto.Interfaces;
 
 type
   iFactoryEntidade = interface
@@ -22,6 +23,7 @@ type
     function DAOUsuario      : iDAOUsuario;
     function DAOEmpresa      : iDAOEmpresa;
     function DAOGrupoProduto : iDAOGrupoProduto;
+    function DAOMarcaProduto : iDAOMarcaProduto;
   end;
 
 implementation
