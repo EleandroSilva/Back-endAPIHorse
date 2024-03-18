@@ -1,3 +1,12 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 18/03/2024 13:39           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
 unit View.Controller.Usuario;
 
 interface
@@ -181,11 +190,11 @@ begin
   THorse
       .Group
       .Prefix('ess')
-      .Get('/usuarios'       , GetAll)
-      .Get('/usuarios/:id'   , GetbyId)
-      .Post('usuarios'       , Post)
-      .Put('usuarios/:id'    , Put)
-      .Delete('usuarios/:id' , Delete);
+      .Get   ('/usuarios'     , GetAll)
+      .Get   ('/usuarios/:id' , GetbyId)
+      .Post  ('usuarios'      , Post)
+      .Put   ('usuarios/:id'  , Put)
+      .Delete('usuarios/:id'  , Delete);
 end;
 
 end.

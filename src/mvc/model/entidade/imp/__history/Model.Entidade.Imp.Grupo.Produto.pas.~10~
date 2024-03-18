@@ -1,0 +1,123 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 18/03/2024 13:39           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Entidade.Imp.Grupo.Produto;
+
+interface
+
+uses
+  Model.Entidade.Grupo.Produto.Interfaces;
+
+type
+  TEntidadeGrupoProduto<T : iInterface> = class(TInterfacedObject, iEntidadeGrupoProduto<T>)
+    private
+      [weak]
+      FParent    : T;
+      FId        : Integer;
+      FIdempresa : Integer;
+      FNome      : String;
+      FAtivo     : Integer;
+    public
+      constructor Create(Parent : T);
+      destructor Destroy; override;
+      class function New(Parent : T): iEntidadeGrupoProduto<T>;
+
+      function Id(Value : Integer)        : iEntidadeGrupoProduto<T>; overload;
+      function Id                         : Integer;                  overload;
+      function IdEmpresa(Value : Integer) : iEntidadeGrupoProduto<T>; overload;
+      function IdEmpresa                  : Integer;                  overload;
+      function Nome(Value : String)       : iEntidadeGrupoProduto<T>; overload;
+      function Nome                       : String;                   overload;
+      function Ativo(Value : Integer)     : iEntidadeGrupoProduto<T>; overload;
+      function Ativo                      : Integer;                  overload;
+
+      function &End : T;
+  end;
+
+implementation
+
+{ TEntidadeGrupoProduto<T> }
+
+
+constructor TEntidadeGrupoProduto<T>.Create(Parent: T);
+begin
+  FParent := Parent;
+end;
+
+destructor TEntidadeGrupoProduto<T>.Destroy;
+begin
+  inherited;
+end;
+
+class function TEntidadeGrupoProduto<T>.New(Parent: T): iEntidadeGrupoProduto<T>;
+begin
+  Result := Self.Create(Parent);
+end;
+
+function TEntidadeGrupoProduto<T>.Id(Value: Integer): iEntidadeGrupoProduto<T>;
+begin
+  Result := Self;
+  FId    := Value;
+end;
+
+function TEntidadeGrupoProduto<T>.Id: Integer;
+begin
+  Result := FId;
+end;
+
+function TEntidadeGrupoProduto<T>.IdEmpresa(Value: Integer): iEntidadeGrupoProduto<T>;
+begin
+  Result := Self;
+  FIdEmpresa := Value;
+end;
+
+function TEntidadeGrupoProduto<T>.IdEmpresa: Integer;
+begin
+  Result := FIdEmpresa;
+end;
+
+function TEntidadeGrupoProduto<T>.Nome(Value: String): iEntidadeGrupoProduto<T>;
+begin
+  Result := Self;
+  FNome  := Value;
+end;
+
+function TEntidadeGrupoProduto<T>.Nome: String;
+begin
+  Result := FNome;
+end;
+
+function TEntidadeGrupoProduto<T>.NCM(Value: Integer): iEntidadeGrupoProduto<T>;
+begin
+  Result := Self;
+  FNCM   := Value;
+end;
+
+function TEntidadeGrupoProduto<T>.NCM: Integer;
+begin
+  Result := FNCM;
+end;
+
+function TEntidadeGrupoProduto<T>.Ativo(Value: Integer): iEntidadeGrupoProduto<T>;
+begin
+  Result := Self;
+  FAtivo := Value;
+end;
+
+function TEntidadeGrupoProduto<T>.Ativo: Integer;
+begin
+  Result := FAtivo;
+end;
+
+function TEntidadeGrupoProduto<T>.&End: T;
+begin
+  Result := FParent;
+end;
+
+end.

@@ -1,3 +1,12 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 18/03/2024 13:39           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
 unit Model.Entidade.Imp.Grupo.Produto;
 
 interface
@@ -13,7 +22,6 @@ type
       FId        : Integer;
       FIdempresa : Integer;
       FNome      : String;
-      FNCM       : Integer;
       FAtivo     : Integer;
     public
       constructor Create(Parent : T);
@@ -26,8 +34,6 @@ type
       function IdEmpresa                  : Integer;                  overload;
       function Nome(Value : String)       : iEntidadeGrupoProduto<T>; overload;
       function Nome                       : String;                   overload;
-      function NCM(Value : Integer)       : iEntidadeGrupoProduto<T>; overload;
-      function NCM                        : Integer;                  overload;
       function Ativo(Value : Integer)     : iEntidadeGrupoProduto<T>; overload;
       function Ativo                      : Integer;                  overload;
 
@@ -85,17 +91,6 @@ end;
 function TEntidadeGrupoProduto<T>.Nome: String;
 begin
   Result := FNome;
-end;
-
-function TEntidadeGrupoProduto<T>.NCM(Value: Integer): iEntidadeGrupoProduto<T>;
-begin
-  Result := Self;
-  FNCM   := Value;
-end;
-
-function TEntidadeGrupoProduto<T>.NCM: Integer;
-begin
-  Result := FNCM;
 end;
 
 function TEntidadeGrupoProduto<T>.Ativo(Value: Integer): iEntidadeGrupoProduto<T>;

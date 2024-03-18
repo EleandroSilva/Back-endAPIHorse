@@ -1,3 +1,12 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 18/03/2024 13:39           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
 unit View.Controller.Grupo.Produto;
 
 interface
@@ -118,7 +127,6 @@ begin
             .This
               .IdEmpresa(FBody.GetValue<integer>('idempresa'))
               .Nome     (FBody.GetValue<String> ('nome'))
-              .NCM      (FBody.GetValue<integer> ('ncm'))
               .Ativo    (FBody.GetValue<integer>('ativo'))
             .&End
           .Post;
@@ -143,7 +151,6 @@ begin
               .Id       (Req.Params['id'].ToInt64)
               .IdEmpresa(FBody.GetValue<Integer>('idempresa'))
               .Nome     (FBody.GetValue<String> ('nome'))
-              .NCM      (FBody.GetValue<integer> ('ncm'))
               .Ativo    (FBody.GetValue<Integer>('ativo'))
             .&End
           .Put;
@@ -179,11 +186,11 @@ begin
   THorse
       .Group
       .Prefix('ess')
-      .Get('/grupoprodutos'       , GetAll)
-      .Get('/grupoprodutos/:id'   , GetbyId)
-      .Post('grupoprodutos'       , Post)
-      .Put('grupoprodutos/:id'    , Put)
-      .Delete('grupoprodutos/:id' , Delete);
+      .Get   ('/grupos/produtos'     , GetAll)
+      .Get   ('/grupos/produtos/:id' , GetbyId)
+      .Post  ('grupos/produtos'      , Post)
+      .Put   ('grupos/produtos/:id'  , Put)
+      .Delete('grupos/produtos/:id'  , Delete);
 end;
 
 end.

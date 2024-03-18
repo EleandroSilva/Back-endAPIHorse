@@ -196,12 +196,12 @@ procedure TViewControllerEmpresa.Registry;
 begin
   THorse
       .Group
-        .Prefix('ess')
-          .Get('/empresas/:id'   , GetbyId)
-          .Get('/empresas'       , GetAll)
-          .Post('empresas'       , Post)
-          .Put('empresas/:id'    , Put)
-          .Delete('empresas/:id' , Delete);
+        .Prefix  ('ess')
+          .Get   ('/empresas/:id' , GetbyId)
+          .Get   ('/empresas'     , GetAll)
+          .Post  ('empresas'      , Post)
+          .Put   ('empresas/:id'  , Put)
+          .Delete('empresas/:id'  , Delete);
 end;
 
 end.

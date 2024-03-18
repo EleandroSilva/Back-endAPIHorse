@@ -1,3 +1,12 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 13/03/2024 07:00           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
 program APIpdv;
 
 {$APPTYPE CONSOLE}
@@ -45,7 +54,12 @@ uses
   Model.Entidade.Imp.Marca.Produto in 'src\mvc\model\entidade\imp\Model.Entidade.Imp.Marca.Produto.pas',
   Model.DAO.Marca.Produto.Interfaces in 'src\mvc\model\dao\interfaces\Model.DAO.Marca.Produto.Interfaces.pas',
   Model.DAO.Imp.Marca.Produto in 'src\mvc\model\dao\imp\Model.DAO.Imp.Marca.Produto.pas',
-  View.Controller.Marca.Produto in 'src\mvc\view\controller\View.Controller.Marca.Produto.pas';
+  View.Controller.Marca.Produto in 'src\mvc\view\controller\View.Controller.Marca.Produto.pas',
+  Model.Entidade.Unidade.Produto.Interfaces in 'src\mvc\model\entidade\interfaces\Model.Entidade.Unidade.Produto.Interfaces.pas',
+  Model.Entidade.Imp.Unidade.Produto in 'src\mvc\model\entidade\imp\Model.Entidade.Imp.Unidade.Produto.pas',
+  Model.DAO.Unidade.Produto.Interfaces in 'src\mvc\model\dao\interfaces\Model.DAO.Unidade.Produto.Interfaces.pas',
+  Model.DAO.Imp.Unidade.Produto in 'src\mvc\model\dao\imp\Model.DAO.Imp.Unidade.Produto.pas',
+  View.Controller.Unidade.Produto in 'src\mvc\view\controller\View.Controller.Unidade.Produto.pas';
 
 begin
   ReportMemoryLeaksOnShutdown := True;
@@ -62,6 +76,7 @@ begin
   TViewControllerEmpresa.Create;
   TViewControllerGrupoProduto.Create;
   TViewControllerMarcaProduto.Create;
+  TViewControllerUnidadeProduto.Create;
 
   THorse.Listen(9000,
   procedure

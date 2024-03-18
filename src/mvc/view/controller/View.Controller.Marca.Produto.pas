@@ -1,3 +1,12 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 18/03/2024 13:39           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
 unit View.Controller.Marca.Produto;
 
 interface
@@ -177,11 +186,11 @@ begin
   THorse
       .Group
       .Prefix('ess')
-      .Get('/marcaprodutos'       , GetAll)
-      .Get('/marcaprodutos/:id'   , GetbyId)
-      .Post('marcaprodutos'       , Post)
-      .Put('marcarodutos/:id'    , Put)
-      .Delete('marcaprodutos/:id' , Delete);
+      .Get   ('/marcas/produtos'     , GetAll)
+      .Get   ('/marcas/produtos/:id' , GetbyId)
+      .Post  ('marcas/produtos'      , Post)
+      .Put   ('marcas/produtos/:id'  , Put)
+      .Delete('marcas/produtos/:id'  , Delete);
 end;
 
 end.

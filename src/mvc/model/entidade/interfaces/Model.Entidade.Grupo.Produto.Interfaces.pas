@@ -1,3 +1,12 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 18/03/2024 13:39           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
 unit Model.Entidade.Grupo.Produto.Interfaces;
 
 interface
@@ -11,8 +20,6 @@ type
     function IdEmpresa                  : Integer;                  overload;
     function Nome(Value : String)       : iEntidadeGrupoProduto<T>; overload;
     function Nome                       : String;                   overload;
-    function NCM(Value : Integer)       : iEntidadeGrupoProduto<T>; overload;
-    function NCM                        : Integer;                  overload;
     function Ativo(Value : Integer)     : iEntidadeGrupoProduto<T>; overload;
     function Ativo                      : Integer;                  overload;
 

@@ -19,24 +19,28 @@ uses
   Model.DAO.IMp.Empresa,
   Model.DAO.Grupo.Produto.Interfaces,
   Model.DAO.Imp.Grupo.Produto,
-  Model.DAO.Marca.Produto.Interfaces, Model.DAO.Imp.Marca.Produto;
+  Model.DAO.Marca.Produto.Interfaces,
+  Model.DAO.Imp.Marca.Produto,
+  Model.DAO.Unidade.Produto.Interfaces, Model.DAO.Imp.Unidade.Produto;
 
 type
   TFactoryEntidade = class(TInterfacedObject, iFactoryEntidade)
     private
-      FDAOUsuario      : iDAOUsuario;
-      FDAOEmpresa      : iDAOEmpresa;
-      FDAOGrupoProduto : iDAOGrupoProduto;
-      FDAOMarcaProduto : iDAOMarcaProduto;
+      FDAOUsuario        : iDAOUsuario;
+      FDAOEmpresa        : iDAOEmpresa;
+      FDAOGrupoProduto   : iDAOGrupoProduto;
+      FDAOMarcaProduto   : iDAOMarcaProduto;
+      FDAOUnidadeProduto : iDAOUnidadeProduto;
     public
       constructor Create;
       destructor Destroy; override;
       class function New : iFactoryEntidade;
 
-      function DAOUsuario      : iDAOUsuario;
-      function DAOEmpresa      : iDAOEmpresa;
-      function DAOGrupoProduto : iDAOGrupoProduto;
-      function DAOMarcaProduto : iDAOMarcaProduto;
+      function DAOUsuario        : iDAOUsuario;
+      function DAOEmpresa        : iDAOEmpresa;
+      function DAOGrupoProduto   : iDAOGrupoProduto;
+      function DAOMarcaProduto   : iDAOMarcaProduto;
+      function DAOUnidadeProduto : iDAOUnidadeProduto;
   end;
 
 implementation
@@ -89,6 +93,14 @@ begin
     FDAOMarcaProduto := TDAOMarcaProduto.New;
 
   Result := FDAOMarcaProduto;
+end;
+
+function TFactoryEntidade.DAOUnidadeProduto: iDAOUnidadeProduto;
+begin
+  if not Assigned(FDAOUnidadeProduto) then
+    FDAOUnidadeProduto := TDAOUnidadeProduto.New;
+
+  Result := FDAOUnidadeProduto;
 end;
 
 end.
