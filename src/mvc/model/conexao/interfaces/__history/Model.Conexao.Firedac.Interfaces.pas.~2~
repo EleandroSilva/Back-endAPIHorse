@@ -1,0 +1,16 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 13/03/2024 16:22           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Conexao.Firedac.Interfaces;
+
+interface
+
+implementation
+
+end.

@@ -1,0 +1,27 @@
+unit Model.Entidade.Imp.Grupo.Produto;
+
+interface
+
+uses
+  Model.Entidade.Grupo.Produto.Interfaces;
+
+type
+  TEntidadeGrupoProduto<T : iInterface> = class(TInterfacedObject, iEntidadeGrupoProduto<T>)
+    private
+      [weak]
+      FParent                : T;
+      FId                    : Integer;
+      FIdContato             : Integer;
+      FIdLogradouro          : Integer;
+      FCNPJ                  : String;
+      FInscricaoEstadual     : String;
+      FNomeEmpresarial       : String;
+      FNomeFantasia          : String;
+      FNaturezaJuridica      : String;
+      FDataEmissao           : TDateTime;
+      FDataSituacaoCadastral : TDateTime;
+      FAtivo                 : Integer;
+
+implementation
+
+end.

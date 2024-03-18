@@ -1,0 +1,109 @@
+unit View.Controller.Grupo.Produto;
+
+interface
+
+uses
+  System.SysUtils,
+  System.JSON,
+
+  Data.DB,
+
+  FireDAC.Comp.Client,
+
+  DataSet.Serialize,
+  Horse,
+  Horse.BasicAuthentication,
+
+  Controller.Interfaces,
+  Imp.Controller;
+
+type
+  TViewControllerGrupoProduto = class
+    private
+      FTexto      : String;
+      FJSONArray  : TJSONArray;
+      FBody       : TJSONValue;
+      FDataSource : TDataSource;
+      FController : iController;
+
+      procedure GetAll (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure GetbyId(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Post   (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Put    (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Delete (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+
+      procedure Registry;
+    public
+      constructor Create;
+      destructor Destroy; override;
+  end;
+
+implementation
+
+{ TViewControllerGrupoProduto }
+
+constructor TViewControllerGrupoProduto.Create;
+begin
+  FController := TController.New;
+  FDataSource := TDataSource.Create(nil);
+  Registry;
+end;
+
+destructor TViewControllerGrupoProduto.Destroy;
+begin
+  FreeAndNil(FDataSource);
+  inherited;
+end;
+
+procedure TViewControllerGrupoProduto.GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+
+end;
+
+procedure TViewControllerGrupoProduto.GetbyId(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+
+end;
+
+procedure TViewControllerGrupoProduto.Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+
+end;
+
+procedure TViewControllerGrupoProduto.Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+
+end;
+
+procedure TViewControllerGrupoProduto.Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  try
+    try
+      FController
+        .FactoryEntidade
+          .DAOGrupoProduto
+            .This
+              .Id(Req.Params['id'].ToInt64)
+            .&End
+          .Delete;
+    except
+      raise Exception.Create(' ao tentar excluir registro');
+    End;
+  Finally
+    //informar msg de resposta do Horse, ver como funciona
+  End;
+end;
+
+procedure TViewControllerGrupoProduto.Registry;
+begin
+  THorse
+      .Group
+      .Prefix('ess')
+      .Get('/usuarios'       , GetAll)
+      .Get('/usuarios/:id'   , GetbyId)
+      .Post('usuarios'       , Post)
+      .Put('usuarios/:id'    , Put)
+      .Delete('usuarios/:id' , Delete);
+end;
+
+end.

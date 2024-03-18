@@ -1,0 +1,16 @@
+…or create a new repository on the command line
+incluir primeiro registro
+git init
+git add .
+git commit -m "first commit"
+git branch -M main
+git remote add origin git@github.com:EleandroSilva/back-endAPIHorse.git
+git push -u origin main
+
+
+
+…or push an existing repository from the command line
+git add .
+git status
+git commit -m "msg alteracao"
+git push

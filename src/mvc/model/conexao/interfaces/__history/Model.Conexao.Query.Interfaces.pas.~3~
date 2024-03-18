@@ -1,0 +1,37 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 13/03/2024 17:18           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Conexao.Query.Interfaces;
+
+interface
+
+uses
+  Data.DB,
+  FireDAC.Comp.Client;
+
+type
+  iQuery = interface
+    ['{7D4955D8-1C97-47CC-B15C-FB937FA5F71E}']
+    function DataSet(DataSource : TDataSource)        : iQuery;   overload;
+    function DataSet                                  : TDataSet; overload;
+    function SQL(Value : String)                      : iQuery;   overload;
+    function Add(Value : String)                      : iQuery;
+    function Params(Params : String; Value : Variant) : iQuery;   overload;
+    function Params(Params : String)                  : Variant;  overload;
+    function SQL(Value : String)                      : iQuery;   overload;
+    function ExecSQL                                  : iQuery;
+    function Clear                                    : iQuery;
+    function Close                                    : iQuery;
+    function Open                                     : iQuery;
+    function Query                                    : TObject;
+  end;
+
+implementation
+
+end.

@@ -1,0 +1,52 @@
+unit Model.Conexao.Firedac.MySQL.Imp;
+
+interface
+
+uses
+  Data.DB,
+  System.IniFiles,
+  System.SysUtils,
+  System.JSON,
+
+  FireDAC.UI.Intf,
+  FireDAC.FMXUI.Wait,
+  FireDAC.Stan.Intf,
+  FireDAC.Comp.UI,
+  FireDAC.Stan.Option,
+  FireDAC.Stan.Error,
+  FireDAC.Phys.Intf,
+  FireDAC.Stan.Def,
+  FireDAC.Stan.Pool,
+  FireDAC.Stan.Async,
+  FireDAC.Phys,
+  FireDAC.Phys.MySQL,
+  FireDAC.VCLUI.Wait,
+  FireDAC.Comp.Client,
+  FireDAC.Stan.Param,
+  FireDAC.DatS,
+  FireDAC.DApt.Intf,
+  FireDAC.DApt,
+  FireDAC.Comp.DataSet,
+
+  Model.Conexao.Firedac.Interfaces;
+
+type
+  TModelConexaoFiredacMySQL = class(TInterfacedObject, iConexao)
+    private
+      FConexao           : TFDConnection;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iConexao;
+
+      function Conexao(Value : TFDConnection) : iConexao;      overload;
+      function Conexao                        : TFDConnection; overload;
+      function StartTransaction               : iConexao;
+    function Commit                         : iConexao;
+    function Rollback                       : iConexao;
+    function ConfigurarMySQL                : iConexao;
+  end;
+
+implementation
+
+end.

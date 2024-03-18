@@ -1,0 +1,54 @@
+unit Model.Entiade.Grupo.Produto;
+
+interface
+
+type
+  TEntidadeGrupoProduto<T : iInterface> = class(TInterfacedObject, iEntidadeGrupoProduto<T>)
+    private
+      [weak]
+      FParent                : T;
+      FId                    : Integer;
+      FIdContato             : Integer;
+      FIdLogradouro          : Integer;
+      FCNPJ                  : String;
+      FInscricaoEstadual     : String;
+      FNomeEmpresarial       : String;
+      FNomeFantasia          : String;
+      FNaturezaJuridica      : String;
+      FDataEmissao           : TDateTime;
+      FDataSituacaoCadastral : TDateTime;
+      FAtivo                 : Integer;
+    public
+      constructor Create(Parent : T);
+      destructor Destroy; override;
+      class function New(Parent : T) : iEntidadeEmpresa<T>;
+
+      function Id(Value : Integer)                      : iEntidadeEmpresa<T>; overload;
+      function Id                                       : Integer;             overload;
+      function IdContato(Value : Integer)               : iEntidadeEmpresa<T>; overload;
+      function IdContato                                : Integer;             overload;
+      function IdLogradouro(Value : Integer)            : iEntidadeEmpresa<T>; overload;
+      function IdLogradouro                             : Integer;             overload;
+      function CNPJ(Value : String)                     : iEntidadeEmpresa<T>; overload;
+      function CNPJ                                     : String;              overload;
+      function InscricaoEstadual(Value : String)        : iEntidadeEmpresa<T>; overload;
+      function InscricaoEstadual                        : String;              overload;
+      function NomeEmpresarial(Value : String)          : iEntidadeEmpresa<T>; overload;
+      function NomeEmpresarial                          : String;              overload;
+      function NomeFantasia(Value : String)             : iEntidadeEmpresa<T>; overload;
+      function NomeFantasia                             : String;              overload;
+      function NaturezaJuridica(Value : String)         : iEntidadeEmpresa<T>; overload;
+      function NaturezaJuridica                         : String;              overload;
+      function DataEmissao(Value : TDateTime)           : iEntidadeEmpresa<T>; overload;
+      function DataEmissao                              : TDateTime;           overload;
+      function DataSituacaoCadastral(Value : TDateTime) : iEntidadeEmpresa<T>; overload;
+      function DataSituacaoCadastral                    : TDateTime;           overload;
+
+      function Ativo(Value : Integer)                   : iEntidadeEmpresa<T>; overload;
+      function Ativo                                    : Integer;             overload;
+      function &End : T;
+  end;
+
+implementation
+
+end.
