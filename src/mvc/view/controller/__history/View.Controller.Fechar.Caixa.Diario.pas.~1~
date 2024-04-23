@@ -1,0 +1,108 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 23/04/2024 08:32           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit View.Controller.Caixa.Diario.Encerramento;
+
+interface
+
+uses
+  System.Classes,
+  System.SysUtils,
+  System.JSON,
+  Vcl.StdCtrls,
+  Data.DB,
+  FireDAC.Comp.Client,
+  DataSet.Serialize,
+  Horse,
+  Horse.BasicAuthentication,
+  Controller.Interfaces;
+
+type
+  TViewControllerCaixaDiarioEncerramento= class
+    private
+      FController    : iController;
+      FDSCaixaDiarioEncerramento : TDataSource;
+
+      FBody       : TJSONValue;
+      FJSONObject : TJSONObject;
+      FJSONArray  : TJSONArray;
+      //Json Caixa Diario-->tabela pai
+      FJSONObjectCaixaDiarioEncerramento : TJSONObject;
+      FJSONArrayCaixaDiarioEncerramento  : TJSONArray;
+
+      FQuantidadeRegistro : Integer;
+
+      procedure GetAll (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure GetbyId(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Post   (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Put    (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Delete (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Registry;
+    public
+      constructor Create;
+      destructor Destroy; override;
+  end;
+
+implementation
+
+uses
+  Imp.Controller;
+
+{ TViewControllerCaixaDiarioEncerramento }
+
+constructor TViewControllerCaixaDiarioEncerramento.Create;
+begin
+  FController    := TController.New;
+  FDSCaixaDiarioEncerramento := TDataSource.Create(nil);
+  Registry;
+end;
+
+destructor TViewControllerCaixaDiarioEncerramento.Destroy;
+begin
+  inherited;
+end;
+
+procedure TViewControllerCaixaDiarioEncerramento.Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+
+end;
+
+procedure TViewControllerCaixaDiarioEncerramento.GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+
+end;
+
+procedure TViewControllerCaixaDiarioEncerramento.GetbyId(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+
+end;
+
+procedure TViewControllerCaixaDiarioEncerramento.Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+
+end;
+
+procedure TViewControllerCaixaDiarioEncerramento.Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+
+end;
+
+procedure TViewControllerCaixaDiarioEncerramento.Registry;
+begin
+  THorse
+      .Group
+        .Prefix  ('bmw')
+          .Get   ('/caixa-diario-encerramento/:id' , GetbyId)
+          .Get   ('/caixa-diario-encerramento'     , GetAll)
+          .Post  ('caixa-diario-encerramento'      , Post)
+          .Put   ('caixa-diario-encerramento/:id'  , Put)
+          .Delete('caixa-diario-encerramento/:id'  , Delete);
+end;
+
+end.

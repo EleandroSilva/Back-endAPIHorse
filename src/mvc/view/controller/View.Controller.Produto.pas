@@ -19,8 +19,7 @@ uses
   DataSet.Serialize,
   Horse,
   Horse.BasicAuthentication,
-  Controller.Interfaces,
-  Imp.Controller;
+  Controller.Interfaces;
 type
   TViewControllerProduto = class
     private
@@ -42,6 +41,9 @@ type
   end;
 
 implementation
+
+uses
+  Imp.Controller;
 
 constructor TViewControllerProduto.Create;
 begin
@@ -100,6 +102,7 @@ begin
       end;
     End;
   finally
+    Res.Send<TJSONObject>(FJSONObject);
     if not FDataSource.DataSet.IsEmpty then
       Res.Status(201).Send('Registro encontrado com sucesso!')
       else

@@ -33,9 +33,9 @@ uses
   Model.DAO.Estado.Interfaces,
   Model.DAO.Regiao.Estado.Interfaces,
   Model.DAO.Natureza.Juridica.Interfaces,
-  Model.DAO.Caixa.Diario.Interfaces,
-  Model.DAO.Caixa.Diario.Movimento.Interfaces,
-  Model.DAO.Caixa.Diario.Encerramento.Interfaces;
+  Model.DAO.Caixa.Interfaces,
+  Model.DAO.Movimento.Caixa.Interfaces,
+  Model.DAO.Fechar.Caixa.Interfaces;
 type
   TFactoryEntidade = class(TInterfacedObject, iFactoryEntidade)
     private
@@ -59,37 +59,37 @@ type
       FDAOEstado                  : iDAOEstado;
       FDAORegiaoEstado            : iDAORegiaoEstado;
       FDAONaturezaJuridica        : iDAONaturezaJuridica;
-      FDAOCaixaDiario             : iDAOCaixaDiario;
-      FDAOCaixaDiarioMovimento    : iDAOCaixaDiarioMovimento;
-      FDAOCaixaDiarioEncerramento : iDAOCaixaDiarioEncerramento;
+      FDAOCaixaDiario             : iDAOCaixa;
+      FDAOMovimentoCaixa          : iDAOMovimentoCaixa;
+      FDAOFecharCaixa             : iDAOFecharCaixa;
     public
       constructor Create;
       destructor Destroy; override;
       class function New : iFactoryEntidade;
 
-      function Uteis                      : iUteis;
-      function DAOUsuario                 : iDAOUsuario;
-      function DAOEmpresa                 : iDAOEmpresa;
-      function DAOEnderecoEmpresa         : iDAOEnderecoEmpresa;
-      function DAOEmailEmpresa            : iDAOEmailEmpresa;
-      function DAOTeleFoneEmpresa         : iDAOTelefoneEmpresa;
-      function DAOPessoa                  : iDAOPessoa;
-      function DAOEnderecoPessoa          : iDAOEnderecoPessoa;
-      function DAOEmailPessoa             : iDAOEmailPessoa;
-      function DAOTelefonePessoa          : iDAOTelefonePessoa;
-      function DAOCategoriaProduto        : iDAOCategoriaProduto;
-      function DAOMarcaProduto            : iDAOMarcaProduto;
-      function DAOUnidadeProduto          : iDAOUnidadeProduto;
-      function DAOProduto                 : iDAOProduto;
-      function DAOEndereco                : iDAOEndereco;
-      function DAONumero                  : iDAONumero;
-      function DAOMunicipio               : iDAOMunicipio;
-      function DAOEstado                  : iDAOEstado;
-      function DAORegiaoEstado            : iDAORegiaoEstado;
-      function DAONaturezaJuridica        : iDAONaturezaJuridica;
-      function DAOCaixaDiario             : iDAOCaixaDiario;
-      function DAOCaixaDiarioMovimento    : iDAOCaixaDiarioMovimento;
-      function DAOCaixaDiarioEncerramento : iDAOCaixaDiarioEncerramento;
+      function Uteis               : iUteis;
+      function DAOUsuario          : iDAOUsuario;
+      function DAOEmpresa          : iDAOEmpresa;
+      function DAOEnderecoEmpresa  : iDAOEnderecoEmpresa;
+      function DAOEmailEmpresa     : iDAOEmailEmpresa;
+      function DAOTeleFoneEmpresa  : iDAOTelefoneEmpresa;
+      function DAOPessoa           : iDAOPessoa;
+      function DAOEnderecoPessoa   : iDAOEnderecoPessoa;
+      function DAOEmailPessoa      : iDAOEmailPessoa;
+      function DAOTelefonePessoa   : iDAOTelefonePessoa;
+      function DAOCategoriaProduto : iDAOCategoriaProduto;
+      function DAOMarcaProduto     : iDAOMarcaProduto;
+      function DAOUnidadeProduto   : iDAOUnidadeProduto;
+      function DAOProduto          : iDAOProduto;
+      function DAOEndereco         : iDAOEndereco;
+      function DAONumero           : iDAONumero;
+      function DAOMunicipio        : iDAOMunicipio;
+      function DAOEstado           : iDAOEstado;
+      function DAORegiaoEstado     : iDAORegiaoEstado;
+      function DAONaturezaJuridica : iDAONaturezaJuridica;
+      function DAOCaixa            : iDAOCaixa;
+      function DAOMovimentoCaixa   : iDAOMovimentoCaixa;
+      function DAOFecharCaixa      : iDAOFecharCaixa;
   end;
 
 implementation
@@ -114,9 +114,9 @@ uses
   Model.DAO.Imp.Estado,
   Model.DAO.Imp.Regiao.Estado,
   Model.DAO.Imp.Natureza.Juridica,
-  Model.DAO.Imp.Caixa.Diario,
-  Model.DAO.Imp.Caixa.Diario.Movimento,
-  Model.DAO.Imp.Caixa.Diario.Encerramento,
+  Model.DAO.Imp.Caixa,
+  Model.DAO.Imp.Movimento.Caixa,
+  Model.DAO.Imp.Fechar.Caixa,
   Model.DAO.Imp.Telefone.Pessoa;
 
 { TFactoryEntidade }
@@ -297,28 +297,28 @@ begin
   Result := FDAONaturezaJuridica;
 end;
 
-function TFactoryEntidade.DAOCaixaDiario: iDAOCaixaDiario;
+function TFactoryEntidade.DAOCaixa: iDAOCaixa;
 begin
   if not Assigned(FDAOCaixaDiario) then
-    FDAOCaixaDiario := TDAOCaixaDiario.New;
+    FDAOCaixaDiario := TDAOCaixa.New;
 
   Result := FDAOCaixaDiario;
 end;
 
-function TFactoryEntidade.DAOCaixaDiarioMovimento: iDAOCaixaDiarioMovimento;
+function TFactoryEntidade.DAOMovimentoCaixa: iDAOMovimentoCaixa;
 begin
-  if not Assigned(FDAOCaixaDiarioMovimento) then
-    FDAOCaixaDiarioMovimento := TDAOCaixaDiarioMovimento.New;
+  if not Assigned(FDAOMovimentoCaixa) then
+    FDAOMovimentoCaixa := TDAOMovimentoCaixa.New;
 
-  Result := FDAOCaixaDiarioMovimento;
+  Result := FDAOMovimentoCaixa;
 end;
 
-function TFactoryEntidade.DAOCaixaDiarioEncerramento: iDAOCaixaDiarioEncerramento;
+function TFactoryEntidade.DAOFecharCaixa: iDAOFecharCaixa;
 begin
-  if not Assigned(FDAOCaixaDiarioEncerramento) then
-    FDAOCaixaDiarioEncerramento := TDAOCaixaDiarioEncerramento.New;
+  if not Assigned(FDAOFecharCaixa) then
+    FDAOFecharCaixa := TDAOFecharCaixa.New;
 
-  Result := FDAOCaixaDiarioEncerramento;
+  Result := FDAOFecharCaixa;
 end;
 
 end.

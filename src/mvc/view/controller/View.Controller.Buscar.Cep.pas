@@ -23,8 +23,7 @@ uses
   DataSet.Serialize,
   Horse,
   Horse.BasicAuthentication,
-  Controller.Interfaces,
-  Imp.Controller;
+  Controller.Interfaces;
 
 type
   TViewControllerBuscarCep = class
@@ -41,6 +40,9 @@ type
   end;
 
 implementation
+
+uses
+  Imp.Controller;
 
 { TViewControllerBuscarCep }
 

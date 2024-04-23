@@ -134,7 +134,7 @@ begin
   finally
     if not FDataSet.IsEmpty then
     begin
-      FPedido.Id(FDataSet.FieldByName('p.id').AsInteger);
+      FPedido.Id(FDataSet.FieldByName('id').AsInteger);
       QuantidadeRegistro;
     end
     else
@@ -158,7 +158,7 @@ begin
     end;
   finally
     if not FDataSet.IsEmpty then
-      FPedido.Id(FDataSet.FieldByName('p.id').AsInteger)
+      FPedido.Id(FDataSet.FieldByName('id').AsInteger)
     else
       FPedido.Id(0);
   end;
@@ -181,7 +181,7 @@ begin
     end;
   finally
     if not FDataSet.IsEmpty then
-      FPedido.Id(FDataSet.FieldByName('p.id').AsInteger)
+      FPedido.Id(FDataSet.FieldByName('id').AsInteger)
     else
       FPedido.Id(0);
   end;
@@ -205,7 +205,7 @@ begin
   finally
     if not FDataSet.IsEmpty then
     begin
-      FPedido.Id(FDataSet.FieldByName('cd.id').AsInteger);
+      FPedido.Id(FDataSet.FieldByName('id').AsInteger);
       QuantidadeRegistro;
     end
     else
@@ -231,7 +231,7 @@ begin
   finally
     if not FDataSet.IsEmpty then
     begin
-      FPedido.Id(FDataSet.FieldByName('p.id').AsInteger);
+      FPedido.Id(FDataSet.FieldByName('id').AsInteger);
       QuantidadeRegistro;
     end
     else
@@ -255,7 +255,7 @@ begin
   finally
     if not FDataSet.IsEmpty then
     begin
-      FPedido.Id(FDataSet.FieldByName('p.id').AsInteger);
+      FPedido.Id(FDataSet.FieldByName('id').AsInteger);
       QuantidadeRegistro;
     end
     else

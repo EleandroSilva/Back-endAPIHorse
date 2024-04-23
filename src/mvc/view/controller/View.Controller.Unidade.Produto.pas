@@ -19,8 +19,7 @@ uses
   DataSet.Serialize,
   Horse,
   Horse.BasicAuthentication,
-  Controller.Interfaces,
-  Imp.Controller;
+  Controller.Interfaces;
 type
   TViewControllerUnidadeProduto = class
     private
@@ -42,6 +41,9 @@ type
   end;
 
 implementation
+
+uses
+  Imp.Controller;
 
 { TViewControllerUnidadeProduto }
 

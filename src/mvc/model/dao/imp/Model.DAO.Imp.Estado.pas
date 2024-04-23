@@ -119,7 +119,7 @@ begin
   finally
    if not FDataSet.IsEmpty then
    begin
-     FEstado.Id(FDataSet.FieldByName('e.id').AsInteger);
+     FEstado.Id(FDataSet.FieldByName('id').AsInteger);
      QuantidadeRegistro;
    end
    else
@@ -144,7 +144,7 @@ begin
     end;
   finally
     if not FDataSet.IsEmpty then
-      FEstado.Id(FDataSet.FieldByName('e.id').AsInteger)
+      FEstado.Id(FDataSet.FieldByName('id').AsInteger)
     else
       FEstado.Id(0);
   end;
@@ -168,7 +168,7 @@ begin
   finally
     if not FDataSet.IsEmpty then
     begin
-      FEstado.Id(FDataSet.FieldByName('e.id').AsInteger);
+      FEstado.Id(FDataSet.FieldByName('id').AsInteger);
       QuantidadeRegistro;
     end
     else

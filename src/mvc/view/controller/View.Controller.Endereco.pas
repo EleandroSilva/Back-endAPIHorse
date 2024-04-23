@@ -10,8 +10,7 @@ uses
   DataSet.Serialize,
   Horse,
   Horse.BasicAuthentication,
-  Controller.Interfaces,
-  Imp.Controller;
+  Controller.Interfaces;
 type
   TViewControllerEndereco = class
     private
@@ -33,6 +32,9 @@ type
   end;
 
 implementation
+
+uses
+  Imp.Controller;
 
 { TViewControllerEndereco }
 

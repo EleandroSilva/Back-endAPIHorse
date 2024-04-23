@@ -19,8 +19,7 @@ uses
   DataSet.Serialize,
   Horse,
   Horse.BasicAuthentication,
-  Controller.Interfaces,
-  Imp.Controller;
+  Controller.Interfaces;
 type
   TViewControllerMarcaProduto = class
     private
@@ -30,6 +29,7 @@ type
       FDataSource : TDataSource;
       FController : iController;
       FQuantidadeRegistro : Integer;
+
       procedure GetAll (Req: THorseRequest; Res: THorseResponse; Next : TProc);
       procedure GetbyId(Req: THorseRequest; Res: THorseResponse; Next : TProc);
       procedure Post   (Req: THorseRequest; Res: THorseResponse; Next : TProc);
@@ -42,6 +42,9 @@ type
   end;
 
 implementation
+
+uses
+  Imp.Controller;
 
 { TViewControllerMarcaProduto }
 
@@ -80,7 +83,6 @@ begin
                                 .DataSet(FDataSource)
                                 .QuantidadeRegistro;
 
-
      if FQuantidadeRegistro > 1  then
      begin
        FJSONArray := FDataSource.DataSet.ToJSONArray();
@@ -92,12 +94,16 @@ begin
        Res.Send<TJSONObject>(FJSONObject);
      end;
    except
-     Res.Status(500).Send('Ocorreu um erro interno no servidor.');
-     Exit;
+     on E: Exception do
+     begin
+       Res.Status(500).Send('Ocorreu um erro interno no servidor'+E.Message);
+       Exit;
+     end;
    End;
   finally
     if FDataSource.DataSet.IsEmpty then
-      Res.Status(404).Send('Registro não encontrado!') else
+      Res.Status(404).Send('Registro não encontrado!')
+    else
       Res.Status(201).Send('Registro encontrado com sucesso!');
   end;
 end;
@@ -114,12 +120,16 @@ begin
        FJSONObject := FDataSource.DataSet.ToJSONObject();
        Res.Send<TJSONObject>(FJSONObject);
    except
-     Res.Status(500).Send('Ocorreu um erro interno no servidor.');
-     Exit;
+     on E: Exception do
+     begin
+       Res.Status(500).Send('Ocorreu um erro interno no servidor'+E.Message);
+       Exit;
+     end;
    End;
    Finally
      if FDataSource.DataSet.IsEmpty then
-       Res.Status(404).Send('Registro não encontrado!') else
+       Res.Status(404).Send('Registro não encontrado!')
+     else
        Res.Status(201).Send('Registro encontrado com sucesso!');
    End;
 end;
@@ -141,8 +151,11 @@ begin
             .&End
           .Post;
   except
-    Res.Status(500).Send('Ocorreu um erro interno no servidor.');
-    Exit;
+    on E: Exception do
+    begin
+      Res.Status(500).Send('Ocorreu um erro interno no servidor'+E.Message);
+      Exit;
+    end;
   end;
   finally
     Res.Status(204).Send('Registro incluído com sucesso!');
@@ -167,8 +180,11 @@ begin
             .&End
           .Put;
   except
-    Res.Status(500).Send('Ocorreu um erro interno no servidor.');
-    Exit;
+    on E: Exception do
+    begin
+      Res.Status(500).Send('Ocorreu um erro interno no servidor'+E.Message);
+      Exit;
+    end;
   end;
   finally
     Res.Status(204).Send('Registro alterado com sucesso!');
@@ -187,8 +203,11 @@ begin
             .&End
           .Delete;
     except
-      Res.Status(500).Send('Ocorreu um erro interno no servidor.');
-      Exit;
+      on E: Exception do
+      begin
+        Res.Status(500).Send('Ocorreu um erro interno no servidor'+E.Message);
+        Exit;
+      end;
     End;
   Finally
     Res.Status(204).Send('Registro excluído com sucesso!');

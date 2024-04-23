@@ -122,7 +122,7 @@ begin
   finally
     if not FDataSet.IsEmpty then
     begin
-      FPedidoPagamento.Id(FDataSet.FieldByName('pp.idpedido').AsInteger);
+      FPedidoPagamento.Id(FDataSet.FieldByName('idpedido').AsInteger);
       QuantidadeRegistro;
     end
     else
@@ -146,7 +146,7 @@ begin
     end;
   finally
     if not FDataSet.IsEmpty then
-      FPedidoPagamento.Id(FDataSet.FieldByName('pp.idpedido').AsInteger)
+      FPedidoPagamento.Id(FDataSet.FieldByName('idpedido').AsInteger)
     else
       FPedidoPagamento.Id(0);
   end;
@@ -169,7 +169,7 @@ begin
     end;
   finally
     if not FDataSet.IsEmpty then
-      FPedidoPagamento.Id(FDataSet.FieldByName('pp.idpedido').AsInteger)
+      FPedidoPagamento.Id(FDataSet.FieldByName('idpedido').AsInteger)
     else
       FPedidoPagamento.Id(0);
   end;

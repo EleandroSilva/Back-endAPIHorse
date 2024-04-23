@@ -216,8 +216,8 @@ begin
     end;
   finally
     if not FDataSet.IsEmpty then
-      FPessoa.Id(FDataSet.FieldByName('p.id').AsInteger)
-      else
+      FPessoa.Id(FDataSet.FieldByName('id').AsInteger)
+    else
       FPessoa.Id(0);
   end;
 end;
@@ -317,18 +317,18 @@ end;
 function TDAOPessoa.Put: iDAOPessoa;
 const
   LSQL=('update pessoa set '+
-                        'idempresa     =:idempresa, '+
-                        'idusuario     =:idusuario, '+
-                        'cpfcnpj       =:cpfcnpj, '+
-                        'rgie          =:rgie, '+
-                        'nomepessoa    =:nome, '+
-                        'sobrenome     =:nomefantasia, '+
-                        'fisicajuridica=:fisicajuridica, '+
-                        'sexo          =:sexo, '+
-                        'tipopessoa    =:tipopessoa, '+
+                        'idempresa      =:idempresa, '+
+                        'idusuario      =:idusuario, '+
+                        'cpfcnpj        =:cpfcnpj, '+
+                        'rgie           =:rgie, '+
+                        'nomepessoa     =:nome, '+
+                        'sobrenome      =:nomefantasia, '+
+                        'fisicajuridica =:fisicajuridica, '+
+                        'sexo           =:sexo, '+
+                        'tipopessoa     =:tipopessoa, '+
                         'datahoraemissao=:datahoraemissao, '+
                         'datanascimento =:datanascimento, '+
-                        'ativo         =:ativo '+
+                        'ativo          =:ativo '+
                         'where id=:id '
        );
 begin

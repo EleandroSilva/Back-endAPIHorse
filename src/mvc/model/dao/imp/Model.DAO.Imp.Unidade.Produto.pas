@@ -107,7 +107,7 @@ begin
   finally
     if not FDataSet.IsEmpty then
     begin
-      FUnidadeProduto.Id(FDataSet.FieldByName('up.id').AsInteger);
+      FUnidadeProduto.Id(FDataSet.FieldByName('id').AsInteger);
       QuantidadeRegistro;
     end
     else
@@ -155,7 +155,7 @@ begin
   finally
     if not FDataSet.IsEmpty then
     begin
-      FUnidadeProduto.Id(FDataSet.FieldByName('up.id').AsInteger);
+      FUnidadeProduto.Id(FDataSet.FieldByName('id').AsInteger);
       QuantidadeRegistro;
     end
     else

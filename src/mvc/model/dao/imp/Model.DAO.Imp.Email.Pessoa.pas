@@ -117,7 +117,7 @@ begin
   finally
     if not FDataSet.IsEmpty then
     begin
-      FEmailPessoa.Id(FDataSet.FieldByName('ep.id').AsInteger);
+      FEmailPessoa.Id(FDataSet.FieldByName('id').AsInteger);
       QuantidadeRegistro;
     end
     else
@@ -142,8 +142,8 @@ begin
     end;
   finally
     if not FDataSet.IsEmpty then
-      FEmailPessoa.Id(FDataSet.FieldByName('ep.id').AsInteger)
-      else
+      FEmailPessoa.Id(FDataSet.FieldByName('id').AsInteger)
+    else
       FEmailPessoa.Id(0);
   end;
 end;

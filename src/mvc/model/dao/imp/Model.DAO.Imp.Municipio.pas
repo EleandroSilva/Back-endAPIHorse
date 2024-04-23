@@ -123,7 +123,7 @@ begin
   finally
     if not FDataSet.IsEmpty then
     begin
-       FMunicipio.Id(FDataSet.FieldByName('m.id').AsInteger);
+       FMunicipio.Id(FDataSet.FieldByName('id').AsInteger);
        QuantidadeRegistro;
     end
     else
@@ -148,8 +148,8 @@ begin
     end;
   finally
     if not FDataSet.IsEmpty then
-      FMunicipio.Id(FDataSet.FieldByName('m.id').AsInteger)
-      else
+      FMunicipio.Id(FDataSet.FieldByName('id').AsInteger)
+    else
       FMunicipio.Id(0);
   end;
 end;
@@ -170,7 +170,7 @@ begin
   finally
     if not FDataSet.IsEmpty then
     begin
-      FMunicipio.Id(FDataSet.FieldByName('m.id').AsInteger);
+      FMunicipio.Id(FDataSet.FieldByName('id').AsInteger);
       QuantidadeRegistro;
     end
     else
@@ -202,7 +202,7 @@ begin
     try
       FQuery
         .SQL(LSQL)
-          .Params('ibge'     , FMunicipio.IBGE)
+          .Params('ibge'      , FMunicipio.IBGE)
           .Params('idestado'  , FMunicipio.IdEstado)
           .Params('municipio' , FMunicipio.Municipio)
           .Params('uf'        , FMunicipio.UF)

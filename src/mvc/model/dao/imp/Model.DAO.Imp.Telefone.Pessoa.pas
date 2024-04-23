@@ -117,7 +117,7 @@ begin
   finally
     if not FDataSet.IsEmpty then
     begin
-      FTelefonePessoa.Id(FDataSet.FieldByName('tp.id').AsInteger);
+      FTelefonePessoa.Id(FDataSet.FieldByName('id').AsInteger);
       QuantidadeRegistro;
     end
     else
@@ -142,8 +142,8 @@ begin
     end;
   finally
     if not FDataSet.IsEmpty then
-      FTelefonePessoa.Id(FDataSet.FieldByName('tp.id').AsInteger)
-      else
+      FTelefonePessoa.Id(FDataSet.FieldByName('id').AsInteger)
+    else
       FTelefonePessoa.Id(0);
   end;
 end;
@@ -170,7 +170,7 @@ begin
   finally
     if not FDataSet.IsEmpty then
     begin
-      FTelefonePessoa.Id(FDataSet.FieldByName('tp.id').AsInteger);
+      FTelefonePessoa.Id(FDataSet.FieldByName('id').AsInteger);
       QuantidadeRegistro;
     end
     else

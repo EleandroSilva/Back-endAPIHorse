@@ -118,7 +118,7 @@ begin
     end;
   finally
     if not FDataSet.IsEmpty then
-      FUsuario.Id(FDataSet.FieldByName('u.id').AsInteger)
+      FUsuario.Id(FDataSet.FieldByName('id').AsInteger)
     else
       FUsuario.Id(0);
   end;
@@ -141,7 +141,7 @@ begin
     end;
   finally
     if not FDataSet.IsEmpty then
-      FUsuario.Id(FDataSet.FieldByName('u.id').AsInteger)
+      FUsuario.Id(FDataSet.FieldByName('id').AsInteger)
     else
       FUsuario.Id(0);
   end;

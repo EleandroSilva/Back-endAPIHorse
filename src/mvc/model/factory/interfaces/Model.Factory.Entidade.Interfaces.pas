@@ -32,36 +32,36 @@ uses
   Model.DAO.Estado.Interfaces,
   Model.DAO.Regiao.Estado.Interfaces,
   Model.DAO.Natureza.Juridica.Interfaces,
-  Model.DAO.Caixa.Diario.Interfaces,
-  Model.DAO.Caixa.Diario.Movimento.Interfaces,
-  Model.DAO.Caixa.Diario.Encerramento.Interfaces;
+  Model.DAO.Caixa.Interfaces,
+  Model.DAO.Movimento.Caixa.Interfaces,
+  Model.DAO.Fechar.Caixa.Interfaces;
 
 type
   iFactoryEntidade = interface
     ['{88D4F535-E18B-46F2-BBC2-33BAD5C7A389}']
-    function Uteis                      : iUteis;
-    function DAOUsuario                 : iDAOUsuario;
-    function DAOEmpresa                 : iDAOEmpresa;
-    function DAOEnderecoEmpresa         : iDAOEnderecoEmpresa;
-    function DAOEmailEmpresa            : iDAOEmailEmpresa;
-    function DAOTelefoneEmpresa         : iDAOTelefoneEmpresa;
-    function DAOPessoa                  : iDAOPessoa;
-    function DAOEnderecoPessoa          : iDAOEnderecoPessoa;
-    function DAOEmailPessoa             : iDAOEmailPessoa;
-    function DAOTelefonePessoa          : iDAOTelefonePessoa;
-    function DAOCategoriaProduto        : iDAOCategoriaProduto;
-    function DAOMarcaProduto            : iDAOMarcaProduto;
-    function DAOUnidadeProduto          : iDAOUnidadeProduto;
-    function DAOProduto                 : iDAOProduto;
-    function DAOEndereco                : iDAOEndereco;
-    function DAONumero                  : iDAONumero;
-    function DAOMunicipio               : iDAOMunicipio;
-    function DAOEstado                  : iDAOEstado;
-    function DAORegiaoEstado            : iDAORegiaoEstado;
-    function DAONaturezaJuridica        : iDAONaturezaJuridica;
-    function DAOCaixaDiario             : iDAOCaixaDiario;
-    function DAOCaixaDiarioMovimento    : iDAOCaixaDiarioMovimento;
-    function DAOCaixaDiarioEncerramento : iDAOCaixaDiarioEncerramento;
+    function Uteis               : iUteis;
+    function DAOUsuario          : iDAOUsuario;
+    function DAOEmpresa          : iDAOEmpresa;
+    function DAOEnderecoEmpresa  : iDAOEnderecoEmpresa;
+    function DAOEmailEmpresa     : iDAOEmailEmpresa;
+    function DAOTelefoneEmpresa  : iDAOTelefoneEmpresa;
+    function DAOPessoa           : iDAOPessoa;
+    function DAOEnderecoPessoa   : iDAOEnderecoPessoa;
+    function DAOEmailPessoa      : iDAOEmailPessoa;
+    function DAOTelefonePessoa   : iDAOTelefonePessoa;
+    function DAOCategoriaProduto : iDAOCategoriaProduto;
+    function DAOMarcaProduto     : iDAOMarcaProduto;
+    function DAOUnidadeProduto   : iDAOUnidadeProduto;
+    function DAOProduto          : iDAOProduto;
+    function DAOEndereco         : iDAOEndereco;
+    function DAONumero           : iDAONumero;
+    function DAOMunicipio        : iDAOMunicipio;
+    function DAOEstado           : iDAOEstado;
+    function DAORegiaoEstado     : iDAORegiaoEstado;
+    function DAONaturezaJuridica : iDAONaturezaJuridica;
+    function DAOCaixa            : iDAOCaixa;
+    function DAOMovimentoCaixa   : iDAOMovimentoCaixa;
+    function DAOFecharCaixa      : iDAOFecharCaixa;
   end;
 
 implementation

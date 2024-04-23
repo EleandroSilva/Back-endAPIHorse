@@ -21,8 +21,7 @@ uses
   DataSet.Serialize,
   Horse,
   Horse.BasicAuthentication,
-  Controller.Interfaces,
-  Imp.Controller;
+  Controller.Interfaces;
 type
   TViewControllerEmpresa = class
     private
@@ -32,10 +31,12 @@ type
       FIdEndereco   : Integer;
       FCep          : String;
       FNumero       : String;
-      FController : iController;
+      FController   : iController;
+
       FBody       : TJSONValue;
       FJSONObject : TJSONObject;
       FJSONArray  : TJSONArray;
+
       //Json empresa-->tabela pai
       FJSONObjectEmpresa  : TJSONObject;
       FJSONArrayEmpresa   : TJSONArray;
@@ -48,14 +49,15 @@ type
       //Json Telefone
       FJSONObjectTelefone : TJSONObject;
       FJSONArrayTelefone  : TJSONArray;
+
       //DataSource
-      FDataSourceEmpresa         : TDataSource;
-      FDataSourceEndereco        : TDataSource;
-      FDataSourceNumero          : TDataSource;
-      FDataSourceEnderecoEmpresa : TDataSource;
-      FDataSourceEmailEmpresa    : TDataSource;
-      FDataSourceTelefoneEmpresa : TDataSource;
-      FQuantidadeRegistro        : Integer;
+      FDSEmpresa          : TDataSource;
+      FDSEndereco         : TDataSource;
+      FDSNumero           : TDataSource;
+      FDSEnderecoEmpresa  : TDataSource;
+      FDSEmailEmpresa     : TDataSource;
+      FDSTelefoneEmpresa  : TDataSource;
+      FQuantidadeRegistro : Integer;
       //procedure
       procedure GetAll   (Req: THorseRequest; Res: THorseResponse; Next : TProc);
       procedure GetbyId  (Req: THorseRequest; Res: THorseResponse; Next : TProc);
@@ -82,15 +84,18 @@ type
 
 implementation
 
+uses
+  Imp.Controller;
+
 constructor TViewControllerEmpresa.Create;
 begin
-  FController                := TController.New;
-  FDataSourceEmpresa         := TDataSource.Create(nil);
-  FDataSourceEndereco        := TDataSource.Create(nil);
-  FDataSourceNumero          := TDataSource.Create(nil);
-  FDataSourceEnderecoEmpresa := TDataSource.Create(nil);
-  FDataSourceEmailEmpresa    := TDataSource.Create(nil);
-  FDataSourceTelefoneEmpresa := TDataSource.Create(nil);
+  FController        := TController.New;
+  FDSEmpresa         := TDataSource.Create(nil);
+  FDSEndereco        := TDataSource.Create(nil);
+  FDSNumero          := TDataSource.Create(nil);
+  FDSEnderecoEmpresa := TDataSource.Create(nil);
+  FDSEmailEmpresa    := TDataSource.Create(nil);
+  FDSTelefoneEmpresa := TDataSource.Create(nil);
   Registry;
 end;
 
@@ -107,9 +112,9 @@ begin
     .FactoryEntidade
       .DAOEmpresa
         .GetbyParams(aCNPJ)
-      .DataSet(FDataSourceEmpresa);
+      .DataSet(FDSEmpresa);
 
-  Result := not FDataSourceEmpresa.DataSet.IsEmpty;
+  Result := not FDSEmpresa.DataSet.IsEmpty;
 end;
 
 //verifico se já consta o endereco cadastrado na tabela endereco-pelo cep
@@ -120,9 +125,9 @@ begin
     .FactoryEntidade
       .DAOEndereco
       .GetbyParams(aCep)
-      .DataSet(FDataSourceEndereco);
+      .DataSet(FDSEndereco);
 
-  Result:= not FDataSourceEndereco.DataSet.IsEmpty;
+  Result:= not FDSEndereco.DataSet.IsEmpty;
 end;
 
 //verifico se já consta este número cadastrado na tabela numero
@@ -137,9 +142,9 @@ begin
           .NumeroEndereco(aNumeroEndereco)
         .&End
       .GetbyParams
-      .DataSet(FDataSourceNumero);
+      .DataSet(FDSNumero);
 
-  Result := not FDataSourceNumero.DataSet.IsEmpty;
+  Result := not FDSNumero.DataSet.IsEmpty;
 end;
 
 //verifico se já consta este número cadastrado na tabela enderecoempresa
@@ -150,9 +155,9 @@ begin
     .FactoryEntidade
       .DAOEnderecoEmpresa
         .GetbyParams(aIdEmpresa, aIdEndereco)
-        .DataSet(FDataSourceEnderecoEmpresa);
+        .DataSet(FDSEnderecoEmpresa);
 
-  Result := not FDataSourceEnderecoEmpresa.DataSet.IsEmpty;
+  Result := not FDSEnderecoEmpresa.DataSet.IsEmpty;
 end;
 
 //verifico se já consta este EMail cadastrado na tabela emailempresa
@@ -167,9 +172,9 @@ begin
           .Email    (Email)
         .&End
       .GetbyParams
-      .DataSet(FDataSourceEmailEmpresa);
+      .DataSet(FDSEmailEmpresa);
 
-  Result := not FDataSourceEmailEmpresa.DataSet.IsEmpty;
+  Result := not FDSEmailEmpresa.DataSet.IsEmpty;
 end;
 
 //verifico se já consta este EMail esta cadastrado na tabela emailempresa que se relaciona com a tabela empresa
@@ -185,20 +190,20 @@ begin
           .NumeroTelefone(NumeroTelefone)
         .&End
       .GetbyParams
-      .DataSet(FDataSourceTelefoneEmpresa);
+      .DataSet(FDSTelefoneEmpresa);
 
-  Result := not FDataSourceEmailEmpresa.DataSet.IsEmpty;
+  Result := not FDSEmailEmpresa.DataSet.IsEmpty;
 end;
 
 procedure TViewControllerEmpresa.LoopEmpresa;
 begin
   FJSONArrayEmpresa := TJSONArray.Create;//JSONArray tabela pai empresa
-  FDataSourceEmpresa.DataSet.First;
-  while not FDataSourceEmpresa.DataSet.Eof do
+  FDSEmpresa.DataSet.First;
+  while not FDSEmpresa.DataSet.Eof do
   begin
     FJSONObjectEmpresa := TJSONObject.Create;//JSONObject tabela pai empresa
     try
-      FJSONObjectEmpresa := FDataSourceEmpresa.DataSet.ToJSONObject;
+      FJSONObjectEmpresa := FDSEmpresa.DataSet.ToJSONObject;
     except
       on E: Exception do
       begin
@@ -241,7 +246,7 @@ begin
     end;
 
     FJSONArrayEmpresa.Add(FJSONObjectEmpresa);
-    FDataSourceEmpresa.DataSet.Next;
+    FDSEmpresa.DataSet.Next;
   end;
 end;
 
@@ -253,27 +258,27 @@ begin
                            .FactoryEntidade
                              .DAOEnderecoEmpresa
                                .This
-                                 .IdEmpresa(FDataSourceEmpresa.DataSet.FieldByName('id').AsInteger)
+                                 .IdEmpresa(FDSEmpresa.DataSet.FieldByName('id').AsInteger)
                                .&End
                              .GetbyParams
-                             .DataSet(FDataSourceEndereco)
+                             .DataSet(FDSEndereco)
                              .QuantidadeRegistro;
 
-  if not FDataSourceEndereco.DataSet.IsEmpty then
+  if not FDSEndereco.DataSet.IsEmpty then
   begin
     Result := True;
     FJSONArrayEndereco := TJSONArray.Create;
 
-    FDataSourceEndereco.DataSet.First;
-    while not FDataSourceEndereco.DataSet.Eof do
+    FDSEndereco.DataSet.First;
+    while not FDSEndereco.DataSet.Eof do
     begin
       FJSONObjectEndereco := TJSONObject.Create;
-      FJSONObjectEndereco := FDataSourceEndereco.DataSet.ToJSONObject;
+      FJSONObjectEndereco := FDSEndereco.DataSet.ToJSONObject;
       // Se tiver mais de um registro, adiciona ao array
       if FQuantidadeRegistro > 1 then
         FJSONArrayEndereco.Add(FJSONObjectEndereco);
 
-      FDataSourceEndereco.DataSet.Next;
+      FDSEndereco.DataSet.Next;
     end;
   end;
 end;
@@ -286,27 +291,27 @@ begin
                            .FactoryEntidade
                              .DAOEmailEmpresa
                                .This
-                                 .IdEmpresa(FDataSourceEmpresa.DataSet.FieldByName('id').AsInteger)
+                                 .IdEmpresa(FDSEmpresa.DataSet.FieldByName('id').AsInteger)
                                .&End
                              .GetbyParams
-                             .DataSet(FDataSourceEmailEmpresa)
+                             .DataSet(FDSEmailEmpresa)
                              .QuantidadeRegistro;
 
-  if not FDataSourceEmailEmpresa.DataSet.IsEmpty then
+  if not FDSEmailEmpresa.DataSet.IsEmpty then
   begin
     Result := True;
     FJSONArrayEmail := TJSONArray.Create;
 
-    FDataSourceEmailEmpresa.DataSet.First;
-    while not FDataSourceEmailEmpresa.DataSet.Eof do
+    FDSEmailEmpresa.DataSet.First;
+    while not FDSEmailEmpresa.DataSet.Eof do
     begin
       FJSONObjectEMail := TJSONObject.Create;
-      FJSONObjectEMail := FDataSourceEmailEmpresa.DataSet.ToJSONObject;
+      FJSONObjectEMail := FDSEmailEmpresa.DataSet.ToJSONObject;
       //tendo mais de um registro, adiciona ao array
       if FQuantidadeRegistro > 1 then
         FJSONArrayEmail.Add(FJSONObjectEMail);
 
-      FDataSourceEmailEmpresa.DataSet.Next;
+      FDSEmailEmpresa.DataSet.Next;
     end;
   end;
 end;
@@ -319,27 +324,27 @@ begin
                            .FactoryEntidade
                               .DAOTelefoneEmpresa
                                 .This
-                                  .IdEmpresa(FDataSourceEmpresa.DataSet.FieldByName('id').AsInteger)
+                                  .IdEmpresa(FDSEmpresa.DataSet.FieldByName('id').AsInteger)
                                 .&End
                               .GetbyParams
-                              .DataSet(FDataSourceTelefoneEmpresa)
+                              .DataSet(FDSTelefoneEmpresa)
                               .QuantidadeRegistro;
 
-  if not FDataSourceTelefoneEmpresa.DataSet.IsEmpty then
+  if not FDSTelefoneEmpresa.DataSet.IsEmpty then
   begin
     Result := True;
     FJSONArrayTelefone := TJSONArray.Create;//JSONArray
 
-    FDataSourceTelefoneEmpresa.DataSet.First;
-    while not FDataSourceTelefoneEmpresa.DataSet.Eof do
+    FDSTelefoneEmpresa.DataSet.First;
+    while not FDSTelefoneEmpresa.DataSet.Eof do
     begin
       FJSONObjectTelefone := TJSONObject.Create;//JSONObject
-      FJSONObjectTelefone := FDataSourceTelefoneEmpresa.DataSet.ToJSONObject;
+      FJSONObjectTelefone := FDSTelefoneEmpresa.DataSet.ToJSONObject;
       // Se tiver mais de um registro, adiciona ao array
       if FQuantidadeRegistro > 1 then
         FJSONArrayTelefone.Add(FJSONObjectTelefone);
 
-      FDataSourceTelefoneEmpresa.DataSet.Next;
+      FDSTelefoneEmpresa.DataSet.Next;
     end;
   end;
 end;
@@ -356,7 +361,7 @@ begin
                                 .FactoryEntidade
                                   .DAOEmpresa
                                   .GetbyParams(Req.Query.Field('cnpj').AsString)
-                                  .DataSet(FDataSourceEmpresa)
+                                  .DataSet(FDSEmpresa)
                                   .QuantidadeRegistro
       else
      if Req.Query.Field('nomeempresarial').AsString<>'' then
@@ -367,14 +372,14 @@ begin
                                       .NomeEmpresarial(Req.Query.Field('nomeempresarial').AsString)
                                     .&End
                                   .GetbyParams
-                                  .DataSet(FDataSourceEmpresa)
+                                  .DataSet(FDSEmpresa)
                                   .QuantidadeRegistro
     else
       lQuantidadeRegistro := FController
                                 .FactoryEntidade
                                   .DAOEmpresa
                                   .GetAll
-                                  .DataSet(FDataSourceEmpresa)
+                                  .DataSet(FDSEmpresa)
                                   .QuantidadeRegistro;
   except
     on E: Exception do
@@ -384,7 +389,7 @@ begin
     end;
   end;
 
-  if not FDataSourceEmpresa.DataSet.IsEmpty then
+  if not FDSEmpresa.DataSet.IsEmpty then
   begin
     LoopEmpresa;
       if lQuantidadeRegistro > 1 then
@@ -404,9 +409,9 @@ begin
       .FactoryEntidade
         .DAOEmpresa
           .GetbyId(Req.Params['id'].ToInt64)
-        .DataSet(FDataSourceEmpresa);
+        .DataSet(FDSEmpresa);
 
-    FJSONObjectEmpresa := FDataSourceEmpresa.DataSet.ToJSONObject();
+    FJSONObjectEmpresa := FDSEmpresa.DataSet.ToJSONObject();
     Res.Send<TJSONObject>(FJSONObjectEmpresa);
 
   except
@@ -417,14 +422,14 @@ begin
     end;
   end;
 
-  if not FDataSourceEmpresa.DataSet.IsEmpty then
+  if not FDSEmpresa.DataSet.IsEmpty then
   begin
     LoopEmpresa;
     Res.Send<TJSONObject>(FJSONObjectEmpresa);
     Res.Status(201).Send('Registro encontrado com sucesso!');
   end
   else
-    Res.Status(400).Send('Registro não encontrado!')
+    Res.Status(400).Send('Registro não encontrado!');
 end;
 
 procedure TViewControllerEmpresa.Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -479,8 +484,8 @@ begin
                   .Ativo                (1)
                 .&End
               .Post
-              .DataSet(FDataSourceEmpresa);
-          FIdEmpresa := FDataSourceEmpresa.DataSet.FieldByName('id').AsInteger;
+              .DataSet(FDSEmpresa);
+          FIdEmpresa := FDSEmpresa.DataSet.FieldByName('id').AsInteger;
       except
         on E: Exception do
         begin
@@ -513,9 +518,9 @@ begin
                     .DDD           (LEnderecoObject.GetValue<String> ('ddd'))
                   .&End
                 .Post
-                .DataSet(FDataSourceEndereco);
+                .DataSet(FDSEndereco);
 
-          FIdEndereco := FDataSourceEndereco.DataSet.FieldByName('id').AsInteger;
+          FIdEndereco := FDSEndereco.DataSet.FieldByName('id').AsInteger;
           LNumeroArray  := LObjectEmpresa.GetValue('numero') as TJSONArray;
           LNumeroObject :=  LNumeroArray.Items[I] as TJSONObject;
           //verifico se consta este número cadastrado na tabela numero(se não estiver insiro o mesmo)
@@ -658,7 +663,7 @@ begin
               .Ativo                (LObjectEmpresa.GetValue<Integer>  ('ativo'))
             .&End
           .Put
-          .DataSet(FDataSourceEmpresa);
+          .DataSet(FDSEmpresa);
     except
       on E: Exception do
         Res.Status(500).Send('Ocorreu um erro interno no servidor.'+ E.Message);
@@ -686,7 +691,7 @@ begin
                 .DDD           (LObjectEndereco.GetValue<String>('ddd'))
               .&End
             .Put
-            .DataSet(FDataSourceEndereco);
+            .DataSet(FDSEndereco);
         //Inserindo dados na tabela numero
         LObjectNumero := TJSONObject(LObjectEndereco.GetValue('numero'));
         FController
@@ -780,7 +785,7 @@ begin
             .Id(Req.Params['id'].ToInt64)
           .&End
           .Delete
-          .DataSet(FDataSourceEmpresa);
+          .DataSet(FDSEmpresa);
     except
       on E: Exception do
       raise Res.Status(500).Send('Ocorreu um erro interno no servidor.'+ E.Message);

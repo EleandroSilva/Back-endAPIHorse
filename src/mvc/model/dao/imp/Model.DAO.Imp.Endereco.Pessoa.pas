@@ -128,7 +128,7 @@ begin
     end;
   finally
     if not FDataSet.IsEmpty then
-      FEnderecoPessoa.Id(FDataSet.FieldByName('ep.id').AsInteger)
+      FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger)
     else
       FEnderecoPessoa.Id(0);
   end;
@@ -152,7 +152,7 @@ begin
   finally
     if not FDataSet.IsEmpty then
     begin
-      FEnderecoPessoa.Id(FDataSet.FieldByName('ep.id').AsInteger);
+      FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger);
       QuantidadeRegistro;
     end
     else
@@ -182,7 +182,7 @@ begin
   finally
     if not FDataSet.IsEmpty then
       FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger)
-      else
+    else
       FEnderecoPessoa.Id(0);
   end
 end;

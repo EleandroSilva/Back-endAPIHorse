@@ -115,14 +115,17 @@ begin
                     .Open
                   .DataSet;
     except
-     raise Exception.Create(FMSG.MSGerroGet);
+      on E: Exception do
+     raise Exception.Create(FMSG.MSGerroGet+E.Message);
     end;
   finally
    if not FDataSet.IsEmpty then
    begin
      FRegiaoEstado.Id(FDataSet.FieldByName('id').AsInteger);
      QuantidadeRegistro;
-   end else FRegiaoEstado.Id(0);
+   end
+   else
+     FRegiaoEstado.Id(0);
   end;
 end;
 
@@ -138,11 +141,14 @@ begin
                     .Open
                   .DataSet;
     except
-      raise Exception.Create(FMSG.MSGerroGet);
+      on E: Exception do
+      raise Exception.Create(FMSG.MSGerroGet+E.Message);
     end;
   finally
     if not FDataSet.IsEmpty then
-      FRegiaoEstado.Id(FDataSet.FieldByName('id').AsInteger) else FRegiaoEstado.Id(0);
+      FRegiaoEstado.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+      FRegiaoEstado.Id(0);
   end;
 end;
 
@@ -156,14 +162,17 @@ begin
                    .Open
                  .DataSet;
    except
-     raise exception.Create(FMSG.MSGerroGet);
+     on E: Exception do
+     raise exception.Create(FMSG.MSGerroGet+E.Message);
    end;
   finally
    if not FDataSet.IsEmpty then
    begin
      FRegiaoEstado.Id(FDataSet.FieldByName('id').AsInteger);
      QuantidadeRegistro;
-   end else FRegiaoEstado.Id(0);
+   end
+   else
+     FRegiaoEstado.Id(0);
   end;
 end;
 
@@ -188,8 +197,11 @@ begin
           .Params('regiao' , FRegiaoEstado.Regiao)
         .ExecSQL;
     except
-      FConexao.Rollback;
-      raise Exception.Create(FMSG.MSGerroPost);
+      on E: Exception do
+      begin
+        FConexao.Rollback;
+        raise Exception.Create(FMSG.MSGerroPost+E.Message);
+      end;
     end;
   finally
     FConexao.Commit;
@@ -219,8 +231,11 @@ begin
           .Params('regiao' , FRegiaoEstado.Regiao)
         .ExecSQL;
     except
-      FConexao.Rollback;
-      raise Exception.Create(FMSG.MSGerroPut);
+      on E: Exception do
+      begin
+        FConexao.Rollback;
+        raise Exception.Create(FMSG.MSGerroPut+E.Message);
+      end;
     end;
   finally
     FConexao.Commit;
@@ -239,8 +254,11 @@ begin
                .Params('id', FRegiaoEstado.Id)
             .ExecSQL;
     except
-      FConexao.Rollback;
-      raise Exception.Create(FMSG.MSGerroDelete);
+      on E: Exception do
+      begin
+        FConexao.Rollback;
+        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
+      end;
     end;
   finally
     FConexao.Commit;

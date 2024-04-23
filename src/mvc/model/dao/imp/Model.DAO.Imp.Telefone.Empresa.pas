@@ -116,14 +116,17 @@ begin
                     .Open
                   .DataSet;
     except
-     raise Exception.Create(FMSG.MSGerroGet);
+     on E: Exception do
+     raise Exception.Create(FMSG.MSGerroGet+E.Message);
     end;
   finally
    if not FDataSet.IsEmpty then
    begin
-     FTelefoneEmpresa.Id(FDataSet.FieldByName('te.id').AsInteger);
+     FTelefoneEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
      QuantidadeRegistro;
-   end else FTelefoneEmpresa.Id(0);
+   end
+   else
+     FTelefoneEmpresa.Id(0);
   end;
 end;
 
@@ -140,11 +143,14 @@ begin
                     .Open
                   .DataSet;
     except
-      raise Exception.Create(FMSG.MSGerroGet);
+      on E: Exception do
+      raise Exception.Create(FMSG.MSGerroGet+E.Message);
     end;
   finally
     if not FDataSet.IsEmpty then
-      FTelefoneEmpresa.Id(FDataSet.FieldByName('id').AsInteger) else FTelefoneEmpresa.Id(0);
+      FTelefoneEmpresa.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+      FTelefoneEmpresa.Id(0);
   end;
 end;
 
@@ -164,14 +170,17 @@ begin
                    .Open
                  .DataSet;
    except
-     raise exception.Create(FMSG.MSGerroGet);
+     on E: Exception do
+     raise exception.Create(FMSG.MSGerroGet+E.Message);
    end;
   finally
    if not FDataSet.IsEmpty then
    begin
      FTelefoneEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
      QuantidadeRegistro;
-   end else FTelefoneEmpresa.Id(0);
+   end
+   else
+     FTelefoneEmpresa.Id(0);
   end;
 end;
 
@@ -210,8 +219,11 @@ begin
           .Params('ativo'          , FTelefoneEmpresa.Ativo)
           .ExecSQL;
     except
-      FConexao.Rollback;
-      raise Exception.Create(FMSG.MSGerroPost);
+      on E: Exception do
+      begin
+        FConexao.Rollback;
+        raise Exception.Create(FMSG.MSGerroPost+E.Message);
+      end;
     end;
   finally
     FConexao.Commit;
@@ -251,8 +263,11 @@ begin
           .Params('ativo'          , FTelefoneEmpresa.Ativo)
         .ExecSQL;
     except
-      FConexao.Rollback;
-      raise Exception.Create(FMSG.MSGerroPut);
+      on E: Exception do
+      begin
+        FConexao.Rollback;
+        raise Exception.Create(FMSG.MSGerroPut+E.Message);
+      end;
     end;
   finally
     FConexao.Commit;
@@ -271,8 +286,11 @@ begin
                .Params('id', FTelefoneEmpresa.Id)
             .ExecSQL;
     except
-      FConexao.Rollback;
-      raise Exception.Create(FMSG.MSGerroDelete);
+      on E: Exception do
+      begin
+        FConexao.Rollback;
+        raise Exception.Create(FMSG.MSGerroDelete+e.Message);
+      end;
     end;
   finally
     FConexao.Commit;
