@@ -1,0 +1,7 @@
+unit Model.Entidade.Endereco.Empresa.Interfaces;
+
+interface
+
+implementation
+
+end.

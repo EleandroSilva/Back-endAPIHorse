@@ -1,0 +1,34 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 22/04/2024 14:28           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Entidade.Imp.Pedido.Pagamento;
+
+interface
+
+uses
+  Model.Entidade.Pedido.Pagamento.Interfaces;
+
+type
+  TEntidadePedidoPagamento<T : iInterface> = class(TInterfacedObject, iEntidadePedidoPagamento<T>)
+    private
+      [weak]
+      FParent         : T;
+      FId             : Integer;
+      FIdPedido       : Integer;
+      FIdPagamento    : Integer;
+      FDataVencimento : TDateTime;
+      FValorParcela   : Currency;
+    public
+
+  end;
+
+
+implementation
+
+end.

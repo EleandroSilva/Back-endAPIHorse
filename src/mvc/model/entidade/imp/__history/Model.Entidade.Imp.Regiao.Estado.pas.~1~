@@ -1,0 +1,7 @@
+unit Model.Entidade.Imp.Regiao.Estado;
+
+interface
+
+implementation
+
+end.

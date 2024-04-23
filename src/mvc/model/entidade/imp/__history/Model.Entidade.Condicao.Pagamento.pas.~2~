@@ -1,0 +1,25 @@
+unit Model.Entidade.Condicao.Pagamento;
+
+interface
+
+uses
+  Model.Entidade.Condicao.Pagamento.Interfaces;
+
+Type
+  TEntidadeCondicaoPagamento<T : iInterface> = class(TInterfacedObject, iEntidadeCondicaoPagamento<T>)
+    private
+      [weak]
+      FParent                : T;
+      FId                    : Integer;
+      FIdEmpresa             : Integer;
+      FIdUsuario             : Integer;
+      FNomeCondicaoPagamento : String;
+      FQuantidadePagamento   : Integer;
+      FTotalDias             : Integer;
+      FDataHoraEmissao       : TDateTime;
+    public
+  end;
+
+implementation
+
+end.

@@ -1,0 +1,7 @@
+unit Model.Entidade.Caixa.Diario.Movimento.Interfaces;
+
+interface
+
+implementation
+
+end.

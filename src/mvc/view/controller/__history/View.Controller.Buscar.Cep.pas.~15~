@@ -1,0 +1,88 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 18/03/2024 13:39           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit View.Controller.Buscar.Cep;
+
+interface
+
+uses
+  System.SysUtils,
+  System.JSON,
+
+  ViaCEP.Intf,
+  ViaCEP.Core,
+  ViaCEP.Model,
+
+  DataSet.Serialize,
+  Horse,
+  Horse.BasicAuthentication;
+
+type
+  TViewControllerBuscarCep = class
+    private
+      procedure GetAll (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Registry;
+    public
+      constructor Create;
+      destructor Destroy; override;
+  end;
+
+implementation
+
+{ TViewControllerBuscarCep }
+
+constructor TViewControllerBuscarCep.Create;
+begin
+  Registry;
+end;
+
+destructor TViewControllerBuscarCep.Destroy;
+begin
+  inherited;
+end;
+
+procedure TViewControllerBuscarCep.GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  FJSONObject : TJSONObject;
+  FViaCEP     : IViaCEP;
+  FCEP        : TViaCEPClass;
+begin
+  FViaCEP  := TViaCEP.Create;
+  FCEP     := FViaCEP.Get(StringReplace(Req.Query.Field('cep').AsString,'.','',[rfReplaceAll]));
+  if FViaCEP.Validate('01001000') then
+  if not Assigned(FCEP) then
+    Exit; // Aqui você pode exibir uma mensagem para o usuário falando que o CEP não foi encontrado.
+    // Crie ou obtenha os dados que deseja enviar para o frontend
+    FJSONObject := TJSONObject.Create;
+  try
+    FJSONObject.AddPair('cep'         , FCEP.CEP);
+    FJSONObject.AddPair('endereco'    , FCep.Logradouro);
+    FJSONObject.AddPair('complemento' , FCep.Complemento);
+    FJSONObject.AddPair('bairro'      , FCep.Bairro);
+    FJSONObject.AddPair('municipio'   , FCep.Localidade);
+    FJSONObject.AddPair('estado'      , FCep.UF);
+    FJSONObject.AddPair('ibge'        , FCep.IBGE);
+    FJSONObject.AddPair('gia'         , FCep.GIA);
+    FJSONObject.AddPair('ddd'         , FCep.DDD);
+    // Converta os dados para JSON
+    Res.Send(FJSONObject);
+  finally
+     FCep.Free;
+  end;
+end;
+
+procedure TViewControllerBuscarCep.Registry;
+begin
+  THorse
+      .Group
+        .Prefix('bmw')
+          .Get ('/cep' , GetAll);
+end;
+
+end.

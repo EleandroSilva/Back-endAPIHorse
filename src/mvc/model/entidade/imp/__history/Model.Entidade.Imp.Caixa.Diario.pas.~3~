@@ -1,0 +1,54 @@
+unit Model.Entidade.Imp.Caixa.Diario;
+
+interface
+
+uses
+  Model.Entidade.Caixa.Diario.Interfaces;
+
+type
+  TCaixaDiario<T : iInterface> = class(TInterfacedObject, iEntidadeCaixaDiario<T>)
+   private
+     [weak]
+     FParent   : T;
+
+   public
+     constructor Create(Parent : T);
+     destructor Destroy; override;
+     class Function New(Parent : T) : iEntidadeCaixaDiario<T>;
+
+     function Id(Value : Integer)                : iEntidadeCaixaDiario<T>; overload;
+     function Id                                 : Integer;                 overload;
+     function IdEmpresa(Valeu : Integer)         : iEntidadeCaixaDiario<T>; overload;
+     function IdEmpresa                          : Integer;                 overload;
+     function IdUsuario(Value : Integer)         : iEntidadeCaixaDiario<T>; overload;
+     function IdUsuario                          : Integer;                 overload;
+     function ValorInicial(Value : Currency)     : iEntidadeCaixaDiario<T>; overload;
+     function ValorInicial                       : Currency;                overload;
+     function DataHoraEmissao(Value : TDateTime) : iEntidadeCaixaDiario<T>; overload;
+     function DataHoraEmissao                    : TDateTime;               overload;
+     function Status(Value : String)             : iEntidadeCaixaDiario<T>; overload;
+     function Status                             : String;                  overload;
+
+     function &End : T;
+  end;
+
+implementation
+
+{ TCaixaDiario<T> }
+
+constructor TCaixaDiario<T>.Create(Parent: T);
+begin
+  Parent := FParent;
+end;
+
+destructor TCaixaDiario<T>.Destroy;
+begin
+  inherited;
+end;
+
+class function TCaixaDiario<T>.New(Parant: T): iEntidadeCaixaDiario<T>;
+begin
+  Result := Self.Create(Parent);
+end;
+
+end.

@@ -1,0 +1,268 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 19/03/2024 22:59           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit View.Controller.Produto;
+
+interface
+
+uses
+  System.SysUtils,
+  System.JSON,
+
+  Data.DB,
+
+  FireDAC.Comp.Client,
+
+  DataSet.Serialize,
+  Horse,
+  Horse.BasicAuthentication,
+
+  Controller.Interfaces,
+  Imp.Controller;
+
+type
+  TViewControllerProduto = class
+    private
+      FTexto      : String;
+
+      FBody       : TJSONValue;
+      FJSONObject : TJSONObject;
+      FJSONArray  : TJSONArray;
+      FDataSource : TDataSource;
+      FController : iController;
+
+      FQuantidadeRegistro : Integer;
+
+      procedure GetAll (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure GetbyId(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Post   (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Put    (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Delete (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+
+      procedure Registry;
+    public
+      constructor Create;
+      destructor Destroy; override;
+  end;
+
+implementation
+
+constructor TViewControllerProduto.Create;
+begin
+  FController := TController.New;
+  FDataSource := TDataSource.Create(nil);
+  Registry;
+end;
+
+destructor TViewControllerProduto.Destroy;
+begin
+  FreeAndNil(FDataSource);
+  inherited;
+end;
+
+procedure TViewControllerProduto.GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  try
+    try
+      if ((Req.Query.Field('nomeproduto').AsString<>'') or (Req.Query.Field('gtin').AsString<>'')
+      or (Req.Query.Field('ceantrib').AsString<>'') or (Req.Query.Field('cean').AsString<>'')) then
+       FQuantidadeRegistro := FController
+                                .FactoryEntidade
+                                  .DAOProduto
+                                    .This
+                                      .NomeProduto(Req.Query.Field('nomeproduto').AsString)
+                                      .Gtin       (Req.Query.Field('gtin').AsString)
+                                      .cEanTrib   (Req.Query.Field('ceantrib').AsString)
+                                      .cEan       (Req.Query.Field('cean').AsString)
+                                    .&End
+                                  .GetbyParams
+                                  .DataSet(FDataSource)
+                                  .QuantidadeRegistro
+      else
+        FQuantidadeRegistro := FController
+                                  .FactoryEntidade
+                                    .DAOProduto
+                                      .GetAll
+                                      .DataSet(FDataSource)
+                                      .QuantidadeRegistro;
+
+      if FQuantidadeRegistro > 1 then
+      begin
+        FJSONArray := FDataSource.DataSet.ToJSONArray();
+        FTexto     := FJSONArray.ToString;
+        Res.Send<TJSONArray>(FJSONArray);
+      end
+      else
+      begin
+        FJSONObject := FDataSource.DataSet.ToJSONObject();
+        FTexto     := FJSONObject.ToString;
+        Res.Send<TJSONObject>(FJSONObject);
+      end;
+    except
+      Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+      Exit;
+    End;
+  finally
+    if not FDataSource.DataSet.IsEmpty then
+      Res.Status(201).Send('Registro encontrado com sucesso!') else
+      Res.Status(400).Send('Registro não encontrado!');
+  end;
+end;
+
+procedure TViewControllerProduto.GetbyId(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  Try
+     try
+       FController
+         .FactoryEntidade
+           .DAOProduto
+             .GetbyId(Req.Params['id'].ToInt64)
+             .DataSet(FDataSource);
+
+       FJSONObject := FDataSource.DataSet.ToJSONObjectString();
+       Res.Send<TJSONArray>(FJSONObject);
+   except
+     Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+     Exit;
+   End;
+   Finally
+     if not FDataSource.DataSet.IsEmpty then
+      Res.Status(201).Send('Registro encontrado com sucesso!') else
+      Res.Status(400).Send('Registro não encontrado!');
+   End;
+end;
+
+procedure TViewControllerProduto.Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  try
+    try
+      FBody := Req.Body<TJSONObject>;
+
+      FController
+        .FactoryEntidade
+          .DAOProduto
+            .This
+              .IdEmpresa            (FBody.GetValue<integer>  ('idempresa'))
+              .IdUsuario            (FBody.GetValue<integer>  ('idusuario'))
+              .IdCategoria          (FBody.GetValue<integer>  ('idcategoria'))
+              .IdUnidade            (FBody.GetValue<integer>  ('idunidade'))
+              .Gtin                 (FBody.GetValue<String>   ('gtin'))
+              .cEanTrib             (FBody.GetValue<String>   ('nome'))
+              .cEan                 (FBody.GetValue<String>   ('cean'))
+              .NomeProduto          (FBody.GetValue<String>   ('nomeproduto'))
+              .NCM                  (FBody.GetValue<integer>  ('ncm'))
+              .ValorCusto           (FBody.GetValue<Currency> ('valorcusto'))
+              .AliquotaLucro        (FBody.GetValue<Currency> ('aliquotalucro'))
+              .ValorVendaGelado     (FBody.GetValue<Currency> ('valorvendagelado'))
+              .ValorVendaNatural    (FBody.GetValue<Currency> ('valorvendanatural'))
+              .ValorVendaPromocional(FBody.GetValue<Currency> ('valorvendapromocional'))
+              .EstoqueAnterior      (FBody.GetValue<Currency> ('estoqueanterior'))
+              .EstoqueMaximo        (FBody.GetValue<Currency> ('estoquemaximo'))
+              .EstoqueMinimo        (FBody.GetValue<Currency> ('estoqueminimo'))
+              .EstoqueAtual         (FBody.GetValue<Currency> ('estoqueatual'))
+              .Origem               (FBody.GetValue<integer>  ('origem'))
+              .Volume               (FBody.GetValue<integer>  ('volume'))
+              .QuantidadeEmbalagem  (FBody.GetValue<integer>  ('quantidadeembalagem'))
+              .Balanca              (FBody.GetValue<integer>  ('balanca'))
+              .PesoLiquido          (FBody.GetValue<Currency> ('pesoliquido'))
+              .PesoBruto            (FBody.GetValue<Currency> ('pesobruto'))
+              .DataHoraEmissao      (FBody.GetValue<TDateTime>('datahoraemissao'))
+              .Ativo                (FBody.GetValue<integer>  ('ativo'))
+            .&End
+          .Post;
+  except
+    Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+    Exit;
+  end;
+  finally
+    Res.Status(204).Send('Registro incluído com sucesso!');
+  end;
+end;
+
+procedure TViewControllerProduto.Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  try
+    try
+      FBody := Req.Body<TJSONObject>;
+
+      FController
+        .FactoryEntidade
+          .DAOProduto
+            .This
+              .Id                   (FBody.GetValue<integer>  ('id'))
+              .IdEmpresa            (FBody.GetValue<integer>  ('idempresa'))
+              .IdUsuario            (FBody.GetValue<integer>  ('idusuario'))
+              .IdCategoria          (FBody.GetValue<integer>  ('idcategoria'))
+              .IdUnidade            (FBody.GetValue<integer>  ('idunidade'))
+              .Gtin                 (FBody.GetValue<String>   ('gtin'))
+              .cEanTrib             (FBody.GetValue<String>   ('nome'))
+              .cEan                 (FBody.GetValue<String>   ('cean'))
+              .NomeProduto          (FBody.GetValue<String>   ('nomeproduto'))
+              .NCM                  (FBody.GetValue<integer>  ('ncm'))
+              .ValorCusto           (FBody.GetValue<Currency> ('valorcusto'))
+              .AliquotaLucro        (FBody.GetValue<Currency> ('aliquotalucro'))
+              .ValorVendaGelado     (FBody.GetValue<Currency> ('valorvendagelado'))
+              .ValorVendaNatural    (FBody.GetValue<Currency> ('valorvendanatural'))
+              .ValorVendaPromocional(FBody.GetValue<Currency> ('valorvendapromocional'))
+              .EstoqueAnterior      (FBody.GetValue<Currency> ('estoqueanterior'))
+              .EstoqueMaximo        (FBody.GetValue<Currency> ('estoquemaximo'))
+              .EstoqueMinimo        (FBody.GetValue<Currency> ('estoqueminimo'))
+              .EstoqueAtual         (FBody.GetValue<Currency> ('estoqueatual'))
+              .Origem               (FBody.GetValue<integer>  ('origem'))
+              .Volume               (FBody.GetValue<integer>  ('volume'))
+              .QuantidadeEmbalagem  (FBody.GetValue<integer>  ('quantidadeembalagem'))
+              .Balanca              (FBody.GetValue<integer>  ('balanca'))
+              .PesoLiquido          (FBody.GetValue<Currency> ('pesoliquido'))
+              .PesoBruto            (FBody.GetValue<Currency> ('pesobruto'))
+              .DataHoraEmissao      (FBody.GetValue<TDateTime>('datahoraemissao'))
+              .Ativo                (FBody.GetValue<integer>  ('ativo'))
+            .&End
+          .Put;
+  except
+    Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+    Exit;
+  end;
+  finally
+    Res.Status(204).Send('Registro alterado com sucesso!');
+  end;
+end;
+
+procedure TViewControllerProduto.Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  try
+    try
+      FController
+        .FactoryEntidade
+          .DAOProduto
+            .This
+              .Id(Req.Params['id'].ToInt64)
+            .&End
+          .Delete;
+    except
+      Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+    Exit;
+    End;
+  Finally
+    Res.Status(204).Send('Registro excluído com sucesso!');
+  End;
+end;
+
+procedure TViewControllerProduto.Registry;
+begin
+  THorse
+      .Group
+      .Prefix('bmw')
+      .Get   ('produto'     , GetAll)
+      .Get   ('produto/:id' , GetbyId)
+      .Post  ('produto'     , Post)
+      .Put   ('produto/:id' , Put)
+      .Delete('produto/:id' , Delete);
+end;
+
+end.

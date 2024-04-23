@@ -1,0 +1,130 @@
+unit Model.Entidade.Imp.Caixa.Diario;
+
+interface
+
+uses
+  Model.Entidade.Caixa.Diario.Interfaces;
+
+type
+  TCaixaDiario<T : iInterface> = class(TInterfacedObject, iEntidadeCaixaDiario<T>)
+   private
+     [weak]
+     FParent   : T;
+     FId              : Integer;
+     FIdEmpresa       : Integer;
+     FIdUsuario       : Integer;
+     FValorInicial    : Currency;
+     FDataHoraEmissao : TDateTime;
+     FStatus          : String;
+   public
+     constructor Create(Parent : T);
+     destructor Destroy; override;
+     class Function New(Parent : T) : iEntidadeCaixaDiario<T>;
+
+     function Id             (Value : Integer)   : iEntidadeCaixaDiario<T>; overload;
+     function Id                                 : Integer;                 overload;
+     function IdEmpresa      (Value : Integer)   : iEntidadeCaixaDiario<T>; overload;
+     function IdEmpresa                          : Integer;                 overload;
+     function IdUsuario      (Value : Integer)   : iEntidadeCaixaDiario<T>; overload;
+     function IdUsuario                          : Integer;                 overload;
+     function ValorInicial   (Value : Currency)  : iEntidadeCaixaDiario<T>; overload;
+     function ValorInicial                       : Currency;                overload;
+     function DataHoraEmissao(Value : TDateTime) : iEntidadeCaixaDiario<T>; overload;
+     function DataHoraEmissao                    : TDateTime;               overload;
+     function Status         (Value : String)    : iEntidadeCaixaDiario<T>; overload;
+     function Status                             : String;                  overload;
+
+     function &End : T;
+  end;
+
+implementation
+
+{ TCaixaDiario<T> }
+
+constructor TCaixaDiario<T>.Create(Parent: T);
+begin
+  Parent := FParent;
+end;
+
+class function TCaixaDiario<T>.New(Parant: T): iEntidadeCaixaDiario<T>;
+begin
+  Result := Self.Create(Parent);
+end;
+
+function TCaixaDiario<T>.DataHoraEmissao: TDateTime;
+begin
+  Result := FDataHoraEmissao;
+end;
+
+function TCaixaDiario<T>.DataHoraEmissao(Value: TDateTime): iEntidadeCaixaDiario<T>;
+begin
+  Result := Self;
+  FDataHoraEmissao := Value;
+end;
+
+destructor TCaixaDiario<T>.Destroy;
+begin
+  inherited;
+end;
+
+function TCaixaDiario<T>.Id: Integer;
+begin
+  Result := FId;
+end;
+
+function TCaixaDiario<T>.Id(Value: Integer): iEntidadeCaixaDiario<T>;
+begin
+  Result := Self;
+  FId    := Value;
+end;
+
+function TCaixaDiario<T>.IdEmpresa(Value: Integer): iEntidadeCaixaDiario<T>;
+begin
+  Result := Self;
+  FIdEmpresa := Value;
+end;
+
+function TCaixaDiario<T>.IdEmpresa: Integer;
+begin
+  Result := FIdEmpresa;
+end;
+
+function TCaixaDiario<T>.IdUsuario: Integer;
+begin
+  Result := FIdUsuario;
+end;
+
+function TCaixaDiario<T>.IdUsuario(Value: Integer): iEntidadeCaixaDiario<T>;
+begin
+  Result := Self;
+  FIdUsuario := Value;
+end;
+
+function TCaixaDiario<T>.Status(Value: String): iEntidadeCaixaDiario<T>;
+begin
+  Result := self;
+  FStatus := Value;
+end;
+
+function TCaixaDiario<T>.Status: String;
+begin
+  Result := FStatus;
+end;
+
+function TCaixaDiario<T>.ValorInicial(Value: Currency): iEntidadeCaixaDiario<T>;
+begin
+  Result := Self;
+  FValorInicial := Value;
+end;
+
+function TCaixaDiario<T>.ValorInicial: Currency;
+begin
+  Result := FValorInicial;
+end;
+
+function TCaixaDiario<T>.&End: T;
+begin
+  Result := FParent;
+end;
+
+end.

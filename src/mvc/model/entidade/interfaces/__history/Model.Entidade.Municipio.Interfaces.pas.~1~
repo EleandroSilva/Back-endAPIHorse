@@ -1,0 +1,7 @@
+unit Model.Entidade.Municipio.Interfaces;
+
+interface
+
+implementation
+
+end.

@@ -1,0 +1,36 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 05/04/2024 09:19           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2004/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.DAO.Telefone.Pessoa.Interfaces;
+
+interface
+
+uses
+  Data.DB,
+
+  Model.Entidade.Telefone.Pessoa.Interfaces;
+
+type
+  iDAOTelefoneTelefone = interface
+    ['{A97FF857-2667-454B-930B-F9EABBA6A1F7}']
+    function DataSet(DataSource : TDataSource) : iDAOTelefoneTelefone; overload;
+    function DataSet                           : TDataSet;            overload;
+    function GetAll                            : iDAOTelefoneTelefone;
+    function GetbyId(Id : Variant)             : iDAOTelefoneTelefone;
+    function GetbyParams                       : iDAOTelefoneTelefone;
+    function Post                              : iDAOTelefoneTelefone;
+    function Put                               : iDAOTelefoneTelefone;
+    function Delete                            : iDAOTelefoneTelefone;
+
+    function This : iEntidadeTelefonePessoa<iDAOTelefoneTelefone>;
+  end;
+
+implementation
+
+end.

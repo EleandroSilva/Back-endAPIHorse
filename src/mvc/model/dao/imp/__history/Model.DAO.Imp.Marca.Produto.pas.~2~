@@ -1,0 +1,55 @@
+unit Model.DAO.Imp.Marca.Produto;
+
+interface
+
+uses
+  System.SysUtils,
+
+  Data.DB,
+
+  Uteis,
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Marca.Produto.Interfaces,
+  Model.Entidade.Marca.Produto.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Conexao.Query.Interfaces;
+
+type
+  TDAOMarcaProduto = class(TInterfacedObject, iDAOMarcaProduto)
+    private
+      FGrupoProduto : iEntidadeMarcaProduto<iDAOMarcaProduto>;
+      FConexao      : iConexao;
+      FUteis        : TUteis;
+      FMSG          : TMensagens;
+
+      FDataSet      : TDataSet;
+      FQuery        : iQuery;
+   const
+      FSQL=('select '+
+            'gp.id, '+
+            'gp.idempresa, '+
+            'gp.nome, '+
+            'gp.ncm, '+
+            'gp.ativo '+
+            'from grupoproduto gp');
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDAOMarcaProduto;
+
+      function DataSet(DataSource : TDataSource) : iDAOMarcaProduto; overload;
+      function DataSet                           : TDataSet;         overload;
+      function GetAll                            : iDAOMarcaProduto;
+      function GetbyId(Id : Variant)             : iDAOMarcaProduto;
+      function GetbyParams                       : iDAOMarcaProduto;
+      function Post                              : iDAOMarcaProduto;
+      function Put                               : iDAOMarcaProduto;
+      function Delete                            : iDAOMarcaProduto;
+
+      function This : iEntidadeMarcaProduto<iDAOMarcaProduto>;
+  end;
+
+implementation
+
+end.

@@ -1,0 +1,7 @@
+unit Model.Entidade.Pedido.Item.Interfaces;
+
+interface
+
+implementation
+
+end.

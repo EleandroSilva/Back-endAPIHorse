@@ -1,0 +1,318 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 05/04/2024 09:19           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2004/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.DAO.Imp.Telefone.Pessoa;
+
+interface
+
+uses
+  Data.DB,
+
+  System.SysUtils,
+
+  Uteis,
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Telefone.Pessoa.Interfaces,
+  Model.Entidade.Telefone.Pessoa.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Conexao.Query.Interfaces,
+  Model.Entidade.Imp.Telefone.Pessoa,
+  Model.Conexao.Firedac.MySQL.Imp,
+  Model.Conexao.Query.Imp;
+type
+  TDAOTelefonePessoa = class(TInterfacedObject, iDAOTelefonePessoa)
+    private
+      FTelefonePessoa : iEntidadeTelefonePessoa<iDAOTelefonePessoa>;
+      FConexao        : iConexao;
+      FQuery          : iQuery;
+      FUteis          : TUteis;
+      FMSG            : TMensagens;
+      FDataSet        : TDataSet;
+
+      FKey     : String;
+      FValue   : String;
+
+      const
+        FSQL=('select '+
+              'tp.id, '+
+              'tp.idpessoa, '+
+              'tp.idempresa, '+
+              'tp.operadora, '+
+              'tp.ddd, '+
+              'tp.numerotelefone, '+
+              'tp.tipotelefone, '+
+              'tp.ativo'
+              );
+        FCount=(','+
+                '('+
+                ' select '+
+                ' count(*) '+
+                ' from telefonepessoa tp1' +
+                ' where tp1.idpessoa=tp.idpessoa '+
+                ') as quantidaderegistro '
+                );
+        FFrom=('from telefonepessoa tp ');
+
+      procedure FiltroKey;
+      function  FiltroValue(Value : String) : String;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDAOTelefonePessoa;
+
+      function DataSet(DataSource : TDataSource) : iDAOTelefonePessoa; overload;
+      function DataSet                           : TDataSet;            overload;
+      function GetAll                            : iDAOTelefonePessoa;
+      function GetbyId(Id : Variant)             : iDAOTelefonePessoa;
+      function GetbyParams                       : iDAOTelefonePessoa;
+      function Post                              : iDAOTelefonePessoa;
+      function Put                               : iDAOTelefonePessoa;
+      function Delete                            : iDAOTelefonePessoa;
+
+      function This : iEntidadeTelefonePessoa<iDAOTelefonePessoa>;
+  end;
+
+implementation
+
+constructor TDAOTelefonePessoa.Create;
+begin
+  FTelefonePessoa := TEntidadeTelefonePessoa<iDAOTelefonePessoa>.New(Self);
+  FConexao        := TModelConexaoFiredacMySQL.New;
+  FQuery          := TQuery.New;
+  FUteis          := TUteis.Create;
+  FMSG            := TMensagens.Create;
+end;
+
+destructor TDAOTelefonePessoa.Destroy;
+begin
+  FreeAndNil(FUteis);
+  FreeAndNil(FMSG);
+  inherited;
+end;
+
+class function TDAOTelefonePessoa.New: iDAOTelefonePessoa;
+begin
+  Result := Self.Create;
+end;
+
+procedure TDAOTelefonePessoa.FiltroKey;
+begin
+  if FTelefonePessoa.Id              > 0 then FKey := 'id';
+  if FTelefonePessoa.IdPessoa        > 0 then FKey := 'idpessoa';
+  if FTelefonePessoa.IdEmpresa       > 0 then FKey := 'idempresa';
+  if FTelefonePessoa.Operadora      <>'' then FKey := 'operadora';
+  if FTelefonePessoa.NumeroTelefone <>'' then FKey := 'numerotelefone';
+
+  FValue := FiltroValue(FKey);
+end;
+
+function TDAOTelefonePessoa.FiltroValue(Value: String): String;
+begin
+  Result := '';
+  if Value ='id' then
+    Result := IntToStr(FTelefonePessoa.Id);
+  if Value ='idpessoa' then
+    Result := IntToStr(FTelefonePessoa.IdPessoa);
+  if Value ='idempresa' then
+    Result := IntToStr(FTelefonePessoa.IdEmpresa);
+  if Value ='operadora' then
+    Result := FTelefonePessoa.Operadora;
+  if Value ='numerotelefone' then
+    Result := FTelefonePessoa.NumeroTelefone;
+end;
+
+function TDAOTelefonePessoa.DataSet(DataSource: TDataSource): iDAOTelefonePessoa;
+begin
+  Result := Self;
+  if not Assigned(FDataset) then
+    DataSource.DataSet := FQuery.DataSet
+  else
+    DataSource.DataSet := FDataSet;
+end;
+
+function TDAOTelefonePessoa.DataSet: TDataSet;
+begin
+  Result := FDataSet;
+end;
+
+function TDAOTelefonePessoa.GetAll: iDAOTelefonePessoa;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL+FCount+FFrom)
+                    .Open
+                  .DataSet;
+    except
+     raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+      FTelefonePessoa.Id(FDataSet.FieldByName('id').AsInteger) else FTelefonePessoa.Id(0);
+  end;
+end;
+
+function TDAOTelefonePessoa.GetbyId(Id: Variant): iDAOTelefonePessoa;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL+FFrom)
+                    .Add('where e.idpessoa=:idpessoa')
+                    .Params('Idpessoa', Id)
+                    .Open
+                  .DataSet;
+    except
+      raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+      FTelefonePessoa.Id(FDataSet.FieldByName('id').AsInteger) else FTelefonePessoa.Id(0);
+  end;
+end;
+
+function TDAOTelefonePessoa.GetbyParams: iDAOTelefonePessoa;
+begin
+  Result := Self;
+  FiltroKey;
+  try
+   try
+     FDataSet := FQuery
+                   .SQL(FSQL+FCount+FFrom+' where ' + FUteis.Pesquisar(FKey, ';' + FValue))
+                   .Open
+                 .DataSet;
+   except
+     raise exception.Create(FMSG.MSGerroGet);
+   end;
+  finally
+   if not FDataSet.IsEmpty then
+     FTelefonePessoa.Id(FDataSet.FieldByName('id').AsInteger) else FTelefonePessoa.Id(0);
+  end;
+end;
+
+function TDAOTelefonePessoa.Post: iDAOTelefonePessoa;
+const
+  LSQL=('insert into telefonepessoa( '+
+                                 'idpessoa, '+
+                                 'idempresa, ' +
+                                 'operadora, '+
+                                 'ddd, '+
+                                 'numerotelefone, '+
+                                 'tipotelefone, '+
+                                 'ativo '+
+                                 ')'+
+                                 ' values '+
+                                 '('+
+                                 ':idpessoa, '+
+                                 ':idempresa, ' +
+                                 ':operadora, '+
+                                 ':ddd, '+
+                                 ':numerotelefone, '+
+                                 ':tipotelefone, '+
+                                 ':ativo '+
+                                 ')'
+       );
+begin
+  Result := Self;
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('idpessoa'       , FTelefonePessoa.IdPessoa)
+          .Params('idempresa'      , FTelefonePessoa.IdEmpresa)
+          .Params('operadora'      , FTelefonePessoa.Operadora)
+          .Params('ddd'            , FTelefonePessoa.DDD)
+          .Params('numerotelefone' , FTelefonePessoa.NumeroTelefone())
+          .Params('tipotelefone'   , FTelefonePessoa.TipoTelefone())
+          .Params('ativo'          , FTelefonePessoa.Ativo)
+          .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPost);
+    end;
+  finally
+    FConexao.Commit;
+    FDataSet := FQuery
+                    .SQL('select LAST_INSERT_ID () as id')
+                    .Open
+                    .DataSet;
+    FTelefonePessoa.Id(FDataSet.FieldByName('id').AsInteger);
+  end;
+end;
+
+function TDAOTelefonePessoa.Put: iDAOTelefonePessoa;
+const
+  LSQL=('update telefonepessoa set '+
+                               'idpessoa      =:idpessoa, '+
+                               'idempresa     =:idempresa, '+
+                               'operadora     =:operadora, '+
+                               'ddd           =:ddd, '+
+                               'numerotelefone=:numerotelefone, '+
+                               'tipotelefone  =:tipotelefone, '+
+                               'ativo         =:ativo '+
+                               'where id=:id '
+       );
+begin
+  Result := Self;
+
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('id'             , FTelefonePessoa.Id)
+          .Params('idpessoa'       , FTelefonePessoa.IdPessoa)
+          .Params('idempresa'      , FTelefonePessoa.IdEmpresa)
+          .Params('operadora'      , FTelefonePessoa.Operadora)
+          .Params('ddd'            , FTelefonePessoa.DDD)
+          .Params('numerotelefone' , FTelefonePessoa.NumeroTelefone)
+          .Params('tipotelefone'   , FTelefonePessoa.TipoTelefone)
+          .Params('ativo'          , FTelefonePessoa.Ativo)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPut);
+    end;
+  finally
+    FConexao.Commit;
+    //Criar MSG
+  end;
+end;
+
+function TDAOTelefonePessoa.Delete: iDAOTelefonePessoa;
+const
+  LSQL=('delete from telefonepessoa where id=:id ');
+begin
+  Result := self;
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery.SQL(LSQL)
+               .Params('id', FTelefonePessoa.Id)
+            .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroDelete);
+    end;
+  finally
+    FConexao.Commit;
+    //Criar MSG
+  end;
+end;
+
+function TDAOTelefonePessoa.This: iEntidadeTelefonePessoa<iDAOTelefonePessoa>;
+begin
+  Result := FTelefonePessoa;
+end;
+
+end.

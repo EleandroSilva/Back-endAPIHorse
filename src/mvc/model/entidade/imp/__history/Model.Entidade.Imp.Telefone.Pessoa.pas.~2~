@@ -1,0 +1,45 @@
+unit Model.Entidade.Imp.Telefone.Pessoa;
+
+interface
+
+uses
+  Model.Entidade.Telefone.Pessoa.Interfaces;
+
+type
+  TEntidadeTelefonePessoa<T : iInterface> = class(TInterfacedObject, iEntidadeTelefonePessoa<T>)
+    private
+      [weak]
+      FParent    : T;
+      FId        : Integer;
+      FIdEmpresa : Integer;
+      FOperadora : String;
+      FDDD       : String;
+      FNumero    : String;
+      FTipo      : String;
+      FAtivo     : Integer;
+    public
+      constructor Create(Parent : T);
+      destructor Destroy; override;
+      class function New(Parent : T) : iEntidadeTelefonePessoa<T>;
+
+      function Id       (Value : Integer) : iEntidadeTelefonePessoa<T>; overload;
+      function Id                         : Integer;                    overload;
+      function IdEmpresa(Value : Integer) : iEntidadeTelefonePessoa<T>; overload;
+      function IdEmpresa                  : Integer;                    overload;
+      function Operadora(Value : String)  : iEntidadeTelefonePessoa<T>; overload;
+      function Operadora                  : String;                     overload;
+      function DDD      (Value : String)  : iEntidadeTelefonePessoa<T>; overload;
+      function DDD                        : String;                     overload;
+      function Numero   (Value : String)  : iEntidadeTelefonePessoa<T>; overload;
+      function Numero                     : String;                     overload;
+      function Tipo     (Value : String)  : iEntidadeTelefonePessoa<T>; overload;
+      function Tipo                       : String;                     overload;
+      function Ativo    (Value : Integer) : iEntidadeTelefonePessoa<T>; overload;
+      function Ativo                      : Integer;                    overload;
+
+      function &End : T;
+  end;
+
+implementation
+
+end.

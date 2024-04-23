@@ -1,0 +1,355 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 03/04/2024 16:03           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.DAO.Imp.Endereco.Pessoa;
+
+interface
+
+uses
+  Data.DB,
+
+  System.SysUtils,
+
+  Uteis,
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Endereco.Pessoa.Interfaces,
+  Model.Entidade.Endereco.Pessoa.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Conexao.Query.Interfaces,
+  Model.Entidade.Imp.Endereco.Pessoa,
+  Model.Conexao.Firedac.MySQL.Imp,
+  Model.Conexao.Query.Imp;
+
+type
+  TDAOEnderecoPessoa = class(TInterfacedObject, iDAOEnderecoPessoa)
+    private
+      FEnderecoPessoa : iEntidadeEnderecoPessoa<iDAOEnderecoPessoa>;
+      FConexao        : iConexao;
+      FQuery          : iQuery;
+      FUteis          : TUteis;
+      FMSG            : TMensagens;
+      FDataSet        : TDataSet;
+
+      FKey     : String;
+      FValue   : String;
+
+      const
+        FSQL=('select '+
+              'ep.id, '+
+              'ep.idempresa, '+
+              'ep.idendereco, '+
+              'ep.idpessoa, '+
+              'ed.cep, '+
+              'ed.tipologradouro , '+
+              'ed.logradouro, '+
+              'n.numeroendereco, '+
+              'n.complementoendereco, '+
+              'ed.Bairro, '+
+              'ed.ibge '+
+              'from enderecopessoa ep '+
+              'inner join endereco ed on ed.id        = ep.idendereco '+
+              'inner join empresa   e on e.Id         = ep.idempresa '+
+              'left  join numero    n on n.idendereco = ep.idendereco '
+               );
+
+      procedure FiltroKey;
+      function  FiltroValue(Value : String) : String;
+      function LoopRegistro (Value : Integer): Integer;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDAOEnderecoPessoa;
+
+      function DataSet(DataSource : TDataSource)            : iDAOEnderecoPessoa; overload;
+      function DataSet                                      : TDataSet;           overload;
+      function GetAll                                       : iDAOEnderecoPessoa;
+      function GetbyId(Id : Variant)                        : iDAOEnderecoPessoa;
+      function GetbyParams                                  : iDAOEnderecoPessoa; overload;
+      function GetbyParams(aIdEndereco, aIdEmpresa: Variant): iDAOEnderecoPessoa; overload;
+      function Post                                         : iDAOEnderecoPessoa;
+      function Put                                          : iDAOEnderecoPessoa;
+      function Delete                                       : iDAOEnderecoPessoa;
+      function QuantidadeRegistro                           : Integer;
+
+      function This : iEntidadeEnderecoPessoa<iDAOEnderecoPessoa>;
+  end;
+
+implementation
+
+{ TDAOEnderecoPessoa }
+
+constructor TDAOEnderecoPessoa.Create;
+begin
+  FEnderecoPessoa := TEntidadeEnderecoPessoa<iDAOEnderecoPessoa>.New(Self);
+  FConexao        := TModelConexaoFiredacMySQL.New;
+  FQuery          := TQuery.New;
+  FUteis          := TUteis.Create;
+  FMSG            := TMensagens.Create;
+end;
+
+destructor TDAOEnderecoPessoa.Destroy;
+begin
+  FreeAndNil(FUteis);
+  FreeAndNil(FMSG);
+  inherited;
+end;
+
+class function TDAOEnderecoPessoa.New: iDAOEnderecoPessoa;
+begin
+  Result := Self.Create;
+end;
+
+procedure TDAOEnderecoPessoa.FiltroKey;
+begin
+  if FEnderecoPessoa.IdPessoa      >0 then FKey := 'ep.idpessoa';
+  if FEnderecoPessoa.IdEndereco    >0 then FKey := 'ep.idendereco';
+  if FEnderecoPessoa.IdEmpresa     >0 then FKey := 'ep.idempresa';
+  if FEnderecoPessoa.Endereco.IBGE >0 then FKey := 'ed.ibge';
+  if FEnderecoPessoa.Endereco.Cep<>'' then FKey := 'ed.cep';
+
+  FValue := FiltroValue(FKey);
+end;
+
+function TDAOEnderecoPessoa.FiltroValue(Value: String): String;
+begin
+  Result := '';
+  if Value ='ep.idpessoa' then
+    Result := IntToStr(FEnderecoPessoa.IdPessoa);
+  if Value ='ep.idendereco' then
+    Result := IntToStr(FEnderecoPessoa.IdEndereco);
+  if Value ='ep.ideempresa' then
+    Result := IntToStr(FEnderecoPessoa.IdEndereco);
+  if Value ='ed.ibge'       then
+    Result := IntToStr(FEnderecoPessoa.Endereco.IBGE);
+  if Value ='ed.cep'        then
+    Result := FEnderecoPessoa.Endereco.Cep;
+end;
+
+function TDAOEnderecoPessoa.DataSet(DataSource: TDataSource): iDAOEnderecoPessoa;
+begin
+  Result := Self;
+  if not Assigned(FDataset) then
+    DataSource.DataSet := FQuery.DataSet
+  else
+    DataSource.DataSet := FDataSet;
+end;
+
+function TDAOEnderecoPessoa.DataSet: TDataSet;
+begin
+  Result := FDataSet;
+end;
+
+function TDAOEnderecoPessoa.GetAll: iDAOEnderecoPessoa;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Open
+                  .DataSet;
+    except
+     raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+      FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger) else FEnderecoPessoa.Id(0);
+  end;
+end;
+
+function TDAOEnderecoPessoa.GetbyId(Id: Variant): iDAOEnderecoPessoa;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Add('where e.id=:id')
+                    .Params('Id', Id)
+                    .Open
+                  .DataSet;
+    except
+      raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+   if not FDataSet.IsEmpty then
+   begin
+     FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger);
+     QuantidadeRegistro;
+   end else FEnderecoPessoa.Id(0);
+  end;
+end;
+
+function TDAOEnderecoPessoa.GetbyParams(aIdEndereco, aIdEmpresa: Variant): iDAOEnderecoPessoa;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                      .Add('where ee.idpessoa  =:idpessoa')
+                      .Add('and   ee.idendereco=:idendereco')
+                      .Params('idpessoa'   , aIdPessoa)
+                      .Params('idendereco' , aIdEndereco)
+                    .Open
+                  .DataSet;
+    except
+      on E: Exception do
+        raise Exception.Create(E.Message);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+      FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger)
+      else
+      FEnderecoPessoa.Id(0);
+  end
+end;
+
+function TDAOEnderecoPessoa.GetbyParams: iDAOEnderecoPessoa;
+begin
+  Result := Self;
+  FiltroKey;
+  try
+   try
+     FDataSet := FQuery
+                   .SQL(FSQL)
+                     .Add('where ep.idpessoa =:idpessoa')
+                     .Add('and   ep.idempresa=ep.idempresa')
+                     .Params('idpessoa'  , FEnderecoPessoa.Idpessoa)
+                     .Add('order by ep.idpessoa asc')
+                     .Add(', ep.idendereco asc')
+                   .Open
+                 .DataSet;
+   except
+     raise exception.Create(FMSG.MSGerroGet);
+   end;
+  finally
+   if not FDataSet.IsEmpty then
+   begin
+     FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger);
+     QuantidadeRegistro;
+   end else FEnderecoPessoa.Id(0);
+  end;
+end;
+
+function TDAOEnderecoPessoa.Post: iDAOEnderecoPessoa;
+const
+  LSQL=('insert into enderecopessoa('+
+                                    'idempresa,' +
+                                    'idendereco, '+
+                                    'idpessoa '+
+                                    ')'+
+                                    ' values '+
+                                    '('+
+                                    ':idempresa,' +
+                                    ':idendereco, '+
+                                    ':idpessoa '+
+                                    ')'
+       );
+begin
+  Result := Self;
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('idempresa'  , FEnderecoPessoa.IdEmpresa)
+          .Params('idendereco' , FEnderecoPessoa.IdEndereco)
+          .Params('idpessoa'   , FEnderecoPessoa.IdPessoa)
+          .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPost);
+    end;
+  finally
+    FConexao.Commit;
+    FDataSet := FQuery
+                    .SQL('select LAST_INSERT_ID () as id')
+                    .Open
+                    .DataSet;
+    FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger);
+  end;
+end;
+
+function TDAOEnderecoPessoa.Put: iDAOEnderecoPessoa;
+const
+  LSQL=('update enderecopessoa set '+
+                               'idempresa =:idempresa, '+
+                               'idendereco=:idendereco, '+
+                               'idpessoa  =:idpessoa '+
+                               'where id=:id '
+       );
+begin
+  Result := Self;
+
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('id'         , FEnderecoPessoa.Id)
+          .Params('idempresa'  , FEnderecoPessoa.IdEmpresa)
+          .Params('idendereco' , FEnderecoPessoa.IdEndereco)
+          .Params('idpessoa'   , FEnderecoPessoa.IdPessoa)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPut);
+    end;
+  finally
+    FConexao.Commit;
+  end;
+end;
+
+function TDAOEnderecoPessoa.Delete: iDAOEnderecoPessoa;
+const
+  LSQL=('delete from enderecopessoa where id=:id ');
+begin
+  Result := self;
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery.SQL(LSQL)
+               .Params('id', FEnderecoPessoa.Id)
+            .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroDelete);
+    end;
+  finally
+    FConexao.Commit;
+  end;
+end;
+
+function TDAOEnderecoPessoa.LoopRegistro(Value : Integer): Integer;
+begin
+  FDataSet.First;
+  try
+    while not FDataSet.Eof do
+    begin
+      Value := Value + 1;
+      FDataSet.Next;
+    end;
+  finally
+    Result := Value;
+  end;
+end;
+
+function TDAOEnderecoPessoa.QuantidadeRegistro : Integer;
+begin
+  Result := LoopRegistro(0);
+end;
+
+function TDAOEnderecoPessoa.This: iEntidadeEnderecoPessoa<iDAOEnderecoPessoa>;
+begin
+  Result := FEnderecoPessoa;
+end;
+
+end.

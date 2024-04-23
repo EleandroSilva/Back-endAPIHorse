@@ -1,0 +1,7 @@
+unit Model.DAO.Regiao.Estado.Interfaces;
+
+interface
+
+implementation
+
+end.

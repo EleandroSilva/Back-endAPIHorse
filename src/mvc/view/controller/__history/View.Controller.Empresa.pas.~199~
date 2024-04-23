@@ -1,0 +1,591 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 13/03/2024 17:18           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit View.Controller.Empresa;
+
+interface
+
+uses
+  System.Classes,
+  System.SysUtils,
+  System.JSON,
+
+  Vcl.StdCtrls,
+
+  Data.DB,
+
+  FireDAC.Comp.Client,
+
+  DataSet.Serialize,
+  Horse,
+  Horse.BasicAuthentication,
+
+  Controller.Interfaces,
+  Imp.Controller;
+
+type
+  TViewControllerEmpresa = class
+    private
+      FTexto      : String;
+      FIdEmpresa  : Integer;
+      FIdEndereco : Integer;
+
+      FController : iController;
+      FBody       : TJSONValue;
+      memoJSON    : TMemo;
+
+      //Json empresa-->tabela pai
+      FEmpresaJSONObject  : TJSONObject;
+      FEmpresaJSONArray   : TJSONArray;
+      //Json - endereco
+      FEnderecoJSONObject : TJSONObject;
+      FEnderecoJSONArray  : TJSONArray;
+
+      //Json EMail
+      FEMailJSONObject    : TJSONObject;
+      FEMailJSONArray     : TJSONArray;
+      //Json Telefone
+      FTelefoneJSONObject : TJSONObject;
+      FTelefoneJSONArray  : TJSONArray;
+
+      FDataSourceEmpresa  : TDataSource;
+      FDataSourceEndereco : TDataSource;
+      FDataSourceEmail    : TDataSource;
+      FDataSourceTelefone : TDataSource;
+
+      procedure GetAll (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure GetbyId(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Post   (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Put    (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Delete (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+
+      procedure Registry;
+
+      procedure LoopEmpresa;
+      //Infeção de dependência
+      function LoopEnderecoEmpresa : Boolean;
+      function LoopEmailEmpresa    : Boolean;
+      function LoopTelefoneEmpresa : Boolean;
+    public
+      constructor Create;
+      destructor Destroy; override;
+  end;
+
+implementation
+
+{ TViewControllerEmpresa }
+
+constructor TViewControllerEmpresa.Create;
+begin
+  FController         := TController.New;
+  FDataSourceEmpresa  := TDataSource.Create(nil);
+  FDataSourceEndereco := TDataSource.Create(nil);
+  FDataSourceEmail    := TDataSource.Create(nil);
+  FDataSourceTelefone := TDataSource.Create(nil);
+  memoJSON   := TMemo.Create(nil);
+  Registry;
+end;
+
+destructor TViewControllerEmpresa.Destroy;
+begin
+  FreeAndNil(memoJSON);
+  inherited;
+end;
+
+//Empresa tabela pai
+procedure TViewControllerEmpresa.LoopEmpresa;
+begin
+  FEmpresaJSONArray := TJSONArray.Create;//Jsonarray Geral
+  FDataSourceEmpresa.DataSet.First;
+  while not FDataSourceEmpresa.DataSet.Eof do
+  begin
+    FEmpresaJSONObject := TJSONObject.Create;//JSONObject(Tabela pai---> endereco)
+    FEmpresaJSONObject := FDataSourceEmpresa.DataSet.ToJSONObject;
+
+    if LoopEnderecoEmpresa then
+      FEmpresaJSONObject.AddPair('enderecos' , FEnderecoJSONArray);//Json tabela endereco
+
+    if LoopEmailEmpresa then
+      FEmpresaJSONObject.AddPair('emails'    , FEMailJSONArray);//Json tabela email
+
+    if LoopTelefoneEmpresa then
+      FEmpresaJSONObject.AddPair('telefones' , FTelefoneJSONArray);//Json tabela telefone
+
+    FEmpresaJSONArray.Add(FEmpresaJSONObject);
+    FDataSourceEmpresa.DataSet.Next;
+  end;
+end;
+
+//Endereco
+function TViewControllerEmpresa.LoopEnderecoEmpresa : Boolean;
+begin
+  Result := False;
+  FController
+    .FactoryEntidade
+      .DAOEnderecoEmpresa
+        .This
+          .IdEmpresa(FDataSourceEmpresa.DataSet.FieldByName('id').AsInteger)
+      .&End
+      .GetbyParams
+      .DataSet(FDataSourceEndereco);
+
+   if not FDataSourceEndereco.DataSet.IsEmpty then
+   begin
+     Result := True;
+     FEnderecoJSONArray := TJSONArray.Create;//JsonArrayEndereco
+
+     FDataSourceEndereco.DataSet.First;
+     while not FDataSourceEndereco.DataSet.Eof do
+     begin
+       FEnderecoJSONObject := TJSONObject.Create;
+       FEnderecoJSONObject := FDataSourceEndereco.DataSet.ToJSONObject;
+
+       FEnderecoJSONArray.Add(FEnderecoJSONObject);
+
+       FDataSourceEndereco.DataSet.Next;
+     end;
+   end;
+end;
+
+//Email
+function TViewControllerEmpresa.LoopEmailEmpresa : Boolean;
+begin
+  Result := False;
+  FController
+    .FactoryEntidade
+      .DAOEmailEmpresa
+        .This
+          .IdEmpresa(FDataSourceEmpresa.DataSet.FieldByName('id').AsInteger)
+      .&End
+      .GetbyParams
+      .DataSet(FDataSourceEmail);
+
+   if not FDataSourceEmail.DataSet.IsEmpty then
+   begin
+     Result := True;
+     FEMailJSONArray := TJSONArray.Create;//JsonArrayEMail
+
+     FDataSourceEmail.DataSet.First;
+     while not FDataSourceEmail.DataSet.Eof do
+     begin
+       FEMailJSONObject := TJSONObject.Create;
+       FEMailJSONObject := FDataSourceEmail.DataSet.ToJSONObject;
+
+       FEMailJSONArray.Add(FEMailJSONObject);
+
+       FDataSourceEmail.DataSet.Next;
+     end;
+   end;
+end;
+
+//Telefone
+function TViewControllerEmpresa.LoopTelefoneEmpresa: Boolean;
+begin
+  Result := False;
+  FController
+    .FactoryEntidade
+      .DAOTelefoneEmpresa
+        .This
+          .IdEmpresa(FDataSourceEmpresa.DataSet.FieldByName('id').AsInteger)
+      .&End
+      .GetbyParams
+      .DataSet(FDataSourceTelefone);
+
+   if not FDataSourceTelefone.DataSet.IsEmpty then
+   begin
+     Result := True;
+     FTelefoneJSONArray := TJSONArray.Create;//JsonArrayEMail
+
+     FDataSourceTelefone.DataSet.First;
+     while not FDataSourceTelefone.DataSet.Eof do
+     begin
+       FTelefoneJSONObject := TJSONObject.Create;
+       FTelefoneJSONObject := FDataSourceTelefone.DataSet.ToJSONObject;
+
+       FTelefoneJSONArray.Add(FTelefoneJSONObject);
+
+       FDataSourceTelefone.DataSet.Next;
+     end;
+   end;
+end;
+
+procedure TViewControllerEmpresa.GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  try
+    try
+      if ((Req.Query.Field('cnpj').AsString<>'') or (Req.Query.Field('nomeempresarial').AsString<>'')) then
+        FController
+          .FactoryEntidade
+            .DAOEmpresa
+              .This
+                .CNPJ           (Req.Query.Field('cnpj').AsString)
+                .NomeEmpresarial(Req.Query.Field('nomeempresarial').AsString)
+              .&End
+            .GetbyParams
+            .DataSet(FDataSourceEmpresa)
+      else
+        FController
+          .FactoryEntidade
+            .DAOEmpresa
+              .GetAll
+              .DataSet(FDataSourceEmpresa);
+
+      if not FDataSourceEmpresa.DataSet.IsEmpty then
+        LoopEmpresa else
+        Res.Status(200).Send('Registro não encontrado!');
+    except
+      raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+    end;
+  finally
+    Res.Send<TJSONArray>(FEmpresaJSONArray);
+    Res.Status(200).Send('Registro encontrado com sucesso!');
+  end;
+end;
+
+procedure TViewControllerEmpresa.GetbyId(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+   Try
+     Try
+       FController
+         .FactoryEntidade
+           .DAOEmpresa
+             .GetbyId(Req.Params['id'].ToInt64)
+             .DataSet(FDataSourceEmpresa);
+
+     if not FDataSourceEmpresa.DataSet.IsEmpty then
+       LoopEmpresa else
+       Res.Status(200).Send('Registro não encontrado!');
+     except
+       raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+     end;
+   Finally
+     Res.Send<TJSONArray>(FEmpresaJSONArray);
+     Res.Status(200).Send('Registro encontrado com sucesso!');
+   end;
+end;
+
+procedure TViewControllerEmpresa.Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+Var
+  I : Integer;
+  LEmpresaObject  : TJSONObject;//JSONObject-empresa
+
+  LEnderecoArray  : TJSONArray; //JSONArray -endereco
+  LEnderecoObject : TJSONObject;//JSONObject-endereco
+  LNumerosArray   : TJSONArray;//JSONArray-numero
+  LNumeroObject   : TJSONObject;//JSONObject-numero
+  LEmailArray     : TJSONArray; //JSONArray -email
+  LEmailObject    : TJSONObject;//JSONObject-email
+  LTelefoneArray  : TJSONArray; //JSONArray -telefone
+  LTelefoneObject : TJSONObject;//JSONObject-telefone
+begin
+  //Lê os dados JSON da requisição (tabela pai='empresa')
+  LEmpresaObject := Req.Body<TJSONObject>;
+  try
+    //tabela pai
+    try
+      FController
+          .FactoryEntidade
+            .DAOEmpresa
+              .This
+                .CNPJ                 (LEmpresaObject.GetValue<String>   ('cnpj'))
+                .InscricaoEstadual    (LEmpresaObject.GetValue<String>   ('inscricaoestadual'))
+                .NomeEmpresarial      (LEmpresaObject.GetValue<String>   ('nomeempresarial'))
+                .NomeFantasia         (LEmpresaObject.GetValue<String>   ('nomefantasia'))
+                .NaturezaJuridica     (LEmpresaObject.GetValue<String>   ('naturezajuridica'))
+                .DataEmissao          (LEmpresaObject.GetValue<TDateTime>('dataemissao'))
+                .DataSituacaoCadastral(LEmpresaObject.GetValue<TDateTime>('datasituacaocadastral'))
+                .Ativo                (LEmpresaObject.GetValue<integer>  ('ativo'))
+              .&End
+              .Post
+            .DataSet(FDataSourceEmpresa);
+        FIdEmpresa := FDataSourceEmpresa.DataSet.FieldByName('id').AsInteger;
+      except
+        raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+    end;
+
+    //Obtém os dados JSON do corpo da requisição da tabela('endereco')
+    LEnderecoArray := LEmpresaObject.GetValue('endereco') as TJSONArray;
+    try
+      // Loop do(s) endereço(s)
+      for I := 0 to LEnderecoArray.Count - 1 do
+      begin
+        //Extraindo os dados do endereço e salvando no banco de dados
+        LEnderecoObject := LEnderecoArray.Items[I] as TJSONObject;
+
+        FController
+          .FactoryEntidade
+            .DAOEndereco
+              .This
+                .Cep         (LEnderecoObject.GetValue('cep')         .Value)
+                .IBGE        (LEnderecoObject.GetValue('ibge')        .Value.ToInteger)
+                .UF          (LEnderecoObject.GetValue('uf')          .Value)
+                .TipoEndereco(LEnderecoObject.GetValue('tipoendereco').Value)
+                .Endereco    (LEnderecoObject.GetValue('endereco')    .Value)
+                .Bairro      (LEnderecoObject.GetValue('bairro')      .Value)
+                .GIA         (LEnderecoObject.GetValue('gia')         .Value.ToInteger)
+                .DDD         (LEnderecoObject.GetValue('ddd')         .Value)
+              .&End
+            .Post
+            .DataSet(FDataSourceEndereco);
+        FIdEndereco := FDataSourceEndereco.DataSet.FieldByName('id').AsInteger;
+
+        LNumeroObject := TJSONObject(LEnderecoObject.GetValue('numero'));
+        //Inserindo dados na tabela numero
+        FController
+                .FactoryEntidade
+                  .DAONumero
+                    .This
+                      .IdEndereco (FIdEndereco)
+                      .Numero     (LNumeroObject.GetValue('numero')     .Value)
+                      .Complemento(LNumeroObject.GetValue('complemento').Value)
+                      .&End
+                  .Post;
+
+        //Inserindo dados na tabela enderecoempresa
+        FController
+                 .FactoryEntidade
+                   .DAOEnderecoEmpresa
+                     .This
+                       .IdEndereco(FIdEndereco)
+                       .IdEmpresa (FIdEmpresa)
+                       .&End
+                     .Post;
+      end;
+    except
+      raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+    end;
+
+    //Obtém os dados JSON do corpo da requisição da tabela('emailempresa')
+    LEmailArray := LEmpresaObject.GetValue('email') as TJSONArray;
+    try
+      //Loop emails
+      for I := 0 to LEmailArray.Count - 1 do
+      begin
+        //Extraindo os dados do(s) emai(s)  e salvando no banco de dados
+        LEmailObject :=  LEmailArray.Items[I] as TJSONObject;
+        FController
+               .FactoryEntidade
+                 .DAOEmailEmpresa
+                   .This
+                     .IdEmpresa(FIdEmpresa)
+                     .Email    (LEmailObject.GetValue('email').Value)
+                     .&End
+                   .Post;
+      end;
+    except
+      raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+    end;
+
+    //Obtém os dados JSON do corpo da requisição da tabela('telefoneempresa')
+    LTelefoneArray := LEmpresaObject.GetValue('telefone') as TJSONArray;
+    try
+      //Loop telefone(s)
+      for I := 0 to LTelefoneArray.Count - 1 do
+      begin
+        //Extraindo os dados do(s) telefone(s) e salvando no banco de dados
+        LTelefoneObject := LTelefoneArray.Items[I] as TJSONObject;
+        FController
+               .FactoryEntidade
+                 .DAOTelefoneEmpresa
+                   .This
+                     .IdEmpresa(FIdEmpresa)
+                     .Operadora(LTelefoneObject.GetValue('operadora').Value)
+                     .DDD      (LTelefoneObject.GetValue('ddd')      .Value)
+                     .Numero   (LTelefoneObject.GetValue('numero')   .Value)
+                     .Tipo     (LTelefoneObject.GetValue('tipo')     .Value)
+                     .Ativo    (LTelefoneObject.GetValue('ativo')    .Value.ToInteger)
+                     .&End
+                   .Post;
+      end;
+    except
+      raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+    end;
+  finally
+    Res.Status(200).Send('Registro incluído com sucesso!');
+  end;
+end;
+
+procedure TViewControllerEmpresa.Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  I : Integer;
+  LEmpresaObject  : TJSONObject;//JSONObject-empresa
+
+  LEnderecoArray  : TJSONArray; //JSONArray -endereco
+  LEnderecoObject : TJSONObject;//JSONObject-endereco
+  LNumerosArray   : TJSONArray;//JSONArray-numero
+  LNumeroObject   : TJSONObject;//JSONObject-numero
+  LEmailArray     : TJSONArray; //JSONArray -email
+  LEmailObject    : TJSONObject;//JSONObject-email
+  LTelefoneArray  : TJSONArray; //JSONArray -telefone
+  LTelefoneObject : TJSONObject;//JSONObject-telefone
+begin
+  LEmpresaObject := Req.Body<TJSONObject>; //Tabela Pai Empresa
+  memoJSON.Text := LEmpresaObject.Format();
+  try
+    try
+      FController
+        .FactoryEntidade
+          .DAOEmpresa
+            .This
+              .Id                   (LEmpresaObject.GetValue('id').Value.ToInteger)
+              .CNPJ                 (LEmpresaObject.GetValue<String>   ('cnpj'))
+              .InscricaoEstadual    (LEmpresaObject.GetValue<String>   ('inscricaoestadual'))
+              .NomeEmpresarial      (LEmpresaObject.GetValue<String>   ('nomeempresarial'))
+              .NomeFantasia         (LEmpresaObject.GetValue<String>   ('nomefantasia'))
+              .NaturezaJuridica     (LEmpresaObject.GetValue<String>   ('naturezajuridica'))
+              .DataEmissao          (LEmpresaObject.GetValue<TDateTime>('dataemissao'))
+              .DataSituacaoCadastral(LEmpresaObject.GetValue<TDateTime>('datasituacaocadastral'))
+              .Ativo                (LEmpresaObject.GetValue<Integer>  ('ativo'))
+            .&End
+          .Put
+          .DataSet(FDataSourceEmpresa);
+    except
+      raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+    end;
+
+    //Obtém os dados JSON do corpo da requisição da tabela('endereco')
+    LEnderecoArray := LEmpresaObject.Get('endereco').JsonValue as TJSONArray;
+    memoJSON.Text := LEnderecoArray.Format();
+    try
+      // Loop do(s) endereço(s)
+      for I := 0 to LEnderecoArray.Count - 1 do
+      begin
+        LEnderecoObject := LEnderecoArray.Items[I] as TJSONObject;
+
+        FController
+          .FactoryEntidade
+            .DAOEndereco
+              .This
+                .Id          (LEnderecoObject.GetValue<Integer>('id'))
+                .Cep         (LEnderecoObject.GetValue<String>('cep'))
+                .IBGE        (LEnderecoObject.GetValue<Integer>('ibge'))
+                .UF          (LEnderecoObject.GetValue<String>('uf'))
+                .TipoEndereco(LEnderecoObject.GetValue<String>('tipoendereco'))
+                .Endereco    (LEnderecoObject.GetValue<String>('endereco'))
+                .Bairro      (LEnderecoObject.GetValue<String>('bairro'))
+                .GIA         (LEnderecoObject.GetValue<Integer>('gia'))
+                .DDD         (LEnderecoObject.GetValue<String>('ddd'))
+              .&End
+            .Put
+            .DataSet(FDataSourceEndereco);
+
+
+        //Inserindo dados na tabela numero
+        LNumeroObject := TJSONObject(LEnderecoObject.GetValue('numero'));
+        //LNumerosArray := (LEnderecoArray.Items[I] as TJSONObject).GetValue('numero') as TJSONArray;
+        FController
+              .FactoryEntidade
+                .DAONumero
+                  .This
+                    .Id         (LNumeroObject  .GetValue<Integer>('id'))
+                    .IdEndereco (LEnderecoObject.GetValue<Integer>('id'))
+                    .Numero     (LNumeroObject  .GetValue<String>('numero'))
+                    .Complemento(LNumeroObject  .GetValue<String>('complemento'))
+                    .&End
+                .Put;
+
+        //Inserindo dados na tabela enderecoempresa
+        FController
+               .FactoryEntidade
+                 .DAOEnderecoEmpresa
+                   .This
+                     .IdEndereco(LEnderecoObject.GetValue<Integer>('id'))
+                     .IdEmpresa (LEmpresaObject .GetValue('id').Value.ToInteger)
+                     .&End
+                   .Put;
+      end;
+    except
+      raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+    end;
+
+    //Obtém os dados JSON do corpo da requisição da tabela('emailempresa')
+    LEmailArray := LEmpresaObject.Get('email').JsonValue as TJSONArray;
+    try
+      //Loop emails
+      for I := 0 to LEmailArray.Count - 1 do
+      begin
+        //Extraindo os dados do(s) emai(s)  e salvando no banco de dados
+        LEmailObject :=  LEmailArray.Items[I] as TJSONObject;
+        FController
+               .FactoryEntidade
+                 .DAOEmailEmpresa
+                   .This
+                     .Id       (LEmailObject.GetValue<Integer>('id'))
+                     .IdEmpresa(LEmpresaObject.GetValue('id').Value.ToInteger)
+                     .Email    (LEmailObject.GetValue<String>('email'))
+                     .&End
+                   .Put;
+      end;
+    except
+      raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+    end;
+
+    //Obtém os dados JSON do corpo da requisição da tabela('telefoneempresa')
+    LTelefoneArray := LEmpresaObject.Get('telefone').JsonValue as TJSONArray;
+    try
+      //Loop telefone(s)
+      for I := 0 to LTelefoneArray.Count - 1 do
+      begin
+        //Extraindo os dados do(s) telefone(s) e salvando no banco de dados
+        LTelefoneObject := LTelefoneArray.Items[I] as TJSONObject;
+        FController
+               .FactoryEntidade
+                 .DAOTelefoneEmpresa
+                   .This
+                     .Id       (LTelefoneObject.GetValue<Integer>('id'))
+                     .IdEmpresa(LEmpresaObject.GetValue('id').Value.ToInteger)
+                     .Operadora(LTelefoneObject.GetValue<String> ('operadora'))
+                     .DDD      (LTelefoneObject.GetValue<String> ('ddd'))
+                     .Numero   (LTelefoneObject.GetValue<String> ('numero'))
+                     .Tipo     (LTelefoneObject.GetValue<String> ('tipo'))
+                     .Ativo    (LTelefoneObject.GetValue<Integer>('ativo'))
+                     .&End
+                   .Put;
+      end;
+    except
+      raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+    end;
+  finally
+    Res.Status(200).Send('Registro alterado com sucesso!');
+  end;
+end;
+
+procedure TViewControllerEmpresa.Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  try
+    try
+      FController
+        .FactoryEntidade
+          .DAOEmpresa
+            .This
+              .Id(Req.Params['id'].ToInt64)
+            .&End
+          .Delete
+          .DataSet(FDataSourceEmpresa);
+    except
+      raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+    End;
+  Finally
+    Res.Status(200).Send('Registro excluído com sucesso!');
+  End;
+end;
+
+procedure TViewControllerEmpresa.Registry;
+begin
+  THorse
+      .Group
+        .Prefix  ('bmw')
+          .Get   ('/empresa/:id' , GetbyId)
+          .Get   ('/empresa'     , GetAll)
+          .Post  ('empresa'      , Post)
+          .Put   ('empresa/:id'  , Put)
+          .Delete('empresa/:id'  , Delete);
+end;
+
+end.

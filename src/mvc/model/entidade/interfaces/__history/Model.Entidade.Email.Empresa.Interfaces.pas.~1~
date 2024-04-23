@@ -1,0 +1,7 @@
+unit Model.Entidade.Email.Empresa.Interfaces;
+
+interface
+
+implementation
+
+end.

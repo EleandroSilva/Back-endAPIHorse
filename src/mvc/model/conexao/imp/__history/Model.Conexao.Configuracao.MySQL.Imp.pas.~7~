@@ -1,0 +1,133 @@
+unit Model.Conexao.Configuracao.MySQL.Imp;
+
+interface
+
+uses
+  System.SysUtils,
+  System.IniFiles,
+
+  Vcl.Forms,
+
+  Model.Conexao.Configuracao.MySQL.Interfaces;
+
+type
+  TConfiguracaoMySQL = class(TInterfacedObject, iConfiguracaoMySQL)
+    private
+      FArquivoIni   : TIniFile;
+      FDiretorioexe : String;
+
+      function CriarArquivo : TCOnfiguracaoMySQL;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New      : iConfiguracaoMySQL;
+
+      function ServerHost     : String;
+      function Port           : String;
+      function Database       : String;
+      function UserName       : String;
+      function Password       : String;
+      function DriverName     : String;
+      function LibraryName    : String;
+      function VendorLib      : String;
+      function GetDriveFunc   : String;
+      function ConnectionName : String;
+  end;
+
+implementation
+
+{ TConfiguracaoMySQL }
+
+constructor TConfiguracaoMySQL.Create;
+begin
+  FDiretorioexe := (ExtractFilePath(Application.ExeName));
+  if not FileExists(ExtractFilePath(Application.ExeName)+'ConfiguracaoMySQL.ini') then
+    CriarArquivo;
+
+  FArquivoIni := TIniFile.Create(FDiretorioexe + 'ConfiguracaoMySQL.ini');
+end;
+
+class function TConfiguracaoMySQL.New: iConfiguracaoMySQL;
+begin
+  Result := Self.Create;
+end;
+
+destructor TConfiguracaoMySQL.Destroy;
+begin
+  inherited;
+end;
+
+function TConfiguracaoMySQL.ServerHost: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'ServerHost', Result);
+end;
+
+function TConfiguracaoMySQL.Port: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'Port', Result);
+end;
+
+function TConfiguracaoMySQL.Database: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'Database', Result);
+end;
+
+
+function TConfiguracaoMySQL.UserName: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'UserName', Result);
+end;
+
+function TConfiguracaoMySQL.Password: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'Password', Result);
+end;
+
+function TConfiguracaoMySQL.DriverName: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'DriverName', Result);
+end;
+
+function TConfiguracaoMySQL.LibraryName: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'LibraryName', Result);
+end;
+
+function TConfiguracaoMySQL.VendorLib: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'VendorLib', Result);
+end;
+
+function TConfiguracaoMySQL.GetDriveFunc: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'GetDriveFunc', Result);
+end;
+
+function TConfiguracaoMySQL.ConnectionName: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'CoonectionName', Result);
+end;
+
+function TConfiguracaoMySQL.CriarArquivo: TCOnfiguracaoMySQL;
+begin
+  Result := Self;
+  FDiretorioexe := (ExtractFilePath(Application.ExeName));
+
+  FArquivoIni := TIniFile.Create(FDiretorioexe + 'ConfiguracaoMySQL.ini');
+  try
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'ServerHost'     ,ServerHost);
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'Port'           , Port);
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'Database'       , Database);
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'UserName'       , UserName);
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'Password'       , Password);
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'DriverName'     , DriverName);
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'LibraryName'    , LibraryName);
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'VendorLib'      , VendorLib);//;FDiretorioexe+'libmysql.dll');
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'GetDriveFunc'   , GetDriveFunc);
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'ConnectionName' , ConnectionName);
+  finally
+    FreeAndNil(FArquivoIni);
+  end;
+end;
+
+end.

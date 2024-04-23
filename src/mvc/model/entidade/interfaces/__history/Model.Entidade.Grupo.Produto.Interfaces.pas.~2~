@@ -1,0 +1,21 @@
+unit Model.Entidade.Grupo.Produto.Interfaces;
+
+interface
+
+type
+  iGrupoProduto = interface
+    ['{8EAA1FED-0229-492C-B7EB-1FCC725B9C7D}']
+    function Id(Value : Integer)        : iGrupoProduto; overload;
+    function Id                         : Integer;       overload;
+    function IdEmpresa(Value : Integer) : iGrupoProduto; overload;
+    function IdEmpresa                  : Integer;       overload;
+    function Nome(Value : String)       : iGrupoProduto; overload;
+    function Nome                       : String;        overload;
+    function Ativo(Value : Integer)     : iGrupoProduto; overload;
+    function Ativo                      : Integer;       overload;
+
+  end;
+
+implementation
+
+end.

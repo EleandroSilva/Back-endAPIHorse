@@ -1,0 +1,38 @@
+unit Model.Entidade.Imp.Endereco.Pessoa;
+
+interface
+
+uses
+  Model.Entidade.Endereco.Pessoa.Interfaces;
+
+type
+  TEntidadeEnderecoPessoa<T : iInterface> = class(TInterfacedObject, iEntidadeEnderecoPessoa<T>)
+    private
+      [weak]
+      FParent    : T;
+    public
+      constructor Create(Parent : T);
+      destructor Destroy; override;
+      class function New(Parent : T) : iEntidadeEnderecoPessoa<T>;
+  end;
+
+implementation
+
+{ TEntidadeEnderecoPessoa<T> }
+
+constructor TEntidadeEnderecoPessoa<T>.Create(Parent: T);
+begin
+  FParent := Parent;
+end;
+
+destructor TEntidadeEnderecoPessoa<T>.Destroy;
+begin
+  inherited;
+end;
+
+class function TEntidadeEnderecoPessoa<T>.New(Parent: T): iEntidadeEnderecoPessoa<T>;
+begin
+  Result := Self.Create(Parent);
+end;
+
+end.

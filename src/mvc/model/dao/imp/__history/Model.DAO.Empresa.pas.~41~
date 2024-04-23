@@ -1,0 +1,324 @@
+unit Model.DAO.Empresa;
+
+interface
+
+uses
+  System.SysUtils,
+  Data.DB,
+
+  Model.DAO.Empresa.Interfaces,
+  Model.Entidade.Empresa.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Conexao.Query.Interfaces,
+  Model.Entidade.Imp.Empresa,
+  Model.Conexao.Firedac.MySQL.Imp,
+  Model.Conexao.Query.Imp,
+  Uteis,
+  Uteis.Tratar.Mensagens;
+
+type
+  TDAOEmpresa = class(TInterfacedObject, iDAOEmpresa)
+    private
+      FEmpresa : iEntidadeEmpresa<iDAOEmpresa>;
+      FConexao : iConexao;
+      FUteis   : TUteis;
+      FMSG     : TMensagens;
+
+      FDataSet : TDataSet;
+      FQuery   : iQuery;
+
+      FKey     : String;
+      FValue   : String;
+   const
+      FSQL=('select '+
+            'e.Id, '+
+            'e.cnpj, '+
+            'e.inscricaoestadual, '+
+            'e.nomeempresarial, '+
+            'e.nomefantasia, '+
+            'e.idcontato, '+
+            'c.email, '+
+            'c.ddd, '+
+            'c.telefone, '+
+            'e.idlogradouro, '+
+            'l.ibge, '+
+            'l.cep, '+
+            'l.tipoendereco, '+
+            'l.tipologradouro, '+
+            'l.Logradouro, '+
+            'l.numero, '+
+            'l.Bairro, '+
+            'l.complemento, '+
+            'm.nome municipio, '+
+            'm.estado, '+
+            'e.ativo '+
+            'from empresa e '+
+            'inner join contato   c on c.id   = e.idcontato '+
+            'inner join endereco  l on l.id   = e.idlogradouro '+
+            'inner join municipio m on m.ibge = l.ibge ');
+
+      procedure FiltroKey;
+      function  FiltroValue(Value : String) : String;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDAOEmpresa;
+
+      function DataSet(DataSource : TDataSource) : iDAOEmpresa; overload;
+      function DataSet                           : TDataSet;    overload;
+      function GetAll                            : iDAOEmpresa;
+      function GetbyId(Id : Variant)             : iDAOEmpresa;
+      function GetbyParams                       : iDAOEmpresa;
+      function Post                              : iDAOEmpresa;
+      function Put                               : iDAOEmpresa;
+      function Delete                            : iDAOEmpresa;
+
+      function This : iEntidadeEmpresa<iDAOEmpresa>;
+  end;
+
+implementation
+
+{ TDAOEmpresa }
+
+constructor TDAOEmpresa.Create;
+begin
+  FEmpresa := TEntidadeEmpresa<iDAOEmpresa>.New(Self);
+  FConexao := TModelConexaoFiredacMySQL.New;
+  FQuery   := TQuery.New;
+  FUteis   := TUteis.Create;
+  FMSG     := TMensagens.Create;
+end;
+
+destructor TDAOEmpresa.Destroy;
+begin
+  FreeAndNil(FUteis);
+  FreeAndNil(FMSG);
+  inherited;
+end;
+
+class function TDAOEmpresa.New: iDAOEmpresa;
+begin
+  Result := Self.Create;
+end;
+
+procedure TDAOEmpresa.FiltroKey;
+begin
+  if FEmpresa.CNPJ<>''            then FKey := 'cnpj';
+  if FEmpresa.NomeEmpresarial<>'' then FKey := 'nomeempresarial';
+
+  FValue := FiltroValue(FKey);
+end;
+
+function TDAOEmpresa.FiltroValue(Value : String) : String;
+begin
+  Result := '';
+  if Value ='cnpj' then
+    result := FEmpresa.CNPJ else result := FEmpresa.NomeEmpresarial;
+end;
+
+
+function TDAOEmpresa.DataSet(DataSource: TDataSource): iDAOEmpresa;
+begin
+  Result := Self;
+  if not Assigned(FDataset) then
+    DataSource.DataSet := FQuery.DataSet
+  else
+    DataSource.DataSet := FDataSet;
+end;
+
+function TDAOEmpresa.DataSet: TDataSet;
+begin
+  Result := FDataSet;
+end;
+
+function TDAOEmpresa.GetAll: iDAOEmpresa;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Open
+                  .DataSet;
+    except
+     raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+      FEmpresa.Id(FDataSet.FieldByName('id').AsInteger) else FEmpresa.Id(0);
+  end;
+end;
+
+function TDAOEmpresa.GetbyId(Id: Variant): iDAOEmpresa;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Add('where e.id=:id')
+                    .Params('Id', Id)
+                    .Open
+                  .DataSet;
+    except
+      raise Exception.Create('');
+    end;
+  finally
+    //Criar MSG
+  end;
+end;
+
+function TDAOEmpresa.GetbyParams: iDAOEmpresa;
+begin
+  Result := Self;
+  FiltroKey;
+  try
+   try
+     FDataSet := FQuery
+                   .SQL(FSQL+' where ' + FUteis.Pesquisar(FKey, ';' + FValue))
+                   .Open
+                 .DataSet;
+   except
+     raise exception.Create(FMSG.MSGerroGet);
+   end;
+  finally
+   //
+  end;
+end;
+
+
+function TDAOEmpresa.Post: iDAOEmpresa;
+const
+  LSQL=('insert into usuario('+
+                             'idcontato, '+
+                             'idlogradouro,'+
+                             'cnpj, '+
+                             'inscricaoestadual,' +
+                             'nomeempresarial, '+
+                             'nomefantasia,' +
+                             'naturezajuridica, '+
+                             'dataemisao, '+
+                             'datasituacaocadastral,' +
+                             'ativo '+
+                           ')'+
+                             ' values '+
+                           '('+
+                             ':idcontato, '+
+                             ':idlogradouro,'+
+                             ':cnpj, '+
+                             ':inscricaoestadual,' +
+                             ':nomeempresarial, '+
+                             ':nomefantasia,' +
+                             ':naturezajuridica, '+
+                             ':dataemisao, '+
+                             ':datasituacaocadastral,' +
+                             ':ativo '+
+                            ')'
+       );
+begin
+  Result := Self;
+
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('idcontato'            , FEmpresa.IdContato)
+          .Params('idlogradouro'         , FEmpresa.IdLogradouro)
+          .Params('cnpj'                 , FEmpresa.CNPJ)
+          .Params('inscricaoestadual'    , Fempresa.InscricaoEstadual)
+          .Params('nomeempresarial'      , FEmpresa.NomeEmpresarial)
+          .Params('nomefantasia'         , FEmpresa.NomeFantasia)
+          .Params('naturezajuridica'     , FEmpresa.NaturezaJuridica)
+          .Params('dataemisao'           , FEmpresa.DataEmissao)
+          .Params('datasituacaocadastral', FEmpresa.DataSituacaoCadastral)
+          .Params('ativo'                , FEmpresa.Ativo)
+          .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create('ao tentar salvar registro de Usuários!');
+    end;
+  finally
+    FConexao.Commit;
+    FDataSet := FQuery
+                    .SQL('select LAST_INSERT_ID () as id')
+                    .Open
+                    .DataSet;
+    FEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
+  end;
+end;
+
+function TDAOEmpresa.Put: iDAOEmpresa;
+const
+  LSQL=('update empresa set '+
+        'idcontato=:idcontato, '+
+        'idlogradouro=:idlogradouro, '+
+        'cnpj=:cnpj, '+
+        'inscricaoestadual=:inscricaoestadual, '+
+        'nomeempresarial=:nomeempresarial, '+
+        'nomefantasia=:nomefantasia, '+
+        'naturezajuridica=:naturezajuridica, '+
+        'dataemissao=:dataemissao, '+
+        'datasituacaocadastral=:datasituacaocadastral, '+
+        'ativo=:ativo '+
+        'where id=:id '
+       );
+begin
+  Result := Self;
+
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('id'                    , FEmpresa.Id)
+          .Params('idcontato'             , FEmpresa.IdContato)
+          .Params('idlogradouro'          , FEmpresa.IdLogradouro)
+          .Params('cnpj'                  , FEmpresa.CNPJ)
+          .Params('inscricaoestadual'     , FEmpresa.InscricaoEstadual)
+          .Params('nomeempresarial'       , FEmpresa.NomeEmpresarial)
+          .Params('nomefantasia'          , FEmpresa.NomeFantasia)
+          .Params('naturezajuridica'      , FEmpresa.NaturezaJuridica)
+          .Params('dataemissao'           , FEmpresa.DataEmissao)
+          .Params('datasituacaocadastral' , FEmpresa.DataSituacaoCadastral)
+          .Params('ativo'                 , FEmpresa.Ativo)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create('ao tentar alterar o Usuário!');
+    end;
+  finally
+    FConexao.Commit;
+    //Criar MSG
+  end;
+
+end;
+
+function TDAOEmpresa.Delete: iDAOEmpresa;
+const
+  LSQL=('delete from empresa where id=:id ');
+begin
+  Result := self;
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery.SQL(LSQL)
+               .Params('id', FEmpresa.Id)
+            .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create('ao tentar excluir o Usuário');
+    end;
+  finally
+    FConexao.Commit;
+    //Criar MSG
+  end;
+
+end;
+
+function TDAOEmpresa.This: iEntidadeEmpresa<iDAOEmpresa>;
+begin
+  Result := FEmpresa;
+end;
+
+end.

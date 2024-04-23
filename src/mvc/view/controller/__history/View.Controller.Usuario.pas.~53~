@@ -1,0 +1,204 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 18/03/2024 13:39           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit View.Controller.Usuario;
+
+interface
+
+uses
+  System.SysUtils,
+  System.JSON,
+
+  Data.DB,
+
+  FireDAC.Comp.Client,
+
+  DataSet.Serialize,
+  Horse,
+  Horse.BasicAuthentication,
+
+  Controller.Interfaces,
+  Imp.Controller;
+
+type
+  TViewControllerUsuario = class
+    private
+      FTexto      : String;
+      FJSONArray  : TJSONArray;
+      FJSONObject : TJSONObject;
+      FBody       : TJSONValue;
+      FDataSource : TDataSource;
+      FController : iController;
+
+      procedure GetAll (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure GetbyId(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Post   (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Put    (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Delete (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+
+      procedure Registry;
+    public
+      constructor Create;
+      destructor Destroy; override;
+  end;
+
+implementation
+
+{ TViewControllerUsuario }
+constructor TViewControllerUsuario.Create;
+begin
+  FController := TController.New;
+  FDataSource := TDataSource.Create(nil);
+  Registry;
+end;
+
+destructor TViewControllerUsuario.Destroy;
+begin
+  FreeAndNil(FDataSource);
+  inherited;
+end;
+
+procedure TViewControllerUsuario.GetAll(Req: THorseRequest; Res: THorseResponse;  Next: TProc);
+begin
+  FBody := Req.Body<TJSONObject>;
+  try
+    try
+      if ((Req.Query.Field('email').AsString<>'') and (Req.Query.Field('senha').AsString<>'')) then
+        FController
+          .FactoryEntidade
+            .DAOUsuario
+              .This
+                .Email(Req.Query.Field('email').AsString)
+                .Senha(Req.Query.Field('senha').AsString)
+              .&End
+            .GetbyParams
+            .DataSet(FDataSource)
+      else
+        FController
+          .FactoryEntidade
+            .DAOUsuario
+              .GetAll
+              .DataSet(FDataSource);
+
+     FJSONArray := FDataSource.DataSet.ToJSONArray();
+     FTexto     := FJSONArray.ToString;
+     Res.Send<TJSONArray>(FJSONArray);
+  except
+    raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+  end;
+  finally
+    if ((Req.Query.Field('email').AsString='') and (Req.Query.Field('senha').AsString='')) then
+      Res.Status(201).Send('Lista de registro encontrada com  sucesso!') else
+      Res.Status(201).Send('Registro encontrado com  sucesso!');
+  end;
+end;
+
+procedure TViewControllerUsuario.GetbyId(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  FBody := Req.Body<TJSONObject>;
+  Try
+     try
+       FController
+         .FactoryEntidade
+           .DAOUsuario
+             .GetbyId(Req.Params['id'].ToInt64)
+             .DataSet(FDataSource);
+
+       FJSONObject := FDataSource.DataSet.ToJSONObject;
+       Res.Send<TJSONObject>(FJSONObject);
+  except
+    raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+  end;
+  finally
+    Res.Status(201).Send('Registro encontrado com sucesso!');
+  end;
+end;
+
+procedure TViewControllerUsuario.Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  FBody := Req.Body<TJSONObject>;
+  try
+    try
+      FController
+        .FactoryEntidade
+          .DAOUsuario
+            .This
+              .IdEmpresa(FBody.GetValue<integer>('idempresa'))
+              .Nome     (FBody.GetValue<String>('nome'))
+              .EMail    (FBody.GetValue<String>('email'))
+              .Senha    (FBody.GetValue<String>('senha'))
+              .Ativo    (FBody.GetValue<integer>('ativo'))
+            .&End
+          .Post;
+  except
+    raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+  end;
+  finally
+    Res.Status(201).Send('Registro incluído com sucesso!');
+  end;
+end;
+
+procedure TViewControllerUsuario.Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  FBody := Req.Body<TJSONObject>;
+  try
+    try
+      FController
+        .FactoryEntidade
+          .DAOUsuario
+            .This
+              .Id       (FBody.GetValue<Integer>('id'))
+              .IdEmpresa(FBody.GetValue<Integer>('idempresa'))
+              .Nome     (FBody.GetValue<String>('nome'))
+              .EMail    (FBody.GetValue<String>('email'))
+              .Senha    (FBody.GetValue<String>('senha'))
+              .Ativo    (FBody.GetValue<Integer>('ativo'))
+            .&End
+          .Put;
+  except
+    raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+  end;
+  finally
+    Res.Status(204).Send('Registro alterado com sucesso!');
+  end;
+end;
+
+procedure TViewControllerUsuario.Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  FBody := Req.Body<TJSONObject>;
+  try
+    try
+      FController
+        .FactoryEntidade
+          .DAOUsuario
+            .This
+              .Id(FBody.GetValue<Integer>('id'))
+            .&End
+          .Delete;
+    except
+    raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+  end;
+  finally
+    Res.Status(204).Send('Registro excluído com sucesso!');
+  end;
+end;
+
+procedure TViewControllerUsuario.Registry;
+begin
+  THorse
+      .Group
+      .Prefix('bmw')
+      .Get   ('/usuario'     , GetAll)
+      .Get   ('/usuario/:id' , GetbyId)
+      .Post  ('usuario'      , Post)
+      .Put   ('usuario/:id'  , Put)
+      .Delete('usuario/:id'  , Delete);
+end;
+
+end.

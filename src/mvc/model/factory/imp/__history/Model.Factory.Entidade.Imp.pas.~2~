@@ -1,0 +1,49 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 13/03/2024 10:43           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Factory.Entidade.Imp;
+
+interface
+
+uses
+  Model.Factory.Entidade.Interfaces;
+
+type
+  TFactoryEntidade = class(TInterfacedObject, iFactoryEntidadeCadastro)
+    private
+
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iFactoryEntidade;
+  end;
+
+implementation
+
+{ TFactoryEntidade }
+
+constructor TFactoryEntidade.Create;
+begin
+  //
+end;
+
+class function TFactoryEntidade.New: iFactoryEntidade;
+begin
+  Result := Self.Create;
+end;
+
+destructor TFactoryEntidade.Destroy;
+begin
+  //
+  inherited;
+end;
+
+
+
+end.

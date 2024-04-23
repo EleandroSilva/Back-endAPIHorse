@@ -1,0 +1,7 @@
+unit Model.DAO.Caixa.Diario.Movimento.Interfaces;
+
+interface
+
+implementation
+
+end.

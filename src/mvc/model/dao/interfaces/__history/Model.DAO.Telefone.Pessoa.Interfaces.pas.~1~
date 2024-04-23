@@ -1,0 +1,7 @@
+unit Model.DAO.Telefone.Pessoa.Interfaces;
+
+interface
+
+implementation
+
+end.

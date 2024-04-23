@@ -1,0 +1,183 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 09/04/2024               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit View.Swagger.Empresa;
+
+interface
+
+uses
+  Horse.GBSwagger,
+  Tabela.Swagger.Empresa,
+  Tabela.Swagger.Endereco,
+  Tabela.Swagger.Numero,
+  Tabela.Swagger.Email.Empresa,
+  Tabela.Swagger.Telefone.Empresa;
+type
+  TSwaggerEmpresa = class
+   private
+   public
+     class procedure SwaggerEmpresa;
+  end;
+
+implementation
+
+{ TSwaggerEmpresa }
+
+class procedure TSwaggerEmpresa.SwaggerEmpresa;
+begin
+
+  Swagger
+    .Path('empresa')//nome do meu Path
+      .Tag('empresa')//agrupando meus Endpoint Tag do Path empresa
+        .GET('Listar todas', 'Listo todas as empresas')
+          .AddResponse(200, 'lista de empresa encontrada com sucesso!')//Aqui passo a resposta do Path
+            .Schema(TEmpresa)//A resposta seria do objeto empresa
+            .IsArray(True)//Como é um GET ALL passo um Array=True
+      .&End
+          .AddResponse(400).&End
+          .AddResponse(404).&End
+          .AddResponse(500).&End
+    .&End
+    .POST('Adicionar uma nova empresa!')
+      .AddParamBody('Dados da empresa')
+        .Schema(TEmpresa)
+      .&End
+          .AddResponse(201)
+          .Schema(TEmpresa)
+        .&End
+          .AddResponse(400).&End
+          .AddResponse(404).&End
+          .AddResponse(500).&End
+      .&End
+    .&End
+    .Path('empresa/{id}')
+      .Tag('empresa')
+        .GET('encontrar empresa por id')
+          .AddParamPath('id', 'empresa id')
+            .Schema(SWAG_INTEGER)
+          .&End
+          .AddResponse(200, 'Empresa encontrada com sucesso!').&End
+          .AddResponse(400).&End//erro de validação
+          .AddResponse(404).&End//id inválido
+          .AddResponse(500).&End//erro banco de dados
+    .&End
+    .PUT('Update empresa')
+      .AddParamPath('ID', 'id da empresa')
+        .Schema(SWAG_INTEGER)
+          .&End
+        .AddParamBody('empresa', 'Dados da empresa')
+          .Schema(TEmpresa)
+        .&End
+        .AddResponse(204).&End//sucesso na exclusão
+        .AddResponse(400).&End//erro de validação
+        .AddResponse(404).&End//id inválido
+        .AddResponse(500).&End//erro banco
+    .&End
+    .DELETE('Delete empresa')
+      .AddParamPath('id', 'id da empresa')
+        .Schema(SWAG_INTEGER)
+    .&End
+    .&End
+    .&End
+    .Path('empresa?{cnpj}')
+      .Tag('empresa')
+        .GET('encontrar empresa por cnpj')
+          .AddParamQuery('cnpj','CNPJ da empresa=', False, True)
+           .Schema(SWAG_STRING)
+          .&End
+          .AddResponse(200, 'Empresa encontrada com sucesso!').&End
+          .AddResponse(400).&End//erro de validação
+          .AddResponse(404).&End//id inválido
+          .AddResponse(500).&End//erro banco de dados
+    .&End
+    .&End
+    .&End
+    .Path('empresa?nomeempresarial')
+      .Tag('empresa')
+        .GET('encontrar empresa por Nome Empresarial')
+          .AddParamQuery('nomeempresarial','Nome Empresarial=', False, True)
+           .Schema(SWAG_STRING)
+          .&End
+          .AddResponse(200, 'Empresa encontrada com sucesso!').&End
+          .AddResponse(400).&End//erro de validação
+          .AddResponse(404).&End//id inválido
+          .AddResponse(500).&End//erro banco de dados
+    .&End
+
+
+        //&End;
+
+
+         {
+        .AddParamQuery('id', 'Id').&End
+        .AddParamQuery('cnpj', 'cnpj').&End
+        .AddParamQuery('nomeempresarial', 'nomeempresarial').&End
+        .AddParamQuery('nomefantasia', 'nomefantasia').&End
+        .AddParamQuery('naturezajuridica',' São elas: '+
+                                          'Microempreendedor Individual (MEI). '+
+                                          'Empresário Individual (EI).'+
+                                          'Sociedade Empresária Limitada.'+
+                                          'Sociedade Empresária Unipessoal Limitada.'+
+                                          'Sociedade Simples – Pura ou limitada.'+
+                                          'Sociedade Simples Unipessoal Limitada.'+
+                                          'Sociedade Anônima Aberta e Fechada.').&End
+       .AddParamQuery('dataemissao','Data que foi cadastrada no sistema Formato da data ->YYYY-MM-DD').&End
+       .AddParamQuery('DataSituacaoCadastral', 'Data da abertura da empresa, na receita federal. Formato da data->YYYY-MM-DD').&End
+       .AddParamQuery('ativo','Salvar 1-Empresa Ativa, 0-Empresa Inativa').&End
+       .AddResponse(200, 'Lista de Empresas').Schema(TEmpresa).IsArray(True).&End
+       .&End
+      .&End
+   // .Path('empresa/{id}
+      {.Tag('empresa')
+      .GET('Obter os dados de uma empresa específica')
+        .AddParamPath('id', 'Id').&End
+        .AddResponse(200, 'Dados da empresa').Schema(TEmpresa).&End
+        .AddResponse(404).&End
+      .&End
+      .&End
+    .Path('empresa?cnpj=')
+      .Tag('empresa')
+      .Get('Obter os dados de uma empresa específica por CNPJ')
+        .AddParamPath('cnpj', 'cnpj').&End
+        .AddResponse(200, 'Dados da empresa').Schema(TEmpresa).&End
+        .AddResponse(404).&End
+        .&End
+        .&End
+     .Path('empresa?nomeempresarial=')
+      .Tag('empresa')
+      .Get('Obter os dados de uma empresa específica por Nome Empresarial')
+        .AddParamPath('nomeempresarial', 'nomeempresarial').&End
+        .AddResponse(200, 'Dados da empresa').Schema(TEmpresa).&End
+        .AddResponse(404).&End
+        .&End
+    .POST('Criar uma nova empresa')
+        .AddParamBody('Dados da empresa').Required(True).Schema(TEmpresa).&End
+        //.ad
+        .AddResponse(201).Schema(TEmpresa).&End
+        .AddResponse(400).&End
+      .&End
+      .PUT('Alterar os dados de uma empresa específico')
+        .AddParamPath('id', 'Id').&End
+        .AddParamBody('Dados da empresa').Required(True).Schema(TEmpresa).&End
+        .AddResponse(204).&End
+        .AddResponse(400).&End
+        .AddResponse(404).&End
+      .&End
+      .DELETE('Excluir empresa')
+        .AddParamPath('id', 'Id').&End
+        .AddResponse(204).&End
+        .AddResponse(400).&End
+        .AddResponse(404).&End
+      .&End
+    .&End
+  .&End;
+  }
+end;
+
+end.

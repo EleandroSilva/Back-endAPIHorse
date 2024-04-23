@@ -1,0 +1,246 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 15/04/2024 15:37           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.DAO.Imp.Natureza.Juridica;
+
+interface
+
+uses
+  System.SysUtils,
+  Data.DB,
+
+  FireDAC.Comp.Client,
+
+  Uteis,
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Natureza.Juridica.Interfaces,
+  Model.Entidade.Natureza.Juridica.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Conexao.Query.Interfaces,
+  Model.Entidade.Imp.Natureza.Juridica,
+  Model.Conexao.Firedac.MySQL.Imp,
+  Model.Conexao.Query.Imp;
+
+type
+  TDAONaturezaJuridica = class(TInterfacedObject, iDAONaturezaJuridica)
+    private
+      FNaturezaJuridica : iEntidadeNaturezaJuridica<iDAONaturezaJuridica>;
+      FConexao          : iConexao;
+      FQuery            : iQuery;
+      FUteis            : TUteis;
+      FMSG              : TMensagens;
+
+      FDataSet : TDataSet;
+   const
+      FSQL=('select '+
+            'nj.id, '+
+            'nj.nomenaturezajuridica '+
+            'from naturezajuridica nj ');
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDAONaturezaJuridica;
+
+      function DataSet(DataSource : TDataSource) : iDAONaturezaJuridica; overload;
+      function DataSet                           : TDataSet;             overload;
+      function GetAll                            : iDAONaturezaJuridica;
+      function GetbyId(Id : Variant)             : iDAONaturezaJuridica;
+      function GetbyParams                       : iDAONaturezaJuridica;
+      function Post                              : iDAONaturezaJuridica;
+      function Put                               : iDAONaturezaJuridica;
+      function Delete                            : iDAONaturezaJuridica;
+
+      function This : iEntidadeNaturezaJuridica<iDAONaturezaJuridica>;
+  end;
+
+implementation
+
+{ TDAOUsuario }
+
+constructor TDAONaturezaJuridica.Create;
+begin
+  FNaturezaJuridica := TEntidadeNaturezaJuridica<iDAONaturezaJuridica>.New(Self);
+  FConexao          := TModelConexaoFiredacMySQL.New;
+  FQuery            := TQuery.New;
+  FUteis            := TUteis.Create;
+  FMSG              := TMensagens.Create;
+end;
+
+destructor TDAONaturezaJuridica.Destroy;
+begin
+  FreeAndNil(FUteis);
+  FreeAndNil(FMSG);
+  inherited;
+end;
+
+class function TDAONaturezaJuridica.New: iDAONaturezaJuridica;
+begin
+  Result := Self.Create;
+end;
+
+function TDAONaturezaJuridica.DataSet(DataSource: TDataSource): iDAONaturezaJuridica;
+begin
+  Result := Self;
+  if not Assigned(FDataset) then
+    DataSource.DataSet := FQuery.DataSet
+  else
+    DataSource.DataSet := FDataSet;
+end;
+
+function TDAONaturezaJuridica.DataSet: TDataSet;
+begin
+  Result := FDataSet;
+end;
+
+function TDAONaturezaJuridica.GetAll: iDAONaturezaJuridica;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Open
+                  .DataSet;
+    except
+     raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+      FNaturezaJuridica.Id(FDataSet.FieldByName('id').AsInteger) else FNaturezaJuridica.Id(0);
+  end;
+end;
+
+function TDAONaturezaJuridica.GetbyId(Id: Variant): iDAONaturezaJuridica;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Add('where Id=:Id')
+                    .Params('Id', Id)
+                    .Open
+                  .DataSet;
+    except
+      raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+      FNaturezaJuridica.Id(FDataSet.FieldByName('id').AsInteger) else FNaturezaJuridica.Id(0);
+  end;
+end;
+
+function TDAONaturezaJuridica.GetbyParams: iDAONaturezaJuridica;
+begin
+  Result := Self;
+  try
+   try
+     FDataSet := FQuery
+                   .SQL(FSQL+' where ((lower(nomenaturezajuridica) like lower(:nomenaturezajuridica)) ')
+                   .Params('nomenaturezajuridica', FNaturezaJuridica.NomeNaturezaJuridica)
+                   .Open
+                 .DataSet;
+   except
+     raise exception.Create(FMSG.MSGerroGet);
+   end;
+  finally
+   if not FDataSet.IsEmpty then
+      FNaturezaJuridica.Id(FDataSet.FieldByName('id').AsInteger) else FNaturezaJuridica.Id(0);
+  end;
+end;
+
+function TDAONaturezaJuridica.Post: iDAONaturezaJuridica;
+const
+  LSQL=('insert into usuario('+
+                             'nomenaturezajuridica '+
+                           ')'+
+                             ' values '+
+                           '('+
+                             ':nomenaturezajuridica '+
+                            ')'
+       );
+begin
+  Result := Self;
+
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('nomenaturezajuridica' , FNaturezaJuridica.NomeNaturezaJuridica)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPost);
+    end;
+  finally
+    FConexao.Commit;
+    FDataSet := FQuery
+                    .SQL('select LAST_INSERT_ID () as id')
+                    .Open
+                    .DataSet;
+    FNaturezaJuridica.Id(FDataSet.FieldByName('id').AsInteger);
+  end;
+end;
+
+function TDAONaturezaJuridica.Put: iDAONaturezaJuridica;
+const
+  LSQL=('update usuario set '+
+                        'naturezajuridica=:naturezajuridica '+
+                        'where id=:id '
+       );
+begin
+  Result := Self;
+
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('id'                   , FNaturezaJuridica.Id)
+          .Params('nomenaturezajuridica' , FNaturezaJuridica.NomeNaturezaJuridica)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPut);
+    end;
+  finally
+    FConexao.Commit;
+    //Criar MSG
+  end;
+end;
+
+function TDAONaturezaJuridica.Delete: iDAONaturezaJuridica;
+const
+  LSQL=('delete from naturezajuridica where id=:id ');
+begin
+  Result := self;
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery.SQL(LSQL)
+               .Params('id', FNaturezaJuridica.Id)
+            .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroDelete);
+    end;
+  finally
+    FConexao.Commit;
+    //Criar MSG
+  end;
+end;
+
+function TDAONaturezaJuridica.This: iEntidadeNaturezaJuridica<iDAONaturezaJuridica>;
+begin
+  Result := FNaturezaJuridica;
+end;
+
+end.

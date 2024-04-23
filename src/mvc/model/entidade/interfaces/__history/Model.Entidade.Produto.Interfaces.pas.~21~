@@ -1,0 +1,73 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 19/03/2024 11:08           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Entidade.Produto.Interfaces;
+
+interface
+
+type
+  iEntidadeProduto<T> = interface
+    ['{FAFE6C47-FCAB-4C31-AB1D-A23134816BDA}']
+    function Id(Value : Integer)                     : iEntidadeProduto<T>; overload;
+    function Id                                      : Integer;             overload;
+    function IdEmpresa(Value : Integer)              : iEntidadeProduto<T>; overload;
+    function IdEmpresa                               : Integer;             overload;
+    function IdGrupo(Value : Integer)                : iEntidadeProduto<T>; overload;
+    function IdGrupo                                 : Integer;             overload;
+    function IdUnidade(Value : Integer)              : iEntidadeProduto<T>; overload;
+    function IdUnidade                               : Integer;             overload;
+    function Gtin(Value : String)                    : iEntidadeProduto<T>; overload;
+    function Gtin                                    : String;              overload;
+    function cEanTrib(Value : String)                : iEntidadeProduto<T>; overload;
+    function cEanTrib                                : String;              overload;
+    function cEan(Value : String)                    : iEntidadeProduto<T>; overload;
+    function cEan                                    : String;              overload;
+    function Nome(Value : String)                    : iEntidadeProduto<T>; overload;
+    function Nome                                    : String;              overload;
+    function NCM(Value : integer)                    : iEntidadeProduto<T>; overload;
+    function NCM                                     : Integer;             overload;
+    function PrecoCusto(Value : Currency)            : iEntidadeProduto<T>; overload;
+    function PrecoCusto                              : Currency;            overload;
+    function AliquotaLucro(Value : Currency)         : iEntidadeProduto<T>; overload;
+    function AliquotaLucro                           : Currency;            overload;
+    function PrecoVendaGelado(Value : Currency)      : iEntidadeProduto<T>; overload;
+    function PrecoVendaGelado                        : Currency;            overload;
+    function PrecoVendaNatural(Value : Currency)     : iEntidadeProduto<T>; overload;
+    function PrecoVendaNatural                       : Currency;            overload;
+    function PrecoVendaPromocional(Value : Currency) : iEntidadeProduto<T>; overload;
+    function PrecoVendaPromocial                     : Currency;            overload;
+    function EstoqueAnterior(Value : Currency)       : iEntidadeProduto<T>; overload;
+    function EstoqueAnterior                         : Currency;            overload;
+    function EstoqueMaximo(Value : Currency)         : iEntidadeProduto<T>; overload;
+    function EstoqueMaximo                           : Currency;            overload;
+    function EstoqueMinimo(Value : Currency)         : iEntidadeProduto<T>; overload;
+    function EstoqueMinimo                           : Currency;            overload;
+    function EstoqueAtual(Value : Currency)          : iEntidadeProduto<T>; overload;
+    function EstoqueAtual                            : Currency;            overload;
+    function Origem(Value : Integer)                 : iEntidadeProduto<T>; overload;
+    function Origem                                  : Integer;             overload;
+    function Volume(Value : Integer)                 : iEntidadeProduto<T>; overload;
+    function Volume                                  : Integer;             overload;
+    function QuantidadeEmbalagem(Value : Integer)    : iEntidadeProduto<T>; overload;
+    function QuantidadeEmbalagem                     : Integer;             overload;
+    function Balanca(Value : Integer)                : iEntidadeProduto<T>; overload;
+    function Balanca                                 : Integer;             overload;
+    function PesoLiquido(Value : Currency)           : iEntidadeProduto<T>; overload;
+    function PesoLiquido                             : Currency;            overload;
+    function PesoBruto(Value : Currency)             : Currency;            overload;
+    function PesoBruto                               : Currency;            overload;
+    function Ativo(Value : Integer)                  : iEntidadeProduto<T>; overload;
+    function Ativo                                   : Integer;             overload;
+
+    function &End : T;
+  end;
+
+implementation
+
+end.

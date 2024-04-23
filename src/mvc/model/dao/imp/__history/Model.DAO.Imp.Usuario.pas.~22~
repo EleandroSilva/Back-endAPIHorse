@@ -1,0 +1,316 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 13/03/2024 10:39           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.DAO.Imp.Usuario;
+
+interface
+
+uses
+  System.SysUtils,
+  Data.DB,
+  FireDAC.Comp.Client,
+
+  Uteis,
+  Uteis.Interfaces,
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Usuario.Interfaces,
+  Model.Entidade.Usuario.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Conexao.Query.Interfaces,
+  Model.Entidade.Imp.Usuario,
+  Model.Conexao.Firedac.MySQL.Imp,
+  Model.Conexao.Query.Imp;
+
+type
+  TDAOUsuario = class(TInterfacedObject, iDAOUsuario)
+    private
+      FUsuario : iEntidadeUsuario<iDAOUsuario>;
+      FConexao : iConexao;
+      FQuery   : iQuery;
+      FUteis   : iUteis;
+      FMSG     : TMensagens;
+
+      FDataSet : TDataSet;
+   const
+      FSQL=('select '+
+            'u.id, '+
+            'u.idempresa, '+
+            'u.nome, '+
+            'u.email, '+
+            'u.senha, '+
+            'u.datahoraemissao, '+
+            'u.ativo '+
+            'from usuario u ');
+      function LoopRegistro (Value : Integer): Integer;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDAOUsuario;
+
+      function DataSet(DataSource : TDataSource) : iDAOUsuario; overload;
+      function DataSet                           : TDataSet;    overload;
+      function GetAll                            : iDAOUsuario;
+      function GetbyId(Id : Variant)             : iDAOUsuario;
+      function GetbyParams                       : iDAOUsuario;
+      function Post                              : iDAOUsuario;
+      function Put                               : iDAOUsuario;
+      function Delete                            : iDAOUsuario;
+      function QuantidadeRegistro                : Integer;
+
+      function This : iEntidadeUsuario<iDAOUsuario>;
+  end;
+
+implementation
+
+{ TDAOUsuario }
+
+constructor TDAOUsuario.Create;
+begin
+  FUsuario := TEntidadeUsuario<iDAOUsuario>.New(Self);
+  FConexao := TModelConexaoFiredacMySQL.New;
+  FQuery   := TQuery.New;
+  FUteis   := TUteis.New;
+  FMSG     := TMensagens.Create;
+end;
+
+destructor TDAOUsuario.Destroy;
+begin
+  FreeAndNil(FUteis);
+  FreeAndNil(FMSG);
+  inherited;
+end;
+
+class function TDAOUsuario.New: iDAOUsuario;
+begin
+  Result := Self.Create;
+end;
+
+function TDAOUsuario.DataSet(DataSource: TDataSource): iDAOUsuario;
+begin
+  Result := Self;
+  if not Assigned(FDataset) then
+    DataSource.DataSet := FQuery.DataSet
+  else
+    DataSource.DataSet := FDataSet;
+end;
+
+function TDAOUsuario.DataSet: TDataSet;
+begin
+  Result := FDataSet;
+end;
+
+function TDAOUsuario.GetAll: iDAOUsuario;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Open
+                  .DataSet;
+    except
+      on E: Exception do
+      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+      FUsuario.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+      FUsuario.Id(0);
+  end;
+end;
+
+function TDAOUsuario.GetbyId(Id: Variant): iDAOUsuario;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Add('where u.Id=:Id ')
+                    .Params('Id', Id)
+                    .Open
+                  .DataSet;
+    except
+      on E: Exception do
+      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+      FUsuario.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+      FUsuario.Id(0);
+  end;
+end;
+
+function TDAOUsuario.GetbyParams: iDAOUsuario;
+begin
+  Result := Self;
+  try
+   try
+     FDataSet := FQuery
+                   .SQL(FSQL+' where ((lower(email) like lower(:email) and (senha=:senha))) ')
+                   .Params('email', FUsuario.EMail)
+                   .Params('senha', FUsuario.Senha)
+                   .Open
+                 .DataSet;
+   except
+     on E: Exception do
+     raise exception.Create(FMSG.MSGerroGet+E.Message);
+   end;
+  finally
+    if not FDataSet.IsEmpty then
+    begin
+      FUsuario.Id(FDataSet.FieldByName('id').AsInteger);
+      QuantidadeRegistro;
+    end
+    else
+      FUsuario.Id(0);
+  end;
+end;
+
+function TDAOUsuario.Post: iDAOUsuario;
+const
+  LSQL=('insert into usuario( '+
+                             'idempresa, '+
+                             'nome, '+
+                             'email, '+
+                             'senha, '+
+                             'datahoraemissao, '+
+                             'ativo '+
+                           ')'+
+                             ' values '+
+                           '('+
+                             ':idempresa, '+
+                             ':nome, '+
+                             ':email, '+
+                             ':senha, '+
+                             ':datahoraemissao, '+
+                             ':ativo ' +
+                            ')'
+       );
+begin
+  Result := Self;
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('idempresa'       , FUsuario.IdEmpresa)
+          .Params('nome'            , FUsuario.Nome)
+          .Params('email'           , FUsuario.EMail)
+          .Params('senha'           , FUsuario.Senha)
+          .Params('datahoraemissao' , FUsuario.DataHoraEmissao)
+          .Params('ativo'           , FUsuario.Ativo)
+        .ExecSQL;
+    except
+      on E: Exception do
+      begin
+        FConexao.Rollback;
+        raise Exception.Create(FMSG.MSGerroPost+E.Message);
+      end;
+    end;
+  finally
+    FConexao.Commit;
+    FDataSet := FQuery
+                    .SQL('select LAST_INSERT_ID () as id')
+                    .Open
+                    .DataSet;
+    FUsuario.Id(FDataSet.FieldByName('id').AsInteger);
+  end;
+end;
+
+function TDAOUsuario.Put: iDAOUsuario;
+const
+  LSQL=('update usuario set '+
+                'idempresa      =:idempresa, '+
+                'nome           =:nome, '+
+                'email          =:email, '+
+                'senha          =:senha, '+
+                'datahoraemissao=:datahoraemissao, '+
+                'ativo          =:ativo '+
+                'where id       =:id '
+       );
+begin
+  Result := Self;
+
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('id'              , FUsuario.Id)
+          .Params('idempresa'       , FUsuario.IdEmpresa)
+          .Params('nome'            , FUsuario.Nome)
+          .Params('email'           , FUsuario.EMail)
+          .Params('senha'           , FUsuario.Senha)
+          .Params('datahoraemissao' , FUsuario.DataHoraEmissao)
+          .Params('ativo'           , FUsuario.Ativo)
+        .ExecSQL;
+    except
+      on E: Exception do
+      begin
+        FConexao.Rollback;
+        raise Exception.Create(FMSG.MSGerroPut+E.Message);
+      end;
+    end;
+  finally
+    FConexao.Commit;
+  end;
+end;
+
+function TDAOUsuario.Delete: iDAOUsuario;
+const
+  LSQL=('delete from usuario where id=:id ');
+begin
+  Result := self;
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery.SQL(LSQL)
+               .Params('id', FUsuario.Id)
+            .ExecSQL;
+    except
+      on E: Exception do
+      begin
+        FConexao.Rollback;
+        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
+      end;
+    end;
+  finally
+    FConexao.Commit;
+  end;
+end;
+
+function TDAOUsuario.LoopRegistro(Value : Integer): Integer;
+begin
+  FDataSet.First;
+  try
+    while not FDataSet.Eof do
+    begin
+      Value := Value + 1;
+      FDataSet.Next;
+    end;
+  finally
+    Result := Value;
+  end;
+end;
+
+function TDAOUsuario.QuantidadeRegistro : Integer;
+begin
+  Result := LoopRegistro(0);
+end;
+
+function TDAOUsuario.This: iEntidadeUsuario<iDAOUsuario>;
+begin
+  Result := FUsuario;
+end;
+
+end.

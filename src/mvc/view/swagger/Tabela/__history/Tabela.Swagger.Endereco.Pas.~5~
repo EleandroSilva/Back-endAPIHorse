@@ -1,0 +1,34 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 09/04/2024               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Tabela.Swagger.Endereco;
+
+interface
+
+type
+  TEndereco = class
+    private
+      FId           : Integer;{bigint-Primary Key}
+      FCep          : String; {Varchar(18)->Unique Key-Not Null}
+      FIBGE         : Integer;{Integer ->Not Null}
+      FTipoEndereco : String; {Varchar(60)-> Comercial-Residencial-Entrega-Cobranca Not Null}
+      FEndereco     : String; {Varchar(60)-> Not Null}
+      FBairro       : String; {Varchar(60)->Not Null}
+    public
+      property Id           : Integer read FId            write FId;
+      property Cep          : String  read FCep           write FCep;
+      property IBGE         : Integer read FIBGE          write FIBGE;
+      property TipoEndereco : String  read FTipoEndereco  write FTipoEndereco;
+      property Endereco     : String  read FEndereco      write FEndereco;
+      property Bairro       : String  read FBairro        write FBairro;
+  end;
+
+implementation
+
+end.

@@ -1,0 +1,8 @@
+
+unit Model.Entidade.Cadastro.Usuario.Interfaces;
+
+interface
+
+implementation
+
+end.

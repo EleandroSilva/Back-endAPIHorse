@@ -1,0 +1,20 @@
+unit Model.Entidade.Unidade.Produto.Interfaces;
+
+interface
+
+type
+  iEntidadeUnidadeProduto<T> = interface
+    ['{A9AF512C-E8EB-4153-88A1-C2D51DBF6F20}']
+    function Id(Value : Integer)       : iEntidadeUnidadeProduto<T>; overload;
+    function Id                        : Integer;             overload;
+    function Unidade(Value : String)   : iEntidadeUnidadeProduto<T>; overload;
+    function Unidade                   : String;              overload;
+    function Nome(Value : String)      : iEntidadeUnidadeProduto<T>; overload;
+    function Nome                      : String;              overload;
+
+    function &End : T;
+  end;
+
+implementation
+
+end.

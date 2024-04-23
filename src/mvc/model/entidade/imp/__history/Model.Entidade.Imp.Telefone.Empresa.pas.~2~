@@ -1,0 +1,21 @@
+unit Model.Entidade.Imp.Telefone.Empresa;
+
+interface
+
+uses
+  Model.Entidade.Telefone.Empresa.Interfaces;
+
+type
+  TEntidadeTelefoneEmpresa<T : iIntedace> = class(TInterfacedObject, iEntidadeTelefoneEmpresa<T>)
+    private
+      [weak]
+      FParent : T;
+    public
+      constructor Create(Parent : T);
+      destructor Destroy; override;
+      class function New(Parent : T) : iEntidadeTelefoneEmpresa<T>;
+  end;
+
+implementation
+
+end.

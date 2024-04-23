@@ -1,0 +1,66 @@
+unit Model.DAO.Imp.Telefone.Pessoa;
+
+interface
+
+uses
+  Data.DB,
+
+  System.SysUtils,
+
+  Uteis,
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Telefone.Pessoa.Interfaces,
+  Model.Entidade.Telefone.Pessoa.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Conexao.Query.Interfaces,
+  Model.Entidade.Imp.Telefone.Pessoa,
+  Model.Conexao.Firedac.MySQL.Imp,
+  Model.Conexao.Query.Imp;
+type
+  TDAOTelefonePessoa = class(TInterfacedObject, iDAOTelefonePessoa)
+    private
+      FTelefoneEmpresa : iEntidadeTelefonePessoa<iDAOTelefonePessoa>;
+      FConexao         : iConexao;
+      FQuery           : iQuery;
+      FUteis           : TUteis;
+      FMSG             : TMensagens;
+      FDataSet         : TDataSet;
+
+      FKey     : String;
+      FValue   : String;
+
+      const
+        FSQL=('select '+
+              'tp.id, '+
+              'tp.idpessoa, '+
+              'tp.idempresa, '+
+              'tp.operadora, '+
+              'tp.ddd, '+
+              'tp.numero, '+
+              'tp.tipo, '+
+              'tp.ativo '+
+              'from telefonpessoa tp');
+
+      procedure FiltroKey;
+      function  FiltroValue(Value : String) : String;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDAOTelefonePessoa;
+
+      function DataSet(DataSource : TDataSource) : iDAOTelefonePessoa; overload;
+      function DataSet                           : TDataSet;            overload;
+      function GetAll                            : iDAOTelefonePessoa;
+      function GetbyId(Id : Variant)             : iDAOTelefonePessoa;
+      function GetbyParams                       : iDAOTelefonePessoa;
+      function Post                              : iDAOTelefonePessoa;
+      function Put                               : iDAOTelefonePessoa;
+      function Delete                            : iDAOTelefonePessoa;
+
+      function This : iEntidadeTelefonePessoa<iDAOTelefonePessoa>;
+  end;
+
+implementation
+
+end.

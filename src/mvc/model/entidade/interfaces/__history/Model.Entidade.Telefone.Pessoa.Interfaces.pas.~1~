@@ -1,0 +1,7 @@
+unit Model.Entidade.Telefone.Pessoa.Interfaces;
+
+interface
+
+implementation
+
+end.

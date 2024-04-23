@@ -1,0 +1,72 @@
+unit Model.Entidade.Imp.Natureza.Juridica;
+
+interface
+
+uses
+  Model.Entidade.Natureza.Juridica.Interfaces;
+
+type
+  TEntidadeNaturezaJuridica<T : iInterface> = class(TInterfacedObject, iEntidadeNaturezaJuridica<T>)
+    private
+      [weak]
+      FParent               : T;
+      FId                   : Integer;
+      FNomeNaturezaJuridica : String;
+    public
+      constructor Create(Parent : T);
+      destructor Destroy; override;
+      class function New(Parent : T): iEntidadeNaturezaJuridica<T>;
+
+      function Id                  (Value : Integer) : iEntidadeNaturezaJuridica<T>; overload;
+      function Id                                    : Integer;                      overload;
+      function NomeNaturezaJuridica(Value : String)  : iEntidadeNaturezaJuridica<T>; overload;
+      function NomeNaturezaJuridica                  : String;                       overload;
+
+      function &End : T;
+  end;
+
+implementation
+
+constructor TEntidadeUnidadeProduto<T>.Create(Parent: T);
+begin
+  FParent := Parent;
+end;
+
+destructor TEntidadeUnidadeProduto<T>.Destroy;
+begin
+  inherited;
+end;
+
+class function TEntidadeUnidadeProduto<T>.New(Parent: T): iEntidadeUnidadeProduto<T>;
+begin
+  Result := Self.Create(Parent);
+end;
+
+function TEntidadeUnidadeProduto<T>.Id(Value: Integer): iEntidadeUnidadeProduto<T>;
+begin
+  Result := Self;
+  FId    := Value;
+end;
+
+function TEntidadeUnidadeProduto<T>.Id: Integer;
+begin
+  Result := FId;
+end;
+
+function TEntidadeUnidadeProduto<T>.Unidade(Value: String): iEntidadeUnidadeProduto<T>;
+begin
+  Result := Self;
+  FUnidade := Value;
+end;
+
+function TEntidadeUnidadeProduto<T>.Unidade: String;
+begin
+  Result := FUnidade;
+end;
+
+function TEntidadeUnidadeProduto<T>.&End: T;
+begin
+  Result := FParent;
+end;
+
+end.

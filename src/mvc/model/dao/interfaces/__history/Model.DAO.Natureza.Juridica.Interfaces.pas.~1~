@@ -1,0 +1,7 @@
+unit Model.DAO.Natureza.Juridica.Interfaces;
+
+interface
+
+implementation
+
+end.

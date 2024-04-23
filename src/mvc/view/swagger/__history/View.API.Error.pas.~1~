@@ -1,0 +1,7 @@
+unit View.API.Error;
+
+interface
+
+implementation
+
+end.

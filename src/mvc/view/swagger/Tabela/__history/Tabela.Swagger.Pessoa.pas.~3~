@@ -1,0 +1,33 @@
+unit Tabela.Swagger.Pessoa;
+
+interface
+
+//Tabela que salva pessoa(Cliente-Fornecedor-Transportes-Ambos)
+type
+  TPessoa = class
+    private
+      FId                    : Integer;{bigint-Primary Key}
+      FIdEmpresa             : Integer;{Foreign Key->Id->}
+      FCNPJ                  : String; {Varchar(18)->Unique Key-Not Null}
+      FInscricaoEstadual     : String; {Varchar(20)->Caso não existir informar (ISENTO) em maiúsculo}
+      FNomeEmpresarial       : String; {Varchar(100)-> Not Null}
+      FNomeFantasia          : String; {Varchar(100)}
+      FNaturezaJuridica      : String; {Varchar(100)}
+      FDataEmissao           : TDate;  {TDate-Data que foi cadastrada no sistema-Not Null}
+      FDataSituacaoCadastral : TDate;  {TDate-Data da abertura da empresa-Not Null}
+      FAtivo                 : Integer;{Integer->0-Inativo; 1-Ativo-Not Null}
+    public
+      property Id                    : Integer read FId                    write FId;
+      property CNPJ                  : String  read FCNPJ                  write FCNPJ;
+      property InscricaoEstadual     : String  read FInscricaoEstadual     write FInscricaoEstadual;
+      property NomeEmpresarial       : String  read FNomeEmpresarial       write FNomeEmpresarial;
+      property NomeFantasia          : String  read FNomeFantasia          write FNomeFantasia;
+      property NaturezaJuridica      : String  read FNaturezaJuridica      write FNaturezaJuridica;
+      property DataEmissao           : TDate   read FDataEmissao           write FDataEmissao;
+      property DataSituacaoCadastral : TDate   read FDataSituacaoCadastral write FDataSituacaoCadastral;
+      property Ativo                 : Integer read FAtivo                 write FAtivo;
+  end;
+
+implementation
+
+end.

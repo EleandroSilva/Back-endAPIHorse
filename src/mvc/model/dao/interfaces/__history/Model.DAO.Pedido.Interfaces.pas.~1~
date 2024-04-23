@@ -1,0 +1,7 @@
+unit Model.DAO.Pedido.Interfaces;
+
+interface
+
+implementation
+
+end.

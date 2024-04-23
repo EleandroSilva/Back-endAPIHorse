@@ -1,0 +1,7 @@
+unit Model.Entidade.Estado.Interfaces;
+
+interface
+
+implementation
+
+end.

@@ -1,0 +1,30 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 09/04/2024               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Tabela.Swagger.Categoria.Produto;
+
+interface
+
+type
+  TCategoriaProduto = class
+    private
+      FId        : Integer;{bigint-Primary Key}
+      FIdEmpresa : Integer;{bigint)->Foreign Key->Tabela empresa->Id; Excluír(Cascade) Alterar(Cascade)}
+      FNome      : String; {Varchar(120)-> Not Null}
+      FAtivo     : Integer; {Varchar(2)}
+    public
+      property Id        : Integer read FId        write FId;
+      property IdEmpresa : Integer read FIdEmpresa write FIdEmpresa;
+      property Nome      : String  read FNome      write FNome;
+      property Ativo     : Integer read FAtivo     write FAtivo;
+  end;
+
+implementation
+
+end.

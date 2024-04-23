@@ -1,0 +1,36 @@
+unit Model.Entidade.Imp.Marca.Produto;
+
+interface
+
+uses
+  Model.Entidade.Marca.Produto.Interfaces;
+
+type
+  TEntidadeMarcaProduto<T : iInterface> = class(TInterfacedObject, iEntidadeMarcaProduto<T>)
+    private
+      [weak]
+      FParent    : T;
+      FId        : Integer;
+      FIdempresa : Integer;
+      FNome      : String;
+      FAtivo     : Integer;
+    public
+      constructor Create(Parent : T);
+      destructor Destroy; override;
+      class function New(Parent : T): iEntidadeMarcaProduto<T>;
+
+      function Id(Value : Integer)        : iEntidadeMarcaProduto<T>; overload;
+      function Id                         : Integer;                  overload;
+      function IdEmpresa(Value : Integer) : iEntidadeMarcaProduto<T>; overload;
+      function IdEmpresa                  : Integer;                  overload;
+      function Nome(Value : String)       : iEntidadeMarcaProduto<T>; overload;
+      function Nome                       : String;                   overload;
+      function Ativo(Value : Integer)     : iEntidadeMarcaProduto<T>; overload;
+      function Ativo                      : Integer;                  overload;
+
+      function &End : T;
+  end;
+
+implementation
+
+end.

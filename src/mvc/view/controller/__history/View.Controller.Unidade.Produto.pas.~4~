@@ -1,0 +1,187 @@
+unit View.Controller.Unidade.Produto;
+
+interface
+
+uses
+  System.SysUtils,
+  System.JSON,
+
+  Data.DB,
+
+  FireDAC.Comp.Client,
+
+  DataSet.Serialize,
+  Horse,
+  Horse.BasicAuthentication,
+
+  Controller.Interfaces,
+  Imp.Controller;
+
+type
+  TViewControllerUnidadeProduto = class
+    private
+      FTexto      : String;
+      FJSONArray  : TJSONArray;
+      FBody       : TJSONValue;
+      FDataSource : TDataSource;
+      FController : iController;
+
+      procedure GetAll (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure GetbyId(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Post   (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Put    (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Delete (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+
+      procedure Registry;
+    public
+      constructor Create;
+      destructor Destroy; override;
+  end;
+
+implementation
+
+{ TViewControllerUnidadeProduto }
+
+constructor TViewControllerUnidadeProduto.Create;
+begin
+  FController := TController.New;
+  FDataSource := TDataSource.Create(nil);
+  Registry;
+end;
+
+destructor TViewControllerUnidadeProduto.Destroy;
+begin
+  FreeAndNil(FDataSource);
+  inherited;
+end;
+
+procedure TViewControllerUnidadeProduto.GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  try
+    try
+      if Req.Query.Field('nome').AsString<>'' then
+        FController
+          .FactoryEntidade
+            .DAOUnidadeProduto
+              .This
+                .Nome(Req.Query.Field('Nome').AsString)
+              .&End
+            .GetbyParams
+            .DataSet(FDataSource)
+      else
+        FController
+          .FactoryEntidade
+            .DAOUnidadeProduto
+              .GetAll
+              .DataSet(FDataSource);
+
+     FJSONArray := FDataSource.DataSet.ToJSONArray();
+     FTexto     := FJSONArray.ToString;
+     Res.Send<TJSONArray>(FJSONArray);
+    except
+     raise Exception.Create(' ao tentar encontrar registro de Usuário!');
+   End;
+  finally
+    //informar msg de resposta do Horse, ver como funciona
+  end;
+end;
+
+procedure TViewControllerUnidadeProduto.GetbyId(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  Try
+     try
+       FController
+         .FactoryEntidade
+           .DAOUnidadeProduto
+             .GetbyId(Req.Params['id'].ToInt64)
+             .DataSet(FDataSource);
+
+       FJSONArray := FDataSource.DataSet.ToJSONArray();
+       Res.Send<TJSONArray>(FJSONArray);
+   except
+     raise Exception.Create(' ao tentar encontrar registro');
+   End;
+   Finally
+     //informar msg de resposta do Horse, ver como funciona
+   End;
+end;
+
+procedure TViewControllerUnidadeProduto.Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  try
+    try
+      FBody := Req.Body<TJSONObject>;
+
+      FController
+        .FactoryEntidade
+          .DAOUnidadeProduto
+            .This
+              .IdEmpresa(FBody.GetValue<integer>('idempresa'))
+              .Nome     (FBody.GetValue<String> ('nome'))
+              .Ativo    (FBody.GetValue<integer>('ativo'))
+            .&End
+          .Post;
+  except
+    raise Exception.Create(' ao tentar incuir registro!');
+  end;
+  finally
+    //informar msg de resposta do Horse, ver como funciona
+  end;
+end;
+
+procedure TViewControllerUnidadeProduto.Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  try
+    try
+      FBody := Req.Body<TJSONObject>;
+
+      FController
+        .FactoryEntidade
+          .DAOUnidadeProduto
+            .This
+              .Id       (Req.Params['id'].ToInt64)
+              .IdEmpresa(FBody.GetValue<Integer>('idempresa'))
+              .Nome     (FBody.GetValue<String> ('nome'))
+              .Ativo    (FBody.GetValue<Integer>('ativo'))
+            .&End
+          .Put;
+  except
+    raise Exception.Create(' ao tentar atualizar registro');
+  end;
+  finally
+    //informar msg de resposta do Horse, ver como funciona sucesso
+  end;
+end;
+
+procedure TViewControllerUnidadeProduto.Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  try
+    try
+      FController
+        .FactoryEntidade
+          .DAOUnidadeProduto
+            .This
+              .Id(Req.Params['id'].ToInt64)
+            .&End
+          .Delete;
+    except
+      raise Exception.Create(' ao tentar excluir registro');
+    End;
+  Finally
+    //informar msg de resposta do Horse, ver como funciona
+  End;
+end;
+
+procedure TViewControllerUnidadeProduto.Registry;
+begin
+  THorse
+      .Group
+      .Prefix('ess')
+      .Get('/unidade/produtos'       , GetAll)
+      .Get('/unidadeprodutos/:id'   , GetbyId)
+      .Post('unidadeprodutos'       , Post)
+      .Put('unidadeprodutos/:id'    , Put)
+      .Delete('unidadeprodutos/:id' , Delete);
+end;
+
+end.

@@ -1,0 +1,282 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 18/03/2024 13:39           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.DAO.Imp.Marca.Produto;
+
+interface
+
+uses
+  System.SysUtils,
+
+  Data.DB,
+
+  Uteis,
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Marca.Produto.Interfaces,
+  Model.Entidade.Marca.Produto.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Conexao.Query.Interfaces,
+  Model.Entidade.Imp.Marca.Produto,
+  Model.Conexao.Firedac.MySQL.Imp,
+  Model.Conexao.Query.Imp;
+
+type
+  TDAOMarcaProduto = class(TInterfacedObject, iDAOMarcaProduto)
+    private
+      FMarcaProduto : iEntidadeMarcaProduto<iDAOMarcaProduto>;
+      FConexao      : iConexao;
+      FUteis        : TUteis;
+      FMSG          : TMensagens;
+      FDataSet      : TDataSet;
+      FQuery        : iQuery;
+
+      FKey     : String;
+      FValue   : String;
+   const
+      FSQL=('select '+
+            'mp.id, '+
+            'mp.idempresa, '+
+            'mp.nomemarca, '+
+            'mp.ativo '
+            );
+
+      FCount=(', '+
+              'select '+
+              'count(*)  '+
+              'from marcaproduto mp1  '+
+              'where mp1.idempresa=mp.idempresa  '+
+              ') as quantidaderegistro '
+              );
+
+      FFrom=('from marcaproduto mp ');
+
+      procedure FiltroKey;
+      function  FiltroValue(Value : String) : String;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDAOMarcaProduto;
+
+      function DataSet(DataSource : TDataSource) : iDAOMarcaProduto; overload;
+      function DataSet                           : TDataSet;         overload;
+      function GetAll                            : iDAOMarcaProduto;
+      function GetbyId(Id : Variant)             : iDAOMarcaProduto;
+      function GetbyParams                       : iDAOMarcaProduto;
+      function Post                              : iDAOMarcaProduto;
+      function Put                               : iDAOMarcaProduto;
+      function Delete                            : iDAOMarcaProduto;
+
+      function This : iEntidadeMarcaProduto<iDAOMarcaProduto>;
+  end;
+
+implementation
+
+constructor TDAOMarcaProduto.Create;
+begin
+  FMarcaProduto := TEntidadeMarcaProduto<iDAOMarcaProduto>.New(Self);
+  FConexao      := TModelConexaoFiredacMySQL.New;
+  FQuery        := TQuery.New;
+
+  FUteis        := TUteis.Create;
+  FMSG          := TMensagens.Create;
+end;
+
+destructor TDAOMarcaProduto.Destroy;
+begin
+  FreeAndNil(FUteis);
+  FreeAndNil(FMSG);
+  inherited;
+end;
+
+class function TDAOMarcaProduto.New: iDAOMarcaProduto;
+begin
+  Result := Self.Create;
+end;
+
+procedure TDAOMarcaProduto.FiltroKey;
+begin
+  if FMarcaProduto.NomeMarca<>'' then FKey := 'mp.nomemarca';
+
+  FValue := FiltroValue(FKey);
+end;
+
+function TDAOMarcaProduto.FiltroValue(Value : String) : String;
+begin
+  Result := '';
+  if Value ='mp.nomemarca' then
+    Result := FMarcaProduto.NomeMarca;
+end;
+
+function TDAOMarcaProduto.DataSet(DataSource: TDataSource): iDAOMarcaProduto;
+begin
+  Result := Self;
+  if not Assigned(FDataset) then
+    DataSource.DataSet := FQuery.DataSet
+  else
+    DataSource.DataSet := FDataSet;
+end;
+
+function TDAOMarcaProduto.DataSet: TDataSet;
+begin
+  Result := FDataSet;
+end;
+
+function TDAOMarcaProduto.GetAll: iDAOMarcaProduto;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL+FCount+FFrom)
+                    .Open
+                  .DataSet;
+    except
+     raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+      FMarcaProduto.Id(FDataSet.FieldByName('id').AsInteger) else FMarcaProduto.Id(0);
+  end;
+end;
+
+function TDAOMarcaProduto.GetbyId(Id: Variant): iDAOMarcaProduto;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL+FFrom)
+                    .Add('where mp.id=:id ')
+                    .Params('Id', Id)
+                    .Open
+                  .DataSet;
+    except
+      raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+      FMarcaProduto.Id(FDataSet.FieldByName('id').AsInteger) else FMarcaProduto.Id(0);
+  end;
+end;
+
+function TDAOMarcaProduto.GetbyParams: iDAOMarcaProduto;
+begin
+  Result := Self;
+  try
+   try
+     FDataSet := FQuery
+                   .SQL(FSQL+FCount+FFrom+' where ' + FUteis.Pesquisar(FKey, ';' + FValue))
+                   .Open
+                 .DataSet;
+   except
+     raise exception.Create(FMSG.MSGerroGet);
+   end;
+  finally
+   if not FDataSet.IsEmpty then
+     FMarcaProduto.Id(FDataSet.FieldByName('id').AsInteger) else FMarcaProduto.Id(0);
+  end;
+end;
+
+function TDAOMarcaProduto.Post: iDAOMarcaProduto;
+const
+  LSQL=('insert into marcaproduto( '+
+                             'idempresa, '+
+                             'nomemarca, '+
+                             'ativo '+
+                           ')'+
+                             ' values '+
+                           '( '+
+                             ':idempresa, '+
+                             ':nomemarca, '+
+                             ':ativo ' +
+                            ')'
+       );
+begin
+  Result := Self;
+
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('idempresa' , FMarcaProduto.IdEmpresa)
+          .Params('nomemarca' , FMarcaProduto.NomeMarca)
+          .Params('ativo'     , FMarcaProduto.Ativo)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPost);
+    end;
+  finally
+    FConexao.Commit;
+    FDataSet := FQuery
+                    .SQL('select LAST_INSERT_ID () as id')
+                    .Open
+                    .DataSet;
+    FMarcaProduto.Id(FDataSet.FieldByName('id').AsInteger);
+  end;
+end;
+
+function TDAOMarcaProduto.Put: iDAOMarcaProduto;
+const
+  LSQL=('update marcaproduto set '+
+                     'idempresa=:idempresa, '+
+                     'nomemarca=:nomemarca, '+
+                     'ativo    =:ativo '+
+                     'where id =:id '
+       );
+begin
+  Result := Self;
+
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('id'        , FMarcaProduto.Id)
+          .Params('idempresa' , FMarcaProduto.IdEmpresa)
+          .Params('nomemarca' , FMarcaProduto.NomeMarca)
+          .Params('ativo'     , FMarcaProduto.Ativo)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPut);
+    end;
+  finally
+    FConexao.Commit;
+  end;
+end;
+
+function TDAOMarcaProduto.Delete: iDAOMarcaProduto;
+const
+  LSQL=('delete from marcaproduto where id=:id ');
+begin
+  Result := self;
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery.SQL(LSQL)
+               .Params('id', FMarcaProduto.Id)
+            .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroDelete);
+    end;
+  finally
+    FConexao.Commit;
+  end;
+end;
+
+function TDAOMarcaProduto.This: iEntidadeMarcaProduto<iDAOMarcaProduto>;
+begin
+  Result := FMarcaProduto;
+end;
+
+end.

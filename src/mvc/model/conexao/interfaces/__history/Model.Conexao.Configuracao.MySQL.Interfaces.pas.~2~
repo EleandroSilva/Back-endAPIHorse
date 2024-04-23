@@ -1,0 +1,22 @@
+unit Model.Conexao.Configuracao.MySQL.Interfaces;
+
+interface
+
+type
+  iConfiguracaoMySQL = interface
+    ['{AF6F78F6-1652-4AD5-A718-3046E5CA4CE3}']
+    function ServerHost     : String;
+    function Port           : String;
+    function Database       : String;
+    function UserName       : String;
+    function Password       : String;
+    function DriverName     : String;
+    function LibraryName    : String;
+    function VendorLib      : String;
+    function GetDriveFunc   : String;
+    function ConnectionName : String;
+  end;
+
+implementation
+
+end.

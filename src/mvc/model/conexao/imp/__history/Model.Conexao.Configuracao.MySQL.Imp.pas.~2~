@@ -1,0 +1,36 @@
+unit Model.Conexao.Configuracao.MySQL.Imp;
+
+interface
+
+uses
+  System.SysUtils,
+  System.IniFiles,
+
+  Vcl.Forms,
+
+  Model.Conexao.Configuracao.MySQL.Interfaces;
+
+type
+  TConfiguracaoMySQL = class(TInterfacedObject, iConfiguracaoMySQL)
+    private
+
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New      : iConfiguracaoMySQL;
+
+      function ServerHost     : String;
+      function Port           : String;
+      function Database       : String;
+      function UserName       : String;
+      function Password       : String;
+      function DriverName     : String;
+      function LibraryName    : String;
+      function VendorLib      : String;
+      function GetDriveFunc   : String;
+      function ConnectionName : String;
+  end;
+
+implementation
+
+end.

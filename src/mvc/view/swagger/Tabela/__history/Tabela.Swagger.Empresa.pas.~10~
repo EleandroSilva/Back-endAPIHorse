@@ -1,0 +1,42 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 09/04/2024               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Tabela.Swagger.Empresa;
+
+interface
+
+//Tabela que salva os clientes da empresa BeMoreWeb-Empresa que vai usar nosso sistema
+type
+  TEmpresa = class
+    private
+      FId                    : Integer;{bigint-Primary Key}
+      FCNPJ                  : String; {Varchar(18)}
+      FInscricaoEstadual     : String; {Varchar(20)}
+      FNomeEmpresarial       : String; {Varchar(100)}
+      FNomeFantasia          : String; {Varchar(100)}
+      FNaturezaJuridica      : String; {Varchar(100)}
+      FDataEmissao           : TDate;  {TDate-Data que foi cadastrada no sistema}
+      FDataSituacaoCadastral : TDate;  {TDate-Data da abertura da empresa}
+      FAtivo                 : Integer;{Integer}
+    public
+      property Id                    : Integer read FId                    write FId;
+      property CNPJ                  : String  read FCNPJ                  write FCNPJ;
+      property InscricaoEstadual     : String  read FInscricaoEstadual     write FInscricaoEstadual;
+      property NomeEmpresarial       : String  read FNomeEmpresarial       write FNomeEmpresarial;
+      property NomeFantasia          : String  read FNomeFantasia          write FNomeFantasia;
+      property NaturezaJuridica      : String  read FNaturezaJuridica      write FNaturezaJuridica;
+      property DataEmissao           : TDate   read FDataEmissao           write FDataEmissao;
+      property DataSituacaoCadastral : TDate   read FDataSituacaoCadastral write FDataSituacaoCadastral;
+      property Ativo                 : Integer read FAtivo                 write FAtivo;
+  end;
+
+
+implementation
+
+end.

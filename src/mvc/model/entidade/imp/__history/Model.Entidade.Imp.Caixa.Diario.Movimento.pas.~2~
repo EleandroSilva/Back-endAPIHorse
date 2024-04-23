@@ -1,0 +1,38 @@
+unit Model.Entidade.Imp.Caixa.Diario.Movimento;
+
+interface
+
+uses
+  Model.Entidade.Caixa.Diario.Movimento.Interfaces;
+
+type
+  TEntidadeCaixaDiarioMovimento<T : iInterface> = class(TInterfacedObject, iEntidadeCaixaDiarioMovimento<T>)
+    private
+      [weak]
+      FParent          : T;
+    public
+      constructor Create(Parent : T);
+      destructor Destroy; override;
+      class function New(Parent : T) : iEntidadeCaixaDiarioMovimento<T>;
+  end;
+
+implementation
+
+{ TEntidadeCaixaDiarioMovimento<T> }
+
+constructor TEntidadeCaixaDiarioMovimento<T>.Create(Parent: T);
+begin
+  FParent := Parent;
+end;
+
+destructor TEntidadeCaixaDiarioMovimento<T>.Destroy;
+begin
+  inherited;
+end;
+
+class function TEntidadeCaixaDiarioMovimento<T>.New(Parent: T): iEntidadeCaixaDiarioMovimento<T>;
+begin
+  Result := Self.Create(Parent);
+end;
+
+end.

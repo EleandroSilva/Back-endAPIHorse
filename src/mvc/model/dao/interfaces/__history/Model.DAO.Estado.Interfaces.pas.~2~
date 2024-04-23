@@ -1,0 +1,27 @@
+unit Model.DAO.Estado.Interfaces;
+
+interface
+
+uses
+  Data.DB,
+
+  Model.Entidade.Estado.Interfaces;
+
+type
+  iDAOEstado = interface
+    ['{D0039C56-072A-4099-825B-1E07FC70CFC3}']
+    function DataSet(DataSource : TDataSource) : iDAOEstado; overload;
+    function DataSet                           : TDataSet;      overload;
+    function GetAll                            : iDAOEstado;
+    function GetbyId(Id : Variant)             : iDAOEstado;
+    function GetbyParams                       : iDAOEstado;
+    function Post                              : iDAOEstado;
+    function Put                               : iDAOEstado;
+    function Delete                            : iDAOEstado;
+
+    function This : iEntidadeEstado<iDAOEstado>;
+  end;
+
+implementation
+
+end.

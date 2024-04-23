@@ -1,0 +1,52 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 18/03/2024 13:39           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2004/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Entidade.Empresa.Interfaces;
+
+interface
+
+uses
+  Model.Entidade.Email.Empresa.Interfaces;
+
+type
+  iEntidadeEmpresa<T> = interface
+    ['{FBD8184A-0671-4F70-86E4-A5ED07DCAFC8}']
+    function Id                   (Value : Integer)   : iEntidadeEmpresa<T>; overload;
+    function Id                                       : Integer;             overload;
+    function IdContato            (Value : Integer)   : iEntidadeEmpresa<T>; overload;
+    function IdContato                                : Integer;             overload;
+    function IdLogradouro         (Value : Integer)   : iEntidadeEmpresa<T>; overload;
+    function IdLogradouro                             : Integer;             overload;
+    function CNPJ                 (Value : String)    : iEntidadeEmpresa<T>; overload;
+    function CNPJ                                     : String;              overload;
+    function InscricaoEstadual    (Value : String)    : iEntidadeEmpresa<T>; overload;
+    function InscricaoEstadual                        : String;              overload;
+    function NomeEmpresarial      (Value : String)    : iEntidadeEmpresa<T>; overload;
+    function NomeEmpresarial                          : String;              overload;
+    function NomeFantasia         (Value : String)    : iEntidadeEmpresa<T>; overload;
+    function NomeFantasia                             : String;              overload;
+    function NaturezaJuridica     (Value : String)    : iEntidadeEmpresa<T>; overload;
+    function NaturezaJuridica                         : String;              overload;
+    function DataEmissao          (Value : TDateTime) : iEntidadeEmpresa<T>; overload;
+    function DataEmissao                              : TDateTime;           overload;
+    function DataSituacaoCadastral(Value : TDateTime) : iEntidadeEmpresa<T>; overload;
+    function DataSituacaoCadastral                    : TDateTime;           overload;
+    function Ativo                (Value : Integer)   : iEntidadeEmpresa<T>; overload;
+    function Ativo                                    : Integer;             overload;
+
+
+    //Injeção de dependência
+    function EmailEmpresa    : iEntidadeEmailEmpresa   <iEntidadeEmpresa<T>>;
+    function EnderecoEmpresa : iEntidadeEnderecoEmpresa<iEntidadeEmpresa<T>>;
+    function &End : T;
+  end;
+
+implementation
+
+end.

@@ -1,0 +1,7 @@
+unit Model.DAO.Pessoa.Interfaces;
+
+interface
+
+implementation
+
+end.

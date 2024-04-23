@@ -1,0 +1,312 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 08/04/2024 22:46           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.DAO.Imp.Municipio;
+
+interface
+
+uses
+  System.SysUtils,
+  Data.DB,
+
+  FireDAC.Comp.Client,
+
+  Uteis,
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Municipio.Interfaces,
+  Model.Entidade.Municipio.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Conexao.Query.Interfaces,
+  Model.Entidade.Imp.Municipio,
+  Model.Conexao.Firedac.MySQL.Imp,
+  Model.Conexao.Query.Imp;
+
+type
+  TDAOMunicipio = class(TInterfacedObject, iDAOMunicipio)
+    private
+      FMunicipio : iEntidadeMunicipio<iDAOMunicipio>;
+      FConexao   : iConexao;
+      FQuery     : iQuery;
+      FUteis     : TUteis;
+      FMSG       : TMensagens;
+
+      FDataSet   : TDataSet;
+
+      FKey     : String;
+      FValue   : String;
+   const
+      FSQL=('select '+
+            'm.id, '+
+            'm.ibge, '+
+            'm.idestado, '+
+            'm.municipio, '+
+            'm.uf '
+            );
+      FCount=(','+
+              '('+
+              'select '+
+              '  count(*) '+
+              'from municipio m1 '+
+              ') as quantidaderegistro '+
+              ','+
+              '('+
+              'select '+
+              '  count(*) '+
+              'from municipio m2 '+
+              'where m2.idestado = e.idestado '+
+              ') as quantidademunicipioestado '+
+              ','+
+              '('+
+              'select '+
+              '  count(*) '+
+
+              'from municipio m3 '+
+              'inner join estado        e1 on e1.idestado = m3.idestado '+
+              'inner join regiaoestado re1 on re1.id      = e1.idregiao '+
+              'where e1.idestado = e.idestado '+
+              'and   re1.id      = e.idregiao '+
+              ') as quantidademunicipioestadoregiao '
+             );
+      FFrom=('from municipio m '+
+             'inner join estado        e on e.idestado = m.idestado '+
+             'inner join regiaoestado re on re.id      = e.idregiao ');
+
+      procedure FiltroKey;
+      function  FiltroValue(Value : String) : String;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDAOMunicipio;
+
+      function DataSet(DataSource : TDataSource) : iDAOMunicipio; overload;
+      function DataSet                           : TDataSet;      overload;
+      function GetAll                            : iDAOMunicipio;
+      function GetbyId(Id : Variant)             : iDAOMunicipio;
+      function GetbyParams                       : iDAOMunicipio;
+      function Post                              : iDAOMunicipio;
+      function Put                               : iDAOMunicipio;
+      function Delete                            : iDAOMunicipio;
+
+      function This : iEntidadeMunicipio<iDAOMunicipio>;
+  end;
+
+implementation
+
+constructor TDAOMunicipio.Create;
+begin
+  FMunicipio := TEntidadeMunicipio<iDAOMunicipio>.New(Self);
+  FConexao   := TModelConexaoFiredacMySQL.New;
+  FQuery     := TQuery.New;
+  FUteis     := TUteis.Create;
+  FMSG       := TMensagens.Create;
+end;
+
+destructor TDAOMunicipio.Destroy;
+begin
+  FreeAndNil(FUteis);
+  FreeAndNil(FMSG);
+  inherited;
+end;
+
+class function TDAOMunicipio.New: iDAOMunicipio;
+begin
+  Result := Self.Create;
+end;
+
+procedure TDAOMunicipio.FiltroKey;
+begin
+  if FMunicipio.IBGE      > 0 then FKey := 'ibge';
+  if FMunicipio.Municipio<>'' then FKey := 'municipio';
+
+  FValue := FiltroValue(FKey);
+end;
+
+function TDAOMunicipio.FiltroValue(Value : String) : String;
+begin
+  Result := '';
+  if Value ='ibge' then
+    Result := IntToStr(FMunicipio.IBGE);
+  if Value = 'municipio' then
+    Result := FMunicipio.Municipio;
+end;
+
+function TDAOMunicipio.DataSet(DataSource: TDataSource): iDAOMunicipio;
+begin
+  Result := Self;
+  if not Assigned(FDataset) then
+    DataSource.DataSet := FQuery.DataSet
+  else
+    DataSource.DataSet := FDataSet;
+end;
+
+function TDAOMunicipio.DataSet: TDataSet;
+begin
+  Result := FDataSet;
+end;
+
+function TDAOMunicipio.GetAll: iDAOMunicipio;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Open
+                  .DataSet;
+    except
+     raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+      FMunicipio.Id(FDataSet.FieldByName('id').AsInteger) else FMunicipio.Id(0);
+  end;
+end;
+
+function TDAOMunicipio.GetbyId(Id: Variant): iDAOMunicipio;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Add('where Id=:Id')
+                    .Params('Id', Id)
+                    .Open
+                  .DataSet;
+    except
+      raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+      FMunicipio.Id(FDataSet.FieldByName('id').AsInteger) else FMunicipio.Id(0);
+  end;
+end;
+
+function TDAOMunicipio.GetbyParams: iDAOMunicipio;
+begin
+  Result := Self;
+  try
+   try
+     FDataSet := FQuery
+                   .SQL(FSQL+' where ' + FUteis.Pesquisar(FKey, ';' + FValue))
+                   .Open
+                 .DataSet;
+   except
+     raise exception.Create(FMSG.MSGerroGet);
+   end;
+  finally
+   if not FDataSet.IsEmpty then
+      FMunicipio.Id(FDataSet.FieldByName('id').AsInteger) else FMunicipio.Id(0);
+  end;
+end;
+
+function TDAOMunicipio.Post: iDAOMunicipio;
+const
+  LSQL=('insert into municipio('+
+                             'ibge, '+
+                             'idestado, '+
+                             'municipio, '+
+                             'uf '+
+                             ')'+
+                               ' values '+
+                             '('+
+                               ':ibge, '+
+                               ':idestado, '+
+                               ':municipio, '+
+                               ':uf '+
+                              ')'
+       );
+begin
+  Result := Self;
+
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('ibge'     , FMunicipio.IBGE)
+          .Params('idestado'  , FMunicipio.IdEstado)
+          .Params('municipio' , FMunicipio.Municipio)
+          .Params('uf'        , FMunicipio.UF)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPost);
+    end;
+  finally
+    FConexao.Commit;
+    FDataSet := FQuery
+                    .SQL('select LAST_INSERT_ID () as id')
+                    .Open
+                    .DataSet;
+    FMunicipio.Id(FDataSet.FieldByName('id').AsInteger);
+  end;
+end;
+
+function TDAOMunicipio.Put: iDAOMunicipio;
+const
+  LSQL=('update municipio set '+
+                          'ibge     =:ibge, '+
+                          'idestado =:idestado, '+
+                          'municipio=:municipio, '+
+                          'uf       =:uf '+
+                          'where id=:id '
+       );
+begin
+  Result := Self;
+
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('id'        , FMunicipio.Id)
+          .Params('ibge'      , FMunicipio.IBGE)
+          .Params('idestado'  , FMunicipio.IdEstado)
+          .Params('municipio' , FMunicipio.Municipio)
+          .Params('uf'        , FMunicipio.UF)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPut);
+    end;
+  finally
+    FConexao.Commit;
+    //Criar MSG
+  end;
+end;
+
+function TDAOMunicipio.Delete: iDAOMunicipio;
+const
+  LSQL=('delete from municipio where id=:id ');
+begin
+  Result := self;
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery.SQL(LSQL)
+               .Params('id', FMunicipio.Id)
+            .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroDelete);
+    end;
+  finally
+    FConexao.Commit;
+    //Criar MSG
+  end;
+end;
+
+function TDAOMunicipio.This: iEntidadeMunicipio<iDAOMunicipio>;
+begin
+  Result := FMunicipio;
+end;
+
+end.

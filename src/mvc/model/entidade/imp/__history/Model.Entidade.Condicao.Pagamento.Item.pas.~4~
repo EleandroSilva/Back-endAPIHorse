@@ -1,0 +1,51 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 22/04/2024 12:08           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Entidade.Condicao.Pagamento.Item;
+
+interface
+
+uses
+  Model.Entidade.Condicao.Pagamento.Item.Interfaces;
+
+type
+  TEntidadeCondicaoPagamentoItem<T : iInterface> = class(TInterfacedObject, iEntidadeCondicaoPagamentoItem<T>)
+    private
+      [weak]
+      FParent              : T;
+      FId                  : Integer;
+      FIdCondicaoPagamento : Integer;
+      FNumeroPagamento     : Integer;
+      FQuantidadeDias      : Integer;
+    public
+      constructor Create(Parent : T);
+      destructor Destroy; override;
+      class function New(Parent : T ) : iEntidadeCondicaoPagamentoItem<T>;
+  end;
+
+implementation
+
+{ TEntidadeCondicaoPagamentoItem<T> }
+
+constructor TEntidadeCondicaoPagamentoItem<T>.Create(Parent: T);
+begin
+  FParent := Parent;
+end;
+
+destructor TEntidadeCondicaoPagamentoItem<T>.Destroy;
+begin
+  inherited;
+end;
+
+class function TEntidadeCondicaoPagamentoItem<T>.New(Parent: T): iEntidadeCondicaoPagamentoItem<T>;
+begin
+  Result := Self.Create(Parent);
+end;
+
+end.

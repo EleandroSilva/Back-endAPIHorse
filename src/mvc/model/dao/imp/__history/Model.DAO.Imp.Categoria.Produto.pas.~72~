@@ -1,0 +1,318 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 18/03/2024 13:39           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.DAO.Imp.Categoria.Produto;
+
+interface
+
+uses
+  System.SysUtils,
+
+  Data.DB,
+
+  Uteis,
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Categoria.Produto.Interfaces,
+  Model.Entidade.Categoria.Produto.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Conexao.Query.Interfaces,
+  Model.Conexao.Firedac.MySQL.Imp,
+  Model.Conexao.Query.Imp,
+  Model.Entidade.Imp.Categoria.Produto;
+
+type
+  TDAOCategoriaProduto = class(TInterfacedObject, iDAOCategoriaProduto)
+    private
+      FCategoriaProduto : iEntidadeCategoriaProduto<iDAOCategoriaProduto>;
+      FConexao          : iConexao;
+      FUteis            : TUteis;
+      FMSG              : TMensagens;
+
+      FDataSet      : TDataSet;
+      FQuery        : iQuery;
+
+      FKey     : String;
+      FValue   : String;
+
+   const
+      FSQL=('select '+
+            'cp.id, '+
+            'cp.idempresa, '+
+            'cp.idusuario, '+
+            'cp.nomecategoria, '+
+            'cp.datahoraemissao, '+
+            'cp.ativo '+
+            'from categoriaproduto cp ');
+
+      procedure FiltroKey;
+      function  FiltroValue(Value : String) : String;
+      function LoopRegistro (Value : Integer): Integer;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDAOCategoriaProduto;
+
+      function DataSet(DataSource : TDataSource) : iDAOCategoriaProduto; overload;
+      function DataSet                           : TDataSet;             overload;
+      function GetAll                            : iDAOCategoriaProduto;
+      function GetbyId(Id : Variant)             : iDAOCategoriaProduto;
+      function GetbyParams                       : iDAOCategoriaProduto;
+      function Post                              : iDAOCategoriaProduto;
+      function Put                               : iDAOCategoriaProduto;
+      function Delete                            : iDAOCategoriaProduto;
+      function QuantidadeRegistro                : Integer;
+
+      function This : iEntidadeCategoriaProduto<iDAOCategoriaProduto>;
+  end;
+
+implementation
+
+{ TDAOCategoriaProduto }
+constructor TDAOCategoriaProduto.Create;
+begin
+  FCategoriaProduto := TEntidadeCategoriaProduto<iDAOCategoriaProduto>.New(Self);
+  FConexao          := TModelConexaoFiredacMySQL.New;
+  FQuery            := TQuery.New;
+
+  FUteis        := TUteis.Create;
+  FMSG          := TMensagens.Create;
+end;
+
+destructor TDAOCategoriaProduto.Destroy;
+begin
+  FreeAndNil(FUteis);
+  FreeAndNil(FMSG);
+  inherited;
+end;
+
+class function TDAOCategoriaProduto.New: iDAOCategoriaProduto;
+begin
+  Result := Self.Create;
+end;
+
+procedure TDAOCategoriaProduto.FiltroKey;
+begin
+  if FCategoriaProduto.NomeCategoria<>'' then FKey := 'cp.nomecategoria';
+
+  FValue := FiltroValue(FKey);
+end;
+
+function TDAOCategoriaProduto.FiltroValue(Value : String) : String;
+begin
+  Result := '';
+  if Value ='cp.nomecategoria' then
+    Result := FCategoriaProduto.NomeCategoria;
+end;
+
+function TDAOCategoriaProduto.DataSet(DataSource: TDataSource): iDAOCategoriaProduto;
+begin
+  Result := Self;
+  if not Assigned(FDataset) then
+    DataSource.DataSet := FQuery.DataSet
+  else
+    DataSource.DataSet := FDataSet;
+end;
+
+function TDAOCategoriaProduto.DataSet: TDataSet;
+begin
+  Result := FDataSet;
+end;
+
+function TDAOCategoriaProduto.GetAll: iDAOCategoriaProduto;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Add('where cp.idempresa=idempresa ')
+                    .Open
+                  .DataSet;
+    except
+     raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+    begin
+      FCategoriaProduto.Id(FDataSet.FieldByName('id').AsInteger);
+      QuantidadeRegistro;
+    end else FCategoriaProduto.Id(0);
+  end;
+end;
+
+function TDAOCategoriaProduto.GetbyId(Id: Variant): iDAOCategoriaProduto;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Add('where cp.id=:id')
+                    .Add('and cp.idempresa=cp.idempresa')
+                    .Params('Id', Id)
+                    .Open
+                  .DataSet;
+    except
+      raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+      FCategoriaProduto.Id(FDataSet.FieldByName('id').AsInteger) else FCategoriaProduto.Id(0);
+  end;
+end;
+
+function TDAOCategoriaProduto.GetbyParams: iDAOCategoriaProduto;
+begin
+  Result := Self;
+  FiltroKey;
+  try
+   try
+     FDataSet := FQuery
+                   .SQL(FSQL+' where ' + FUteis.Pesquisar(FKey, ';' + FValue))
+                   .Add('and cp.idempresa=idempresa ')
+                   .Open
+                 .DataSet;
+   except
+     raise exception.Create(FMSG.MSGerroGet);
+   end;
+  finally
+   if not FDataSet.IsEmpty then
+   begin
+     FCategoriaProduto.Id(FDataSet.FieldByName('id').AsInteger);
+     QuantidadeRegistro;
+   end else FCategoriaProduto.Id(0);
+  end;
+end;
+
+function TDAOCategoriaProduto.Post: iDAOCategoriaProduto;
+const
+  LSQL=('insert into categoriaproduto( '+
+                                     'idempresa, '+
+                                     'idusuario, '+
+                                     'nomecategoria, '+
+                                     'datahoraemissao, '+
+                                     'ativo '+
+                                     ')'+
+                                     ' values '+
+                                     '('+
+                                     ':idempresa, '+
+                                     ':idusuario, '+
+                                     ':nomecategoria, '+
+                                     ':datahoraemissao, '+
+                                     ':ativo ' +
+                                     ')'
+       );
+begin
+  Result := Self;
+
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('idempresa'       , FCategoriaProduto.IdEmpresa)
+          .Params('idusuario'       , FCategoriaProduto.IdUsuario)
+          .Params('nomecategoria'   , FCategoriaProduto.NomeCategoria)
+          .params('datahoraemissao' , FCategoriaProduto.DataHoraEmissao)
+          .Params('ativo'           , FCategoriaProduto.Ativo)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPost);
+    end;
+  finally
+    FConexao.Commit;
+    FDataSet := FQuery
+                    .SQL('select LAST_INSERT_ID () as id')
+                    .Open
+                    .DataSet;
+    FCategoriaProduto.Id(FDataSet.FieldByName('id').AsInteger);
+  end;
+end;
+
+function TDAOCategoriaProduto.Put: iDAOCategoriaProduto;
+const
+  LSQL=('update categoriaproduto set '+
+                                 'idempresa       =:idempresa, '+
+                                 'idusuario       =:idusuario, '+
+                                 'nomecategoria   =:nomecategoria, '+
+                                 'datahoraemissao =:datahoraemissao, '+
+                                 'ativo           =:ativo '+
+                                 'where id        =:id '
+       );
+begin
+  Result := Self;
+
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('id'              , FCategoriaProduto.Id)
+          .Params('idempresa'       , FCategoriaProduto.IdEmpresa)
+          .Params('idusuario'       , FCategoriaProduto.IdUsuario)
+          .Params('nomecategoria'   , FCategoriaProduto.NomeCategoria)
+          .Params('datahoraemissao' , FCategoriaProduto.DataHoraEmissao)
+          .Params('ativo'           , FCategoriaProduto.Ativo)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPut);
+    end;
+  finally
+    FConexao.Commit;
+  end;
+end;
+
+function TDAOCategoriaProduto.Delete: iDAOCategoriaProduto;
+const
+  LSQL=('delete from categoriaproduto where id=:id ');
+begin
+  Result := self;
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery.SQL(LSQL)
+               .Params('id', FCategoriaProduto.Id)
+            .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroDelete);
+    end;
+  finally
+    FConexao.Commit;
+  end;
+end;
+
+function TDAOCategoriaProduto.LoopRegistro(Value: Integer): Integer;
+begin
+  FDataSet.First;
+  try
+    while not FDataSet.Eof do
+    begin
+      Value := Value + 1;
+      FDataSet.Next;
+    end;
+  finally
+    Result := Value;
+  end;
+end;
+
+function TDAOCategoriaProduto.QuantidadeRegistro: Integer;
+begin
+  Result := LoopRegistro(0);
+end;
+
+function TDAOCategoriaProduto.This: iEntidadeCategoriaProduto<iDAOCategoriaProduto>;
+begin
+  Result := FCategoriaProduto;
+end;
+
+end.

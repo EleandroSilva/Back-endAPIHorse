@@ -1,0 +1,22 @@
+unit Model.Entidade.Condicao.Pagamento.Item.Interfaces;
+
+interface
+
+type
+  iCondicaoPagamentoItem<T> = interface
+    ['{4446EE5D-438F-4BA5-819C-6D06467D3753}']
+    function Id                 (Value : Integer) : iCondicaoPagamentoItem<T>; overload;
+    function Id                                   : Integer;                   overload;
+    function IdCondicaoPagamento(Value : Integer) : iCondicaoPagamentoItem<T>; overload;
+    function IdCondicaoPagamento                  : Integer;                   overload;
+    function NumeroPagamento    (Value : Integer) : iCondicaoPagamentoItem<T>; overload;
+    function NumeroPagamento                      : Integer;                   overload;
+    function QuantidadeDias     (Value : Integer) : iCondicaoPagamentoItem<T>; overload;
+    function QuantidadeDias                       : Integer;                   overload;
+
+    function &End : T;
+  end;
+
+implementation
+
+end.

@@ -1,0 +1,7 @@
+unit Model.DAO.Marca.Produto.Interfaces;
+
+interface
+
+implementation
+
+end.

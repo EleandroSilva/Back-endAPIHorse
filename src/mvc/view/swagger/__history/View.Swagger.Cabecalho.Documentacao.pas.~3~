@@ -1,0 +1,36 @@
+unit View.Swagger.Cabecalho.Documentacao;
+
+interface
+
+uses
+  Horse.GBSwagger,
+  View.API.Error;
+
+procedure ConfiguracaoSwagger;
+
+implementation
+
+procedure ConfiguracaoSwagger;
+begin
+  //http://localhost:9000/swagger/doc/html   URL
+  //Configuração do cabeçalho para toda minha API
+  //para eu não precisar configurar o cabeçalho
+  //em todos os controller
+  Swagger
+    .Info
+      .Title('API PDV Be More Web')
+      .Description('Documentação da API PDV Be More Web')
+      .Contact
+        .Name('Eleandro Silva')
+        .Email('eleandrosilva3107@gmail.com')
+        .URL('https://www.bemoreweb.com.br')
+      .&End
+      .&End
+      .BasePath('bmw')
+      .Register
+        .SchemaOnError(TAPIError);
+end;
+
+
+
+end.

@@ -1,0 +1,7 @@
+unit Model.DAO.Endereco.Pessoa.Interfaces;
+
+interface
+
+implementation
+
+end.

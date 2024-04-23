@@ -1,0 +1,21 @@
+unit Model.Entidade.Imp.Endereco.Empresa;
+
+interface
+
+uses
+  Model.Entidade.Endereco.Empresa.Interfaces;
+
+type
+  TEntidadeEnderecoEmpresa<T : iInterface> = class(TInterfacedObject, iEntidadeEnderecoEmpresa<T>)
+    private
+      [weak]
+      FParent : T;
+    public
+      constructor Create(Parent : T);
+      destructor Destroy; override;
+      class function New(Parent : T) : iEntidadeEnderecoEmpresa<T>;
+  end;
+
+implementation
+
+end.

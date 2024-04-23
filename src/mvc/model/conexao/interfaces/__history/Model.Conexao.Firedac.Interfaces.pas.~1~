@@ -1,0 +1,7 @@
+unit Model.Conexao.Firedac.Interfaces;
+
+interface
+
+implementation
+
+end.

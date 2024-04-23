@@ -1,0 +1,10 @@
+unit Model.Entidade.Imp.Natureza.Juridica;
+
+interface
+
+type
+  T
+
+implementation
+
+end.

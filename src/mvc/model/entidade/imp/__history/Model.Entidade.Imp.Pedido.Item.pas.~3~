@@ -1,0 +1,54 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 22/04/2024 12:08           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Entidade.Imp.Pedido.Item;
+
+interface
+
+uses
+  Model.Entidade.Pedido.Item.Interfaces;
+
+type
+  TEntidadePedidoItem<T : iInterface> = class(TInterfacedObject, iEntidadePedidoItem<T>)
+    private
+      [weak]
+      FParent            : T;
+      FId                : Integer;
+      FIdPedido          : Integer;
+      FIdProduto         : Integer;
+      FQuantidade        : Currency;
+      FValorUnitario     : Currency;
+      FValorDescontoItem : Currency;
+      FValorFinalItem    : Currency;
+    public
+      constructor Create(Parent : T);
+      destructor Destroy; override;
+      class function New(Parent :T) : iEntidadePedidoItem<T>;
+  end;
+
+implementation
+
+{ TEntidadePedidoItem<T> }
+
+constructor TEntidadePedidoItem<T>.Create(Parent: T);
+begin
+  FParent := Parent
+end;
+
+destructor TEntidadePedidoItem<T>.Destroy;
+begin
+  inherited;
+end;
+
+class function TEntidadePedidoItem<T>.New(Parent: T): iEntidadePedidoItem<T>;
+begin
+  Result := Self.Create(Parent);
+end;
+
+end.

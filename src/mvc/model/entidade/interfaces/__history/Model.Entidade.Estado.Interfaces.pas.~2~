@@ -1,0 +1,26 @@
+unit Model.Entidade.Estado.Interfaces;
+
+interface
+
+type
+  iEntidadeEstado<T> = interface
+    ['{4E1147EB-7019-4239-8FB5-9A3CA5EF2252}']
+    function Id       (Value : Integer) : iEntidadeEstado<T>; overload;
+    function Id                         : Integer;               overload;
+    function IdEstado (Value : Integer) : iEntidadeEstado<T>; overload;
+    function IdEstado                   : Integer;               overload;
+    function IBGE     (Value : Integer) : iEntidadeEstado<T>; overload;
+    function IBGE                       : Integer;               overload;
+    function Municipio(Value : String)  : iEntidadeEstado<T>; overload;
+    function Municipio                  : String;                overload;
+    function Estado   (Value : String)  : iEntidadeEstado<T>; overload;
+    function Estado                     : String;                overload;
+
+    //Injeção de dependência
+    function RegiaoEstado : iEntidadeRegiaoEstado<iEntidadeEstado<T>>;
+    function &End : T;
+  end;
+
+implementation
+
+end.

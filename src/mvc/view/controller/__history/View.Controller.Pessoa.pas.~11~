@@ -1,0 +1,135 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{          Início do projeto 05/04/2024 15:27           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit View.Controller.Pessoa;
+
+interface
+
+uses
+  System.SysUtils,
+  System.JSON,
+
+  Data.DB,
+
+  FireDAC.Comp.Client,
+
+  DataSet.Serialize,
+  Horse,
+  Horse.BasicAuthentication,
+
+  Controller.Interfaces,
+  Imp.Controller;
+
+type
+  TViewControllerPessoa = class
+    private
+      FTexto      : String;
+      FIdEmpresa  : Integer;
+      FIdEndereco : Integer;
+      FIdPessoa   : Integer;
+
+      FJSONObject : TJSONObject;
+      FJSONArray  : TJSONArray;
+      FBody       : TJSONValue;
+      FDataSource : TDataSource;
+      FController : iController;
+
+      procedure GetAll (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure GetbyId(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Post   (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Put    (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Delete (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+
+      procedure Registry;
+    public
+      constructor Create;
+      destructor Destroy; override;
+  end;
+
+implementation
+
+constructor TViewControllerPessoa.Create;
+begin
+  FController := TController.New;
+  FDataSource := TDataSource.Create(nil);
+  Registry;
+end;
+
+destructor TViewControllerPessoa.Destroy;
+begin
+  inherited;
+end;
+
+procedure TViewControllerPessoa.GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  try
+    try
+      if ((Req.Query.Field('cpfcnpj').AsString<>'') or (Req.Query.Field('nome').AsString<>'')) then
+        FController
+          .FactoryEntidade
+            .DAOPessoa
+              .This
+                .CPFCNPJ(Req.Query.Field('cpfcnpj').AsString)
+                .Nome   (Req.Query.Field('nome').AsString)
+              .&End
+            .GetbyParams
+            .DataSet(FDataSource)
+      else
+        FController
+          .FactoryEntidade
+            .DAOPessoa
+              .GetAll
+              .DataSet(FDataSource);
+
+     FJSONArray := FDataSource.DataSet.ToJSONArray();
+     FTexto     := FJSONArray.ToString;
+     Res.Send<TJSONArray>(FJSONArray);
+    except
+      raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+    end;
+  finally
+    FJSONArray := FDataSource.DataSet.ToJSONArray();
+    Res.Send<TJSONArray>(FJSONArray);
+    Res.Status(200).Send('Registro encontrado com sucesso!');
+  end;
+end;
+
+procedure TViewControllerPessoa.GetbyId(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+
+end;
+
+procedure TViewControllerPessoa.Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+
+end;
+
+procedure TViewControllerPessoa.Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+
+end;
+
+procedure TViewControllerPessoa.Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+
+end;
+
+procedure TViewControllerPessoa.Registry;
+begin
+  THorse
+      .Group
+        .Prefix  ('bmw')
+          .Get   ('/pessoas/:id' , GetbyId)
+          .Get   ('/pessoas'     , GetAll)
+          .Post  ('pessoas'      , Post)
+          .Put   ('pessoas/:id'  , Put)
+          .Delete('pessoas/:id'  , Delete);
+end;
+
+end.

@@ -1,0 +1,13 @@
+unit Model.DAO.Produto.Interfaces;
+
+interface
+
+Type
+  iDAOProduto= interface
+    ['{EF37767E-DD3E-40BB-98CB-4A4793D2DA4F}']
+
+  end;
+
+implementation
+
+end.

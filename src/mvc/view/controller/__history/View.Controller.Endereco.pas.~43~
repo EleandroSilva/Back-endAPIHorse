@@ -1,0 +1,249 @@
+unit View.Controller.Endereco;
+
+interface
+
+uses
+  System.SysUtils,
+  System.JSON,
+
+  Data.DB,
+
+  FireDAC.Comp.Client,
+
+  DataSet.Serialize,
+  Horse,
+  Horse.BasicAuthentication,
+
+  Controller.Interfaces,
+  Imp.Controller;
+
+type
+  TViewControllerEndereco = class
+    private
+      FTexto      : String;
+
+      FBody       : TJSONValue;
+      FJSONObject : TJSONObject;
+      FJSONArray  : TJSONArray;
+
+      FDataSource : TDataSource;
+      FController : iController;
+
+      //Pego a quantidade de registro de uma Query(para saber se meu JSON sera um Object ou Array)
+      FQuantidadeRegistroJSON : Integer;
+
+      procedure GetAll (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure GetbyId(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Post   (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Put    (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+      procedure Delete (Req: THorseRequest; Res: THorseResponse; Next : TProc);
+
+      procedure Registry;
+    public
+      constructor Create;
+      destructor Destroy; override;
+  end;
+
+implementation
+
+{ TViewControllerEndereco }
+
+constructor TViewControllerEndereco.Create;
+begin
+  FController := TController.New;
+  FDataSource := TDataSource.Create(nil);
+  Registry;
+end;
+
+destructor TViewControllerEndereco.Destroy;
+begin
+  inherited;
+end;
+
+procedure TViewControllerEndereco.GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  try
+    try
+      if ((Req.Query.Field('cep').AsString<>'') or (Req.Query.Field('endereco').AsString<>'')) then
+        FController
+          .FactoryEntidade
+            .DAOEndereco
+              .This
+                .Cep       (Req.Query.Field('cep').AsString)
+                .Logradouro(Req.Query.Field('logradouro').AsString)
+              .&End
+            .GetbyParams
+            .DataSet(FDataSource) else
+        FController
+          .FactoryEntidade
+            .DAOEndereco
+              .GetAll
+            .DataSet(FDataSource);
+
+     if FDataSource.DataSet.FieldByName('quantidaderegistro').AsInteger > 1  then
+     begin
+       FJSONArray := FDataSource.DataSet.ToJSONArray();
+       FTexto     := FJSONArray.ToString;
+       Res.Send<TJSONArray>(FJSONArray);
+     end
+     else
+     begin
+       FJSONObject := FDataSource.DataSet.ToJSONObject();
+       FTexto      := FJSONObject.ToString;
+       Res.Send<TJSONObject>(FJSONObject);
+     end;
+   except
+     Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+     Exit;
+   End;
+  finally
+    if FDataSource.DataSet.IsEmpty then
+      Res.Status(404).Send('Registro não encontrado!') else
+      Res.Status(200).Send('Registro encontrado com sucesso!');
+  end;
+end;
+
+procedure TViewControllerEndereco.GetbyId(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  Try
+     try
+       FController
+         .FactoryEntidade
+           .DAOEndereco
+             .GetbyId(Req.Params['id'].ToInt64)
+           .DataSet(FDataSource);
+
+       FJSONObject := FDataSource.DataSet.ToJSONObject();
+       Res.Send<TJSONObject>(FJSONObject);
+   except
+     Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+     Exit;
+   End;
+   Finally
+     if FDataSource.DataSet.IsEmpty then
+       Res.Status(404).Send('Registro não encontrado!') else
+       Res.Status(200).Send('Registro encontrado com sucesso!');
+   End;
+end;
+
+procedure TViewControllerEndereco.Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  try
+    try
+      FJSONObject := Req.Body<TJSONObject>;
+
+      FController
+        .FactoryEntidade
+          .DAOEndereco
+            .This
+              .Cep           (FJSONObject.GetValue<String> ('cep'))
+              .IBGE          (FJSONObject.GetValue<Integer>('ibge'))
+              .UF            (FJSONObject.GetValue<String> ('uf'))
+              .TipoLogradouro(FJSONObject.GetValue<String> ('tipoLogradouro'))
+              .Logradouro    (FJSONObject.GetValue<String> ('Logradouro'))
+              .Bairro        (FJSONObject.GetValue<String> ('bairro'))
+              .GIA           (FJSONObject.GetValue<Integer>('gia'))
+              .DDD           (FJSONObject.GetValue<String> ('ddd'))
+            .&End
+          .Post
+          .DataSet(FDataSource);
+    except
+      Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+      Exit;
+    end;
+    try
+      FController
+        .FactoryEntidade
+          .DAONumero
+            .This
+              .IdEndereco         (FDataSource.DataSet.FieldByName('id').AsInteger)
+              .NumeroEndereco     (FJSONObject.GetValue<String>('numeroendereco'))
+              .ComplementoEndereco(FJSONObject.GetValue<String>('complementoendereco'))
+          .&End
+          .Post
+          .DataSet(FDataSource);
+    except
+      Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+      Exit;
+    end;
+  finally
+    Res.Status(200).Send('Registro incluído com sucesso!');
+  end;
+end;
+
+procedure TViewControllerEndereco.Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  try
+    try
+      FJSONObject := Req.Body<TJSONObject>;
+
+      FController
+        .FactoryEntidade
+          .DAOEndereco
+            .This
+              .Id            (FJSONObject.GetValue<Integer>('id'))
+              .Cep           (FJSONObject.GetValue<String> ('cep'))
+              .IBGE          (FJSONObject.GetValue<Integer>('ibge'))
+              .UF            (FJSONObject.GetValue<String> ('uf'))
+              .TipoLogradouro(FJSONObject.GetValue<String> ('tipoLogradouro'))
+              .Logradouro    (FJSONObject.GetValue<String> ('Logradouro'))
+              .Bairro        (FJSONObject.GetValue<String> ('bairro'))
+              .GIA           (FJSONObject.GetValue<Integer>('gia'))
+              .DDD           (FJSONObject.GetValue<String> ('ddd'))
+            .&End
+          .Put
+          .DataSet(FDataSource);
+
+      FController
+        .FactoryEntidade
+          .DAONumero
+            .This
+              .Id                 (FJSONObject.GetValue<Integer>('id'))
+              .IdEndereco         (FDataSource.DataSet.FieldByName('id').AsInteger)
+              .NumeroEndereco     (FBody.GetValue<String>('numeroendereco'))
+              .ComplementoEndereco(FBody.GetValue<String>('complementoendereco'))
+          .&End
+          .Put
+          .DataSet(FDataSource);
+    except
+      Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+      Exit;
+    end;
+  finally
+    Res.Status(200).Send('Registro alterado com sucesso!');
+  end;
+end;
+
+procedure TViewControllerEndereco.Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  try
+    try
+      FController
+        .FactoryEntidade
+          .DAOEndereco
+            .This
+              .Id(Req.Params['id'].ToInt64)
+            .&End
+          .Delete;
+    except
+      Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+      Exit;
+    End;
+  Finally
+    Res.Status(200).Send('Registro excluído com sucesso!');
+  End;
+end;
+
+procedure TViewControllerEndereco.Registry;
+begin
+  THorse
+      .Group
+        .Prefix  ('bmw')
+          .Get   ('/endereco/:id' , GetbyId)
+          .Get   ('/endereco'     , GetAll)
+          .Post  ('endereco'      , Post)
+          .Put   ('endereco/:id'  , Put)
+          .Delete('endereco/:id'  , Delete);
+end;
+
+end.

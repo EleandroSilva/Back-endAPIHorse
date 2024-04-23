@@ -1,0 +1,113 @@
+unit Model.Entidade.Imp.Numero;
+
+interface
+
+uses
+  Model.Entidade.Numero.Interfaces,
+  Model.Entidade.Endereco.Interfaces,
+  Model.Entidade.Imp.Endereco;
+
+type
+  TEntidadeNumero<T : iInterface> = class(TInterfacedObject, iEntidadeNumero<T>)
+    private
+      [weak]
+      FParent      : T;
+      FId          : Integer;
+      FIdEndereco  : Integer;
+      FNumero      : String;
+      FComplemento : String;
+
+      FEndereco    : iEntidadeEndereco<iEntidadeNumero<T>>;//injeção de dependência iEntidadeEndereco
+    public
+      constructor Create(Parent : T);
+      destructor Destroy; override;
+      class function New(Parent : T) : iEntidadeNumero<T>;
+
+      function Id(Value : Integer)         : iEntidadeNumero<T>; overload;
+      function Id                          : Integer;            overload;
+      function IdEndereco(Value : Integer) : iEntidadeNumero<T>; overload;
+      function IdEndereco                  : Integer;            overload;
+      function Numero(Value : String)      : iEntidadeNumero<T>; overload;
+      function Numero                      : String;             overload;
+      function Complemento(Value : String) : iEntidadeNumero<T>; overload;
+      function Complemento                 : String;             overload;
+
+      function &End : T;
+      //Injeção de dependência
+      function Endereco : iEntidadeEndereco<iEntidadeNumero<T>>;
+  end;
+
+implementation
+
+{ TEntidadeNumero<T> }
+constructor TEntidadeNumero<T>.Create(Parent: T);
+begin
+  FParent   := Parent;
+  FEndereco := TEntidadeEndereco<iEntidadeNumero<T>>.New(Self);
+end;
+
+destructor TEntidadeNumero<T>.Destroy;
+begin
+  inherited;
+end;
+
+class function TEntidadeNumero<T>.New(Parent: T): iEntidadeNumero<T>;
+begin
+  Result := Self.Create(Parent);
+end;
+
+function TEntidadeNumero<T>.Id(Value: Integer): iEntidadeNumero<T>;
+begin
+  Result := Self;
+  FId    := Value;
+end;
+
+function TEntidadeNumero<T>.Id: Integer;
+begin
+  Result := FId;
+end;
+
+function TEntidadeNumero<T>.IdEndereco(Value: Integer): iEntidadeNumero<T>;
+begin
+  Result := Self;
+  FIdEndereco := Value;
+end;
+
+function TEntidadeNumero<T>.IdEndereco: Integer;
+begin
+  Result := FIdEndereco;
+end;
+
+function TEntidadeNumero<T>.Numero(Value: String): iEntidadeNumero<T>;
+begin
+  Result := Self;
+  FNumero := Value;
+end;
+
+function TEntidadeNumero<T>.Numero: String;
+begin
+  Result := FNumero;
+end;
+
+function TEntidadeNumero<T>.Complemento(Value: String): iEntidadeNumero<T>;
+begin
+  Result := Self;
+  FComplemento := Value;
+end;
+
+function TEntidadeNumero<T>.Complemento: String;
+begin
+  Result := FComplemento;
+end;
+
+function TEntidadeNumero<T>.&End: T;
+begin
+  Result := FParent;
+end;
+
+function TEntidadeNumero<T>.Endereco: iEntidadeEndereco<iEntidadeNumero<T>>;
+begin
+  Result := FEndereco;
+end;
+
+end.

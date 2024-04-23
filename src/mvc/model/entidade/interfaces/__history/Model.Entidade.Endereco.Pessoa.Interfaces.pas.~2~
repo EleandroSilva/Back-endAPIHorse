@@ -1,0 +1,22 @@
+unit Model.Entidade.Endereco.Pessoa.Interfaces;
+
+interface
+
+type
+  iEntidadeEnderecoPessoa<T> = Interface
+    ['{70A087E5-2329-4902-8B25-78FD009355E1}']
+    function Id        (Value : Integer) : iEntidadeEnderecoPessoa<T>; overload;
+    function Id                          : Integer;                    overload;
+    function IdEmpresa (Value : Integer) : iEntidadeEnderecoPessoa<T>; overload;
+    function IdEmpresa                   : Integer;                    overload;
+    function IdEndereco(Value : Integer) : iEntidadeEnderecoPessoa<T>; overload;
+    function IdEndereco                         : Integer;             overload;
+    function IdPessoa  (Value : Integer) : iEntidadeEnderecoPessoa<T>; overload;
+    function IdPessoa                    : Integer;                    overload;
+
+    function &End : T;
+  End;
+
+implementation
+
+end.
