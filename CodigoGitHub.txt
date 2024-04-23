@@ -4,11 +4,11 @@ git init
 git add README.md
 git commit -m "first commit"
 git branch -M main
-git remote add origin https://github.com/EleandroSilva/backBack-endAPIHorse.git
+git remote add origin https://github.com/EleandroSilva/Back-endAPIHorse.git
 git push -u origin main
 
 Tentar comando abaixo quando for atualizar, caso não de certo pular para o último em alterações
-git remote add origin https://github.com/EleandroSilva/backBack-endAPIHorse.git
+git remote add origin https://github.com/EleandroSilva/Back-endAPIHorse.git
 git branch -M main
 git push -u origin main
 
