@@ -17,8 +17,7 @@ uses
   Model.Alterar.Email.Empresa.Interfaces,
   Model.Alterar.Telefone.Empresa.Interfaces,
   Model.Alterar.Endereco.Interfaces,
-  Model.Alterar.Numero.Interfaces,
-  Model.Alterar.Usuario.Interfaces;
+  Model.Alterar.Numero.Interfaces;
 
 type
   TFactoryAlterar = class(TInterfacedObject, iFactoryAlterar)
@@ -28,7 +27,6 @@ type
       FAlterarTelefoneEmpresa : iAlterarTelefoneEmpresa;
       FAlterarEndereco        : iAlterarEndereco;
       FAlterarNumero          : iAlterarNumero;
-      FAlterarUsuario         : iAlterarUsuario;
     public
       constructor Create;
       destructor Destroy; override;
@@ -39,7 +37,6 @@ type
       function AlterarTelefoneEmpresa : iAlterarTelefoneEmpresa;
       function AlterarEndereco        : iAlterarEndereco;
       function AlterarNumero          : iAlterarNumero;
-      function AlterarUsuario         : iAlterarUsuario;
   end;
 
 implementation
@@ -49,8 +46,7 @@ uses
   Model.Imp.Alterar.Email.Empresa,
   Model.Imp.Alterar.Telefone.Empresa,
   Model.Imp.Alterar.Endereco,
-  Model.Imp.Alterar.Numero,
-  Model.Imp.Alterar.Usuario;
+  Model.Imp.Alterar.Numero;
 
 { TFactoryAlterar }
 
@@ -107,14 +103,6 @@ begin
     FAlterarNumero := TAlterarNumero.New;
 
   Result := FAlterarNumero;
-end;
-
-function TFactoryAlterar.AlterarUsuario: iAlterarUsuario;
-begin
-  if not Assigned(FAlterarUsuario) then
-    FAlterarUsuario := TAlterarUsuario.New;
-
-  Result := FAlterarUsuario;
 end;
 
 end.

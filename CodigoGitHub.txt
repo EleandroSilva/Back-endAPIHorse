@@ -19,3 +19,12 @@ git add .
 git status
 git commit -m "msg alteracao"
 git push
+
+quando der o erro -To https://github.com/EleandroSilva/BackEnd.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to
+Usar este comando junto abaixo
+git pull origin main
+git push origin main
+
+

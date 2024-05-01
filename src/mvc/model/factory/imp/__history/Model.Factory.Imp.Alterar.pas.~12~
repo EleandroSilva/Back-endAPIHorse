@@ -49,8 +49,7 @@ uses
   Model.Imp.Alterar.Email.Empresa,
   Model.Imp.Alterar.Telefone.Empresa,
   Model.Imp.Alterar.Endereco,
-  Model.Imp.Alterar.Numero,
-  Model.Imp.Alterar.Usuario;
+  Model.Imp.Alterar.Numero, Model.Imp.Alterar.Usuario;
 
 { TFactoryAlterar }
 

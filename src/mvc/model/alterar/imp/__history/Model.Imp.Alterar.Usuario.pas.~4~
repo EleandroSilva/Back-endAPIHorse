@@ -1,0 +1,31 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 01/05/2024 19:15           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Alterar.Usuario;
+
+interface
+
+uses
+  Model.Alterar.Usuario.Interfaces,
+  Controller.Interfaces;
+
+type
+  TAlterarUsuario = class(TInterfacedObject, iAlterarUsuario)
+    private
+      FControlerr : iController;
+
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iAlterarUsuario;
+  end;
+
+implementation
+
+end.
