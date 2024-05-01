@@ -11,6 +11,9 @@ unit Tabela.Swagger.Regiao.Estado;
 
 interface
 
+uses
+  GBSwagger.Model.Attributes;
+
 type
   TRegiaoEstado = class
     private

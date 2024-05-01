@@ -1,0 +1,26 @@
+unit Model.Cadastrar.Usuario.Interfaces;
+
+interface
+
+uses
+  System.JSON,
+
+  Model.Entidade.Usuario.Interfaces;
+
+type
+  iCadastrarUsuario = interface
+    ['{24A3135A-0610-4054-99AA-9ACBDF113D5C}']
+    function JSONObjectPai(Value : TJSONObject) : iCadastrarUsuario; overload;
+    function JSONObjectPai                      : TJSONObject;       overload;
+    function Error(Value : Boolean) : Boolean;
+    //
+    function Post : iCadastrarUsuario;
+    //injeção de dependência
+    function Usuario : iEntidadeUsuario<iCadastrarUsuario>;
+    function &End : iCadastrarUsuario;
+  end;
+
+
+implementation
+
+end.

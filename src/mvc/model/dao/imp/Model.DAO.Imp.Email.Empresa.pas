@@ -49,7 +49,8 @@ type
       function DataSet                           : TDataSet;         overload;
       function GetAll                            : iDAOEmailEmpresa;
       function GetbyId(Id : Variant)             : iDAOEmailEmpresa;
-      function GetbyParams                       : iDAOEmailEmpresa;
+      function GetbyParams                       : iDAOEmailEmpresa;  overload;
+      function GetByParams(const iDAOEmailEmpresa) :iDAOEmailEmpresa; overload;
       function Post                              : iDAOEmailEmpresa;
       function Put                               : iDAOEmailEmpresa;
       function Delete                            : iDAOEmailEmpresa;
@@ -144,6 +145,32 @@ begin
       FEmailEmpresa.Id(FDataSet.FieldByName('id').AsInteger)
     else
       FEmailEmpresa.Id(0);
+  end;
+end;
+
+function TDAOEmailEmpresa.GetbyParams(const iDAOEmailEmpresa): iDAOEmailEmpresa;
+begin
+  Result := Self;
+  try
+   try
+     FDataSet := FQuery
+                   .SQL(FSQL)
+                   .Add('where ee.idempresa=:idempresa')
+                   .Params('idempresa', FEmailEmpresa.IdEmpresa)
+                   .Open
+                 .DataSet;
+   except
+     on E:Exception do
+     raise exception.Create(FMSG.MSGerroGet+E.Message);
+   end;
+  finally
+   if not FDataSet.IsEmpty then
+   begin
+     FEmailEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
+     QuantidadeRegistro;
+   end
+   else
+     FEmailEmpresa.Id(0);
   end;
 end;
 

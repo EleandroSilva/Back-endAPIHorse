@@ -11,6 +11,9 @@ unit Tabela.Swagger.Municipio;
 
 interface
 
+uses
+  GBSwagger.Model.Attributes;
+
 type
   TMunicipio = class
     private

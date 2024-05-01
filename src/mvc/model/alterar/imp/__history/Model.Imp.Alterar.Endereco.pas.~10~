@@ -1,0 +1,114 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 01/05/2024 00:45           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Alterar.Endereco;
+
+interface
+
+uses
+  Data.DB,
+  System.SysUtils,
+  System.JSON,
+
+  Model.Alterar.Endereco.Interfaces,
+  Controller.Interfaces,
+  Model.Entidade.Endereco.Interfaces;
+
+Type
+  TAlterarEndereco = class(TInterfacedObject, iAlterarEndereco)
+    private
+      FController : iController;
+      FEndereco   : iEntidadeEndereco<iAlterarEndereco>;
+      DSEndereco  : TDataSource;
+      FJSONObject : TJSONObject;
+
+      FFound : Boolean;
+      FError : Boolean;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iAlterarEndereco;
+
+      function JSONObject(Value : TJSONObject) : iAlterarEndereco; overload;
+      function JSONObject                      : TJSONObject;      overload;
+      function Put    : iAlterarEndereco;
+      function Found  : Boolean;
+      function Error  : Boolean;
+
+      //injeção de dependência
+      function Endereco : iEntidadeEndereco<iAlterarEndereco>;
+      function &End : iAlterarEndereco;
+  end;
+
+implementation
+
+uses
+  Imp.Controller,
+  Model.Entidade.Imp.Endereco;
+
+{ TAlterarEndereco }
+
+constructor TAlterarEndereco.Create;
+begin
+  FController := TController.New;
+  FEndereco   := TEntidadeEndereco<iAlterarEndereco>;
+  DSEndereco  := TDataSource;
+
+  FFound := False;
+  FError := False;
+end;
+
+destructor TAlterarEndereco.Destroy;
+begin
+  inherited;
+end;
+
+class function TAlterarEndereco.New: iAlterarEndereco;
+begin
+  Result := Self.Create;
+end;
+
+function TAlterarEndereco.JSONObject(Value: TJSONObject): iAlterarEndereco;
+begin
+  Result := Self;
+  FJSONObject := Value;
+end;
+
+function TAlterarEndereco.JSONObject: TJSONObject;
+begin
+  Result := FJSONObject;
+end;
+
+function TAlterarEndereco.Error: Boolean;
+begin
+  Result := FError;
+end;
+
+function TAlterarEndereco.Found: Boolean;
+begin
+  Result := FFound;
+end;
+
+function TAlterarEndereco.Put: iAlterarEndereco;
+begin
+
+end;
+
+//Injeção de dependência
+function TAlterarEndereco.Endereco: iEntidadeEndereco<iAlterarEndereco>;
+begin
+  Result := FEndereco;
+end;
+
+function TAlterarEndereco.&End: iAlterarEndereco;
+begin
+  Result := Self;
+end;
+
+end.

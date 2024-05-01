@@ -18,8 +18,6 @@ type
     function Id                                : Integer;                     overload;
     function IdPedido      (Value : Integer)   : iEntidadePedidoPagamento<T>; overload;
     function IdPedido                          : Integer;                     overload;
-    function IdPagamento   (Value : Integer)   : iEntidadePedidoPagamento<T>; overload;
-    function IdPagamento                       : Integer;                     overload;
     function DataVencimento(Value : TDateTime) : iEntidadePedidoPagamento<T>; overload;
     function DataVencimento                    : TDateTime;                   overload;
     function ValorParcela  (Value : Currency)  : iEntidadePedidoPagamento<T>; overload;

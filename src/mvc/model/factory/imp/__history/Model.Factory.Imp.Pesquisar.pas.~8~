@@ -1,0 +1,65 @@
+unit Model.Factory.Imp.Pesquisar;
+
+interface
+
+uses
+  Model.Factory.Pesquisar.Interfaces,
+  Model.Pesquisar.Empresa.Interfaces,
+  Model.Pesquisar.Endereco.Empresa.Interfaces;
+
+
+
+type
+  TFactoryPesquisar = class(TInterfacedObject, iFactoryPesquisar)
+    private
+      FPesquisarEmpresa : iPesquisarEmpresa;
+      FPesquisarEnderecoEmpresa : iPesquisarEnderecoEmpresa;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iFactoryPesquisar;
+
+      function PesquisarEmpresa : iPesquisarEmpresa;
+      function PesquisarEnderecoEmpresa : iPesquisarEnderecoEmpresa;
+  end;
+
+implementation
+
+uses
+  Model.Imp.Pesquisar.Empresa,
+  Model.Imp.Pesquisar.Endereco.Empresa;
+
+{ TFactoryPesquisar }
+
+constructor TFactoryPesquisar.Create;
+begin
+  //
+end;
+
+destructor TFactoryPesquisar.Destroy;
+begin
+  inherited;
+end;
+
+class function TFactoryPesquisar.New: iFactoryPesquisar;
+begin
+  Result := Self.Create;
+end;
+
+function TFactoryPesquisar.PesquisarEmpresa: iPesquisarEmpresa;
+begin
+  if not Assigned(FPesquisarEmpresa) then
+    FPesquisarEmpresa := TPesquisarEmpresa.New;
+
+  Result := FPesquisarEmpresa;
+end;
+
+function TFactoryPesquisar.PesquisarEnderecoEmpresa: iPesquisarEnderecoEmpresa;
+begin
+  if not Assigned(FPesquisarEnderecoEmpresa) then
+    FPesquisarEnderecoEmpresa := TPesquisarEnderecoEmpresa.New;
+
+  Result := FPesquisarEnderecoEmpresa;
+end;
+
+end.

@@ -1,0 +1,29 @@
+unit Model.Cadastrar.Telefone.Empresa.Interfaces;
+
+interface
+
+uses
+  System.JSON,
+
+  Model.Entidade.Telefone.Empresa.Interfaces;
+
+type
+  iCadastrarTelefoneEmpresa = interface
+    ['{6AC76871-8F8D-49D7-8EDF-1EABA424D808}']
+    function JSONObjectPai(Value : TJSONObject) : iCadastrarTelefoneEmpresa; overload;
+    function JSONObjectPai                      : TJSONObject;               overload;
+    function Encontrei : Boolean;
+    function Error     : Boolean;
+    //
+    function GetBy(IdEmpresa : Integer; DDD, NumeroTelefone: String) :iCadastrarTelefoneEmpresa;
+    function Post : iCadastrarTelefoneEmpresa;
+    function Put  : iCadastrarTelefoneEmpresa;
+    function LoopTelefoneEmpresa : TJSONValue;
+    //injeção de dependência
+    function TelefoneEmpresa : iEntidadeTelefoneEmpresa<iCadastrarTelefoneEmpresa>;
+    function &End : iCadastrarTelefoneEmpresa;
+  end;
+
+implementation
+
+end.

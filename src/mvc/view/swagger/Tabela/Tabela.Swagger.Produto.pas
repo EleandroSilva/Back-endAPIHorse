@@ -51,7 +51,7 @@ type
       property id                  : Integer  read FId                  write FId;
       [SwagProp('Foreign Key->Tabela (categoriaproduto<-Idempresa=id->Tabela empresa)) Excluír=Cascade; Alterar=Cascade', True)]
       property idempresa           : Integer  read FIdEmpresa           write FIdEmpresa;
-      [SwagProp('Foreign Key->Tabela (produto<-Idusuario=id->Tabela usuario))', True)]
+      [SwagProp('Foreign Key->Tabela (usuario<-Idusuario=id->Tabela usuario))', True)]
       property idusuario           : Integer  read FIdUsuario           write FIdUsuario;
       [SwagProp('Foreign Key->Tabela (categoriaproduto<-Idusuario=id->Tabela usuario))', True)]
       property idcategoria         : Integer  read FIdCategoria         write FIdCategoria;

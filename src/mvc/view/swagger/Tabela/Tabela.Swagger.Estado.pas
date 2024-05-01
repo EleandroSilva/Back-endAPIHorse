@@ -11,6 +11,9 @@ unit Tabela.Swagger.Estado;
 
 interface
 
+uses
+  GBSwagger.Model.Attributes;
+
 type
   TEstado = class
     private

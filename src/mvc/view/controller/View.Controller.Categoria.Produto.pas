@@ -68,7 +68,7 @@ begin
     try
       if ((Req.Query.Field('nomecategoria').AsString<>'') or (Req.Query.Field('idempresa').AsInteger>0)) then
         FQuantidadeRegistro := FController
-                                .FactoryEntidade
+                                .FactoryDAO
                                   .DAOCategoriaProduto
                                     .This
                                       .NomeCategoria(Req.Query.Field('nomecategoria').AsString)
@@ -79,7 +79,7 @@ begin
                                   .QuantidadeRegistro
         else
         FQuantidadeRegistro := FController
-                                .FactoryEntidade
+                                .FactoryDAO
                                   .DAOCategoriaProduto
                                     .This
                                       .IdEmpresa(Req.Query.Field('idempresa').AsInteger)
@@ -117,7 +117,7 @@ begin
   Try
      try
        FController
-         .FactoryEntidade
+         .FactoryDAO
            .DAOCategoriaProduto
              .This
                .IdEmpresa(Req.Query.Field('idempresa').AsInteger)
@@ -148,7 +148,7 @@ begin
     try
       FJSONObject := Req.Body<TJSONObject>;
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOCategoriaProduto
             .This
               .IdEmpresa      (FJSONObject.GetValue<integer>('idempresa'))
@@ -176,7 +176,7 @@ begin
     try
       FJSONObject := Req.Body<TJSONObject>;
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOCategoriaProduto
             .This
               .Id             (FJSONObject.GetValue<Integer>('id'))
@@ -204,7 +204,7 @@ begin
   try
     try
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOCategoriaProduto
             .This
               .Id(Req.Params['id'].ToInt64)

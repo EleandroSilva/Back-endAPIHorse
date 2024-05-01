@@ -1,0 +1,46 @@
+unit Model.Factory.Imp.Deletar;
+
+interface
+
+uses
+  Model.Factory.Deletar.Interfaces;
+
+type
+  TFactoryDeletar = class(TInterfacedObject, iFactoryDeletar)
+    private
+      FFactoryDeletar : iFactoryDeletar;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iFactoryDeletar;
+
+      function FactoryDeletar : iFactoryDeletar;
+  end;
+
+implementation
+
+{ TFactoryDeletar }
+
+constructor TFactoryDeletar.Create;
+begin
+  //
+end;
+
+destructor TFactoryDeletar.Destroy;
+begin
+  inherited;
+end;
+
+function TFactoryDeletar.FactoryDeletar: iFactoryDeletar;
+begin
+  if not Assigned(FFactoryDeletar) then
+    FFactoryDeletar := TryDeletar.New;
+
+end;
+
+class function TFactoryDeletar.New: iFactoryDeletar;
+begin
+  Result := Self.Create;
+end;
+
+end.

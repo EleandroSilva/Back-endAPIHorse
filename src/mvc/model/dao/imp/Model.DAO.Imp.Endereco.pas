@@ -35,14 +35,17 @@ type
             'ed.tipologradouro, '+
             'ed.logradouro, '+
             'n.numeroendereco, '+
+            'n.complementoendereco, '+
+            'n.numeroendereco, '+
             'ed.Bairro, '+
             'ed.ibge, '+
             'm.municipio, '+
+            'm.uf, '+
             'ed.gia, '+
             'ed.ddd '+
             'from endereco ed '+
-            'inner join numero    n on n.idendereco = ed.id '+
-            'inner join municipio m on m.ibge       = m.ibge '
+            'inner join numero    n on ed.id   = n.idendereco '+
+            'inner join municipio m on ed.ibge = m.ibge '
             );
 
       procedure FiltroKey;
@@ -58,7 +61,7 @@ type
       function GetAll                            : iDAOEndereco;
       function GetbyId(Id : Variant)             : iDAOEndereco;
       function GetbyParams                       : iDAOEndereco; overload;
-      function GetbyParams(aCep : String)        : iDAOEndereco; overload;
+      function GetbyParams(Cep : String)         : iDAOEndereco; overload;
       function Post                              : iDAOEndereco;
       function Put                               : iDAOEndereco;
       function Delete                            : iDAOEndereco;
@@ -140,8 +143,8 @@ begin
     except
       on E: Exception do
       begin
-        FConexao.Rollback;
         raise Exception.Create(FMSG.MSGerroGet+E.Message);
+        Exit;
       end;
     end;
   finally
@@ -169,8 +172,8 @@ begin
     except
       on E: Exception do
       begin
-        FConexao.Rollback;
         raise Exception.Create(FMSG.MSGerroGet+E.Message);
+        Exit;
       end;
     end;
   finally
@@ -181,30 +184,29 @@ begin
   end;
 end;
 
-function TDAOEndereco.GetbyParams(aCep: String): iDAOEndereco;
+function TDAOEndereco.GetbyParams(Cep: String): iDAOEndereco;
 begin
   Result := Self;
-  aCep := FUteis.PegarApenasNumero(aCep);
   try
    try
      FDataSet := FQuery
                    .SQL(FSQL)
-                   .Add('where ed.cep=cep')
-                   .Params('cep', aCep)
+                   .Add('where ed.cep=:cep')
+                   .Params('cep', Cep)
                    .Open
                  .DataSet;
    except
       on E: Exception do
       begin
-        FConexao.Rollback;
         raise Exception.Create(FMSG.MSGerroGet+E.Message);
+        Exit;
       end;
     end;
   finally
     if not FDataSet.IsEmpty then
     begin
       FEndereco.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
+      //QuantidadeRegistro;
     end
     else
       FEndereco.Id(0);
@@ -224,8 +226,8 @@ begin
    except
       on E: Exception do
       begin
-        FConexao.Rollback;
         raise Exception.Create(FMSG.MSGerroGet+E.Message);
+        Exit;
       end;
     end;
   finally

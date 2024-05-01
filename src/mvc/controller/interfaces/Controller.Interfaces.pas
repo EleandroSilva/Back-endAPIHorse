@@ -7,19 +7,25 @@
 {                        2003/2024                      }
 {         Analista desenvolvedor (Eleandro Silva)       }
 {*******************************************************}
-
-
 unit Controller.Interfaces;
 
 interface
 
 uses
-  Model.Factory.Entidade.Interfaces;
+  Model.Factory.DAO.Interfaces,
+  Model.Factory.Cadastrar.Interfaces,
+  Model.Factory.Pesquisar.Interfaces,
+  Model.Factory.Alterar.Interfaces,
+  Model.Factory.Deletar.Interfaces;
 
 type
   iController = interface
     ['{611C46ED-61F0-4331-A949-B58E8B473AF0}']
-    function FactoryEntidade : iFactoryEntidade;
+    function FactoryDAO       : iFactoryDAO;
+    function FactoryCadastrar : iFactoryCadastrar;
+    function FactoryPesquisar : iFactoryPesquisar;
+    function FactoryAlterar   : iFactoryAlterar;
+    function FactoryDeletar   : iFactoryDeletar;
   end;
 
 implementation

@@ -23,7 +23,7 @@ type
 
 implementation
 
-{ TSwaggerEmpresa }
+{ TSwaggerUsuario }
 
 class procedure TSwaggerUsuario.SwaggerUsuario;
 begin

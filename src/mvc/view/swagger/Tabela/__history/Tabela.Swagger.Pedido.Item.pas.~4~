@@ -1,0 +1,41 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 25/04/2024 20:00           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Tabela.Swagger.Pedido.Item;
+
+interface
+
+uses
+  GBSwagger.Model.Attributes;
+
+type
+  TPedidoItem = class
+    private
+      FId                : Integer;
+      FIdPedido          : Integer;
+      FIdProduto         : Integer;
+      FQuantidade        : Currency;
+      FValorUnitario     : Currency;
+      FValorProduto      : Currency;
+      FValorDescontoItem : Currency;
+      FValorFinalItem    : Currency;
+    public
+      property Id                : Integer  read FId                write FId;
+      property IdPedido          : Integer  read FIdPedido          write FIdPedido;
+      property IdProduto         : Integer  read FIdProduto         write FIdProduto;
+      property Quantidade        : Currency read FQuantidade        write FQuantidade;
+      property ValorUnitario     : Currency read FValorUnitario     write FValorUnitario;
+      property ValorProduto      : Currency read FValorProduto      write FValorProduto;
+      property ValorDescontoItem : Currency read FValorDescontoItem write FValorDescontoItem;
+      property ValorFinalItem    : Currency read FValorFinalItem    write FValorFinalItem;
+  end;
+
+implementation
+
+end.

@@ -1,0 +1,26 @@
+unit Model.Cadastrar.Email.Empresa.Interfaces;
+
+interface
+
+uses
+  System.JSON,
+
+  Model.Entidade.Email.Empresa.Interfaces;
+
+type
+  iCadastrarEmailEmpresa = interface
+    ['{C0B73BDF-DD17-472F-8A7F-14234FF67ABD}']
+    function JSONObjectPai(Value : TJSONObject) : iCadastrarEmailEmpresa; overload;
+    function JSONObjectPai                      : TJSONObject;       overload;
+    function Encontrei : Boolean;
+    function Error(Value : Boolean) : Boolean;
+    //
+    function Post : iCadastrarEmailEmpresa;
+    //injeção de dependência
+    function EmailEmpresa : iEntidadeEmailEmpresa<iCadastrarEmailEmpresa>;
+    function &End : iCadastrarEmailEmpresa;
+  end;
+
+implementation
+
+end.

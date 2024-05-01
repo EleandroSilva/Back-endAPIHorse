@@ -1,0 +1,209 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 30/04/2024 14:18           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Cadastrar.Endereco;
+
+interface
+
+uses
+  Data.DB,
+
+  System.JSON,
+  System.SysUtils,
+
+  Model.Cadastrar.Endereco.Interfaces,
+  Controller.Interfaces,
+  Model.Entidade.Endereco.Interfaces,
+  Model.Entidade.Empresa.Interfaces;
+
+type
+  TCadastrarEndereco = class(TInterfacedObject, iCadastrarEndereco)
+    private
+      FController         : iController;
+      FEndereco           : iEntidadeEndereco<iCadastrarEndereco>;
+      FEmpresa            : iEntidadeEmpresa<iCadastrarEndereco>;
+      FJSONArrayEndereco  : TJSONArray;
+      FJSONObjectEndereco : TJSONObject;
+      FJSONObjectPai      : TJSONObject;
+      //
+      FIdEndereco : Integer;
+      FEncontrei  : Boolean;
+      FError      : Boolean;
+      FDSEndereco : TDataSource;
+
+      procedure CadastrarNumero;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iCadastrarEndereco;
+
+      function JSONObjectPai(Value : TJSONObject) : iCadastrarEndereco; overload;
+      function JSONObjectPai                      : TJSONObject;        overload;
+      function Encontrei : Boolean;
+      function Error : Boolean;
+      //
+      function GetbyCep(Cep : String) : iCadastrarEndereco;
+      function Post : iCadastrarEndereco;
+      //injeção de dependência
+      function Endereco : iEntidadeEndereco<iCadastrarEndereco>;
+      function Empresa  : iEntidadeEmpresa<iCadastrarEndereco>;
+      function &End : iCadastrarEndereco;
+  end;
+
+implementation
+
+uses
+  Imp.Controller,
+  Model.Entidade.Imp.Endereco,
+  Model.Entidade.Imp.Empresa;
+
+{ TCadastrarEndereco }
+
+constructor TCadastrarEndereco.Create;
+begin
+  FController     := TController.New;
+  FEndereco       := TEntidadeEndereco<iCadastrarEndereco>.New(Self);
+  FEmpresa        := TEntidadeEmpresa<iCadastrarEndereco>.New(Self);
+  FDSEndereco := TDataSource.Create(nil);
+
+  FEncontrei := False;
+  FError     := False;
+end;
+
+destructor TCadastrarEndereco.Destroy;
+begin
+  inherited;
+end;
+
+class function TCadastrarEndereco.New: iCadastrarEndereco;
+begin
+  Result := Self.Create;
+end;
+
+function TCadastrarEndereco.JSONObjectPai(Value: TJSONObject): iCadastrarEndereco;
+begin
+  Result := Self;
+  FJSONObjectPai := Value;
+end;
+
+function TCadastrarEndereco.JSONObjectPai: TJSONObject;
+begin
+  Result := FJSONObjectPai;
+end;
+
+//verifico se já consta endereco salvo na base de dados pelo cep
+function TCadastrarEndereco.GetbyCep(Cep: String): iCadastrarEndereco;
+begin
+  Result := Self;
+  FEncontrei := False;
+  try
+    FController
+      .FactoryDAO
+        .DAOEndereco
+        .GetbyParams(Cep)
+        .DataSet(FDSEndereco);
+  except
+    on E: Exception do
+    begin
+      WriteLn('Erro ao tentar encontrar registro: ' + E.Message);
+      FError := True;
+    end;
+  end;
+  FEncontrei := FDSEndereco.DataSet.IsEmpty;
+end;
+
+function TCadastrarEndereco.Post: iCadastrarEndereco;
+Var
+  I : Integer;
+begin
+  Result := Self;
+  //Obtém os dados JSON do corpo da requisição da tabela('endereco')
+  FJSONArrayEndereco := FJSONObjectPai.GetValue('endereco') as TJSONArray;
+  try
+    // Loop do(s) endereço(s)
+    for I := 0 to FJSONArrayEndereco.Count - 1 do
+    begin
+      //Extraindo os dados do endereço e salvando no banco de dados
+      FJSONObjectEndereco := FJSONArrayEndereco.Items[I] as TJSONObject;
+      //verificando se já consta este cep cadastrado na tabela endereco(se não estiver insiro o mesmo)
+      if not GetbyCep(FJSONObjectEndereco.GetValue<String>('cep')).Encontrei then
+      begin
+        FController
+          .FactoryDAO
+            .DAOEndereco
+              .This
+                .Cep           (FJSONObjectEndereco.GetValue<String> ('cep'))
+                .IBGE          (FJSONObjectEndereco.GetValue<Integer>('ibge'))
+                .UF            (FJSONObjectEndereco.GetValue<String> ('uf'))
+                .TipoLogradouro(FJSONObjectEndereco.GetValue<String> ('tipologradouro'))
+                .Logradouro    (FJSONObjectEndereco.GetValue<String> ('logradouro'))
+                .Bairro        (FJSONObjectEndereco.GetValue<String> ('bairro'))
+                .GIA           (FJSONObjectEndereco.GetValue<Integer>('gia'))
+                .DDD           (FJSONObjectEndereco.GetValue<String> ('ddd'))
+              .&End
+            .Post
+            .DataSet(FDSEndereco);
+
+        FIdEndereco := FDSEndereco.DataSet.FieldByName('id').AsInteger;
+        //Chamo function para cadastrar numero do endereco, caso não existir
+        CadastrarNumero;
+      end;
+    end;
+  except
+    on E: Exception do
+    begin
+      WriteLn('Erro ao tentar alterar cadastrar endereço na tabela endereco: ' + E.Message);
+      FError := True;
+    end;
+  end;
+end;
+
+function TCadastrarEndereco.Encontrei: Boolean;
+begin
+  Result := FEncontrei;
+end;
+
+function TCadastrarEndereco.Error: Boolean;
+begin
+  Result := FError;
+end;
+
+//Injeção de dependência
+function TCadastrarEndereco.Endereco: iEntidadeEndereco<iCadastrarEndereco>;
+begin
+  Result := FEndereco;
+end;
+
+//Cadastrar Numero
+procedure TCadastrarEndereco.CadastrarNumero;
+begin
+  FController
+    .FactoryCadastrar
+      .CadastrarNumero
+        .Empresa
+          .Id(FEmpresa.Id)
+        .&End
+        .Numero
+          .IdEndereco(FIdEndereco)
+        .&End
+      .JSONObjectPai(FJSONObjectEndereco)
+      .Post;
+end;
+
+function TCadastrarEndereco.Empresa: iEntidadeEmpresa<iCadastrarEndereco>;
+begin
+  Result := FEmpresa;
+end;
+
+function TCadastrarEndereco.&End: iCadastrarEndereco;
+begin
+  Result := Self;
+end;
+
+end.

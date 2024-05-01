@@ -21,7 +21,8 @@ Type
     function DataSet    (DataSource : TDataSource) : iDAOPedidoPagamento; overload;
     function DataSet                               : TDataSet;            overload;
     function GetAll                                : iDAOPedidoPagamento;
-    function GetbyId    (Id : Variant)             : iDAOPedidoPagamento;
+    function GetbyId    (Id : Variant)             : iDAOPedidoPagamento; overload;
+    function GetbyId    (IdParent : Integer)       : iDAOPedidoPagamento; overload;
     function GetbyParams                           : iDAOPedidoPagamento; overload;
     function Post                                  : iDAOPedidoPagamento;
     function Put                                   : iDAOPedidoPagamento;

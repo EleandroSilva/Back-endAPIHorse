@@ -1,0 +1,24 @@
+unit Model.Cadastrar.Endereco.Interfaces;
+
+interface
+
+uses
+  System.JSON,
+  Model.Entidade.Endereco.Interfaces;
+
+type
+  iCadastrarEndereco = interface
+    ['{DA52E4E9-6926-49BC-BC5E-59ADF17ECB47}']
+    function JSONObjectPai(Value : TJSONObject) : iCadastrarEndereco; overload;
+    function JSONObjectPai                      : TJSONObject;        overload;
+    function Error(Value : Boolean) : Boolean;
+    //
+    function Post : iCadastrarEndereco;
+    //injeção de dependência
+    function Endereco : iEntidadeEndereco<iCadastrarEndereco>;
+    function &End : iCadastrarEndereco;
+  end;
+
+implementation
+
+end.

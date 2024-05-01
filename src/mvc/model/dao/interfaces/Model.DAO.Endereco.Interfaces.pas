@@ -15,7 +15,7 @@ type
     function GetAll                            : iDAOEndereco;
     function GetbyId(Id : Variant)             : iDAOEndereco;
     function GetbyParams                       : iDAOEndereco; overload;
-    function GetbyParams(aCep : String)        : iDAOEndereco; overload;
+    function GetbyParams(Cep : String)         : iDAOEndereco; overload;
     function Post                              : iDAOEndereco;
     function Put                               : iDAOEndereco;
     function Delete                            : iDAOEndereco;

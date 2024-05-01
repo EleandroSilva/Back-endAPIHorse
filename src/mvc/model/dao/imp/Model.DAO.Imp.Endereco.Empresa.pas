@@ -35,8 +35,8 @@ type
       const
       FSQL=('select '+
             'ee.id, '+
-            'ee.idendereco, '+
             'ee.idempresa, '+
+            'ee.idendereco, '+
             'ed.cep, '+
             'ed.tipologradouro, '+
             'ed.logradouro, '+
@@ -62,6 +62,7 @@ type
       function GetAll                                         : iDAOEnderecoEmpresa;
       function GetbyId(Id : Variant)                          : iDAOEnderecoEmpresa;
       function GetbyParams                                    : iDAOEnderecoEmpresa; overload;
+      function GetbyParams(const iDAOEnderecoEmpresa)         : iDAOEnderecoEmpresa; overload;
       function GetbyParams(aIdEmpresa, aIdEndereco : Variant) : iDAOEnderecoEmpresa; overload;
       function Post                                           : iDAOEnderecoEmpresa;
       function Put                                            : iDAOEnderecoEmpresa;
@@ -161,6 +162,36 @@ begin
   end;
 end;
 
+//uso para listar no json junto com a tabela pai(empresa)
+function TDAOEnderecoEmpresa.GetbyParams(const iDAOEnderecoEmpresa): iDAOEnderecoEmpresa;
+begin
+  Result := Self;
+  try
+    try
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                    .Add('where ee.idempresa =:idempresa')
+                    .Add('and   ee.idendereco=ee.idendereco')
+                    .Params('idempresa' , FEnderecoEmpresa.IdEmpresa)
+                    .Add('order by ee.idempresa asc')
+                    .Add(', ee.idendereco asc')
+                  .Open
+                .DataSet;
+    except
+      on E: Exception do
+        raise Exception.Create(E.Message);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+    begin
+      FEnderecoEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
+      QuantidadeRegistro;
+    end
+    else
+      FEnderecoEmpresa.Id(0);
+  end;
+end;
+
 function TDAOEnderecoEmpresa.GetbyParams(aIdEmpresa, aIdEndereco: Variant): iDAOEnderecoEmpresa;
 begin
   Result := Self;
@@ -218,13 +249,13 @@ end;
 function TDAOEnderecoEmpresa.Post: iDAOEnderecoEmpresa;
 const
   LSQL=('insert into enderecoempresa( '+
-                                    'idendereco, '+
-                                    'idempresa ' +
+                                    'idempresa, ' +
+                                    'idendereco '+
                                     ')'+
                                     ' values '+
                                     '('+
-                                    ':idendereco, '+
-                                    ':idempresa ' +
+                                    ':idempresa, ' +
+                                    ':idendereco '+
                                     ') '
        );
 begin
@@ -234,8 +265,8 @@ begin
     try
       FQuery
         .SQL(LSQL)
-          .Params('idendereco' , FEnderecoEmpresa.IdEndereco)
           .Params('idempresa'  , FEnderecoEmpresa.IdEmpresa)
+          .Params('idendereco' , FEnderecoEmpresa.IdEndereco)
           .ExecSQL;
 
     except
@@ -258,8 +289,8 @@ end;
 function TDAOEnderecoEmpresa.Put: iDAOEnderecoEmpresa;
 const
   LSQL=('update enderecoempresa set '+
-                               'idendereco=:idendereco, '+
-                               'idempresa =:idempresa '+
+                               'idempresa =:idempresa, '+
+                               'idendereco=:idendereco '+
                                'where id=:id '
        );
 begin
@@ -271,8 +302,8 @@ begin
       FQuery
         .SQL(LSQL)
           .Params('id'         , FEnderecoEmpresa.Id)
-          .Params('idendereco' , FEnderecoEmpresa.IdEndereco)
           .Params('idempresa'  , FEnderecoEmpresa.IdEmpresa)
+          .Params('idendereco' , FEnderecoEmpresa.IdEndereco)
         .ExecSQL;
     except
       on E: Exception do

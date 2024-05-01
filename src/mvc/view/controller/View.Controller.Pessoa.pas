@@ -110,7 +110,7 @@ function TViewControllerPessoa.BuscarCPFCNPJ(aCPFCNPJ : String): Boolean;
 begin
   Result := False;
   FController
-    .FactoryEntidade
+    .FactoryDAO
       .DAOPessoa
         .GetbyParams(aCPFCNPJ)
       .DataSet(FDSPessoa);
@@ -122,7 +122,7 @@ function TViewControllerPessoa.BuscarEndereco(aCEP: String): Boolean;
 begin
   Result := False;
   FController
-    .FactoryEntidade
+    .FactoryDAO
       .DAOEndereco
         .GetbyParams(aCEP)
       .DataSet(FDSEndereco);
@@ -134,7 +134,7 @@ function TViewControllerPessoa.BuscarNumero(aIdEndereco : Integer; aNumeroPessoa
 begin
   Result := False;
   FController
-    .FactoryEntidade
+    .FactoryDAO
       .DAONumero
         .This
           .IdEndereco    (aIdEndereco)
@@ -150,7 +150,7 @@ function TViewControllerPessoa.BuscarEnderecoPessoa(aIdEmpresa, aIdEndereco, aId
 begin
   Result := False;
   FController
-    .FactoryEntidade
+    .FactoryDAO
       .DAOEnderecoPessoa
         .This
           .IdEmpresa (aIdEmpresa)
@@ -168,7 +168,7 @@ function TViewControllerPessoa.BuscarEmailPessoa(aIdEmpresa, aIdPessoa : Integer
 begin
   Result := False;
   FController
-    .FactoryEntidade
+    .FactoryDAO
       .DAOEmailPessoa
         .This
           .IdEmpresa(aIdEmpresa)
@@ -185,7 +185,7 @@ function TViewControllerPessoa.BuscarTelefonePessoa(aIdEmpresa, aIdPessoa : Inte
 begin
   Result := False;
   FController
-    .FactoryEntidade
+    .FactoryDAO
       .DAOTelefonePessoa
         .This
           .IdEmpresa     (aIdEmpresa)
@@ -265,7 +265,7 @@ function TViewControllerPessoa.LoopEnderecoPessoa : Boolean;
 begin
   Result := False;
   FQuantidadeRegistro := FController
-                           .FactoryEntidade
+                           .FactoryDAO
                              .DAOEnderecoPessoa
                                .This
                                  .IdPessoa(FDSPessoa.DataSet.FieldByName('id').AsInteger)
@@ -295,7 +295,7 @@ function TViewControllerPessoa.LoopEmailPessoa : Boolean;
 begin
   Result := False;
   FQuantidadeRegistro := FController
-                           .FactoryEntidade
+                           .FactoryDAO
                              .DAOEmailPessoa
                                .This
                                  .IdPessoa(FDSPessoa.DataSet.FieldByName('id').AsInteger)
@@ -325,7 +325,7 @@ function TViewControllerPessoa.LoopTelefonePessoa: Boolean;
 begin
   Result := False;
   FQuantidadeRegistro := FController
-                          .FactoryEntidade
+                          .FactoryDAO
                             .DAOTelefonePessoa
                               .This
                                 .IdPessoa(FDSPessoa.DataSet.FieldByName('id').AsInteger)
@@ -356,10 +356,9 @@ var
 begin
   lQuantidadeRegistro := 0;
   try
-    try
       if Req.Query.Field('cpfcnpj').AsString<>'' then
         FQuantidadeRegistro := FController
-                                .FactoryEntidade
+                                .FactoryDAO
                                   .DAOPessoa
                                   .GetbyParams(Req.Query.Field('cpfcnpj').AsString)
                                   .DataSet(FDSPessoa)
@@ -367,14 +366,14 @@ begin
       else
       If Req.Query.Field('nomepessoa').AsString<>'' then
         FQuantidadeRegistro := FController
-                                .FactoryEntidade
+                                .FactoryDAO
                                   .DAOPessoa
                                   .GetbyParams(0, Req.Query.Field('nomepessoa').AsString)
                                   .DataSet(FDSPessoa)
                                   .QuantidadeRegistro
       else
         FQuantidadeRegistro := FController
-                                .FactoryEntidade
+                                .FactoryDAO
                                    .DAOPessoa
                                    .GetAll
                                    .DataSet(FDSPessoa)
@@ -383,56 +382,55 @@ begin
     if not FDSPessoa.DataSet.IsEmpty  then
       lQuantidadeRegistro :=FQuantidadeRegistro;
 
-    except
-      on E: Exception do
-      begin
-        Res.Status(500).Send('Ocorreu um erro interno no servidor'+E.Message);
-        Exit;
-      end;
-    end;
-  finally
-    if not FDSPessoa.DataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      LoopPessoa;
-      if lQuantidadeRegistro > 1 then
-        Res.Send<TJSONArray>(FJSONArrayPessoa) else
-        Res.Send<TJSONObject>(FJSONObjectPessoa);
-      Res.Status(201).Send('Registro encontrado com sucesso!');
-    end
-    else
-      Res.Status(400).Send('Registro não encontrado!')
+      Res.Status(500).Send('Ocorreu um erro interno no servidor: '+ E.Message);
+      Exit;
+    end;
   end;
+
+  if not FDSPessoa.DataSet.IsEmpty then
+  begin
+    LoopPessoa;
+    if lQuantidadeRegistro > 1 then
+      Res.Send<TJSONArray>(FJSONArrayPessoa)
+    else
+      Res.Send<TJSONObject>(FJSONObjectPessoa);
+
+    Res.Status(201).Send('Registro encontrado com sucesso!');
+  end
+  else
+    Res.Status(400).Send('Registro não encontrado!');
 end;
 
 procedure TViewControllerPessoa.GetbyId(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 begin
   Try
-     Try
-       FController
-         .FactoryEntidade
-           .DAOPessoa
-             .GetbyId(Req.Params['id'].ToInt64)
-         .DataSet(FDSPessoa);
+    FController
+      .FactoryDAO
+        .DAOPessoa
+          .GetbyId(Req.Params['id'].ToInt64)
+          .DataSet(FDSPessoa);
 
-     FJSONObjectPessoa := FDSPessoa.DataSet.ToJSONObject();
-     Res.Send<TJSONObject>(FJSONObjectPessoa);
-     except
-       on E: Exception do
-       begin
-         Res.Status(500).Send('Ocorreu um erro interno no servidor.');
-         Exit;
-       end;
-     end;
-   Finally
-     if not FDSPessoa.DataSet.IsEmpty then
-     begin
-       LoopPessoa;
-       Res.Send<TJSONObject>(FJSONObjectPessoa);
-       Res.Status(201).Send('');
-     end
-     else
-       Res.Status(400).Send('Registro não encontrado!')
-   end;
+    FJSONObjectPessoa := FDSPessoa.DataSet.ToJSONObject();
+    Res.Send<TJSONObject>(FJSONObjectPessoa);
+  except
+    on E: Exception do
+    begin
+      Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+      Exit;
+    end;
+  end;
+
+  if not FDSPessoa.DataSet.IsEmpty then
+  begin
+    LoopPessoa;
+    Res.Send<TJSONObject>(FJSONObjectPessoa);
+    Res.Status(201).Send('Registro encontrado com sucesso!');
+  end
+  else
+    Res.Status(400).Send('Registro não encontrado!')
 end;
 
 procedure TViewControllerPessoa.Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -454,10 +452,10 @@ begin
   //Lê os dados JSON da requisição (tabela pai='pessoa')
   LObjectPessoa := TJSONObject.ParseJSONValue(Req.Body) as TJSONObject;
   LCPFCNPJ      := LObjectPessoa.GetValue('cpfcnpj').Value;
-  FController.FactoryEntidade.Uteis.ValidaCnpjCeiCpf(LCPFCNPJ, True);
+  FController.FactoryDAO.Uteis.ValidaCnpjCeiCpf(LCPFCNPJ, True);
   FIdEmpresa    := LObjectPessoa.GetValue<Integer>('idempresa');
   try
-    if not BuscarCPFCNPJ(LCPFCNPJ) then
+    if BuscarCPFCNPJ(LCPFCNPJ) then
     begin
       Res.Status(400).Send('Este CPF ou CNPJ já consta em nossa base de dados!');
       Exit;
@@ -476,7 +474,7 @@ begin
     try
       try
         FController
-          .FactoryEntidade
+          .FactoryDAO
             .DAOPessoa
               .This
                 .IdEmpresa      (LObjectPessoa.GetValue<Integer>  ('idempresa'))
@@ -512,9 +510,9 @@ begin
           //Extraindo os dados do endereço e salvando no banco de dados
           LEnderecoObject := LArrayEndereco.Items[I] as TJSONObject;
           //verificando se já consta este cep cadastrado na tabela endereco(se não estiver insiro o mesmo)
-          if BuscarEndereco(LEnderecoObject.GetValue<String>('cep')) then
+          if not BuscarEndereco(LEnderecoObject.GetValue<String>('cep')) then
             FController
-              .FactoryEntidade
+              .FactoryDAO
                 .DAOEndereco
                   .This
                     .Cep           (LEnderecoObject.GetValue<String>('cep'))
@@ -528,25 +526,25 @@ begin
                   .&End
                 .Post
                 .DataSet(FDSEndereco);
-          FIdEndereco := FDSEndereco.DataSet.FieldByName('id').AsInteger;
-          LNumeroArray  := LObjectPessoa.GetValue('numero') as TJSONArray;
-          LNumeroObject :=  LNumeroArray.Items[I] as TJSONObject;
-          //verificando se já consta este número cadastrado na tabela numero(se não estiver insiro o mesmo)
-       if BuscarNumero(FIdEndereco, LNumeroObject.GetValue<String>('numeroendereco')) then
-            //Inserindo dados na tabela numero
+            FIdEndereco := FDSEndereco.DataSet.FieldByName('id').AsInteger;
+            LNumeroArray  := LObjectPessoa.GetValue('numero') as TJSONArray;
+            LNumeroObject :=  LNumeroArray.Items[I] as TJSONObject;
+             //verificando se já consta este número cadastrado na tabela numero(se não estiver insiro o mesmo)
+            if not BuscarNumero(FIdEndereco, LNumeroObject.GetValue<String>('numeroendereco')) then
+              //Inserindo dados na tabela numero
+              FController
+                .FactoryDAO
+                  .DAONumero
+                    .This
+                      .IdEndereco         (FIdEndereco)
+                      .NumeroEndereco     (LNumeroObject.GetValue<String>('numeroendereco'))
+                      .ComplementoEndereco(LNumeroObject.GetValue<String>('complementoendereco'))
+                    .&End
+                  .Post;
+            //Inserindo dados na tabela enderecopessoa caso não existir
+            if not BuscarEnderecoPessoa(FIdEmpresa, FIdEndereco, FIdPessoa) then
             FController
-                    .FactoryEntidade
-                     .DAONumero
-                       .This
-                          .IdEndereco         (FIdEndereco)
-                          .NumeroEndereco     (LNumeroObject.GetValue<String>('numeroendereco'))
-                          .ComplementoEndereco(LNumeroObject.GetValue<String>('complementoendereco'))
-                        .&End
-                      .Post;
-          //Inserindo dados na tabela enderecopessoa caso não existir
-          if BuscarEnderecoPessoa(FIdEmpresa, FIdEndereco, FIdPessoa) then
-            FController
-                    .FactoryEntidade
+                    .FactoryDAO
                       .DAOEnderecoPessoa
                         .This
                           .IdEmpresa (FIdEmpresa)
@@ -568,18 +566,18 @@ begin
           //Extraindo os dados do(s) emai(s)  e salvando no banco de dados
           LEmailObject :=  LEmailArray.Items[I] as TJSONObject;
           //verifico se consta o email que esta vindo no json. Na tabela emailempresa, se não existir insiro.
-          if BuscarEmailPessoa(FIdEmpresa, FIdPessoa, LEmailObject.GetValue<String>('email')) Then
+          if not BuscarEmailPessoa(FIdEmpresa, FIdPessoa, LEmailObject.GetValue<String>('email')) Then
             FController
-                   .FactoryEntidade
-                     .DAOEmailPessoa
-                       .This
-                         .IdEmpresa(FIdEmpresa)
-                         .IdPessoa (FIdPessoa)
-                         .Email    (LEmailObject.GetValue<String>('email'))
-                         .TipoEmail(LEmailObject.GetValue<String>('tipoemail'))
-                         .Ativo    (1)
-                       .&End
-                     .Post;
+              .FactoryDAO
+                .DAOEmailPessoa
+                  .This
+                    .IdEmpresa(FIdEmpresa)
+                    .IdPessoa (FIdPessoa)
+                    .Email    (LEmailObject.GetValue<String>('email'))
+                    .TipoEmail(LEmailObject.GetValue<String>('tipoemail'))
+                    .Ativo    (1)
+                  .&End
+                .Post;
         end;
       except
         Res.Status(500).Send('Ocorreu um erro interno no servidor.');
@@ -594,21 +592,20 @@ begin
           //Extraindo os dados do(s) telefone(s) e salvando no banco de dados
           LTelefoneObject := LTelefoneArray.Items[I] as TJSONObject;
           //verifico se consta o telefone que esta vindo no json. Na tabela telefoneempresa, se não existir insiro.
-          if BuscarTelefonePessoa(FIdEmpresa, FIdPessoa, LEmailObject.GetValue<String>('ddd'),
-                                              LTelefoneObject.GetValue<String>('numerotelefone')) Then
+          if not BuscarTelefonePessoa(FIdEmpresa, FIdPessoa, LEmailObject.GetValue<String>('ddd'),LTelefoneObject.GetValue<String>('numerotelefone')) Then
             FController
-                   .FactoryEntidade
-                     .DAOTelefonePessoa
-                       .This
-                         .IdEmpresa     (FIdEmpresa)
-                         .IdPessoa      (FIdPessoa)
-                         .Operadora     (LTelefoneObject.GetValue<String>('operadora'))
-                         .DDD           (LTelefoneObject.GetValue<String>('ddd'))
-                         .NumeroTelefone(LTelefoneObject.GetValue<String>('numerotelefone'))
-                         .TipoTelefone  (LTelefoneObject.GetValue<String>('tipotelefone'))
-                         .Ativo         (1)
-                       .&End
-                     .Post;
+              .FactoryDAO
+                .DAOTelefonePessoa
+                  .This
+                    .IdEmpresa     (FIdEmpresa)
+                    .IdPessoa      (FIdPessoa)
+                    .Operadora     (LTelefoneObject.GetValue<String>('operadora'))
+                    .DDD           (LTelefoneObject.GetValue<String>('ddd'))
+                    .NumeroTelefone(LTelefoneObject.GetValue<String>('numerotelefone'))
+                    .TipoTelefone  (LTelefoneObject.GetValue<String>('tipotelefone'))
+                    .Ativo         (1)
+                  .&End
+                .Post;
         end;
       except
         on E: Exception do
@@ -621,8 +618,8 @@ begin
       on E: Exception do
       begin
         Res.Status(500).Send('Ocorreu um  erro interno no servidor'+E.Message);
-        FController.FactoryEntidade.DAOPessoa.This.Id(FIdPessoa).&End.Delete;//excluíndo empresa lançada
-        FController.FactoryEntidade.DAOEndereco.This.Id(FIdEndereco).&End.Delete;//excluíndo o endereço lancado
+        FController.FactoryDAO.DAOPessoa.This.Id(FIdPessoa).&End.Delete;//excluíndo empresa lançada
+        FController.FactoryDAO.DAOEndereco.This.Id(FIdEndereco).&End.Delete;//excluíndo o endereço lancado
         //caso ocorrer algum erro neste final excluir todo os inserts
         Exit;
       end;
@@ -649,7 +646,7 @@ begin
   try
     try
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOPessoa
             .This
               .Id             (LObjectPessoa.GetValue<Integer>  ('id'))
@@ -669,7 +666,8 @@ begin
           .Put
           .DataSet(FDSPessoa);
     except
-      raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+      on E: Exception do
+      raise Res.Status(500).Send('Ocorreu um erro interno no servidor'+E.Message);
     end;
     //Obtém os dados JSON do corpo da requisição da tabela('endereco')
     LArrayEndereco := LObjectPessoa.Get('endereco').JsonValue as TJSONArray;
@@ -679,7 +677,7 @@ begin
       begin
         LObjectEndereco := LArrayEndereco.Items[I] as TJSONObject;
         FController
-          .FactoryEntidade
+          .FactoryDAO
             .DAOEndereco
               .This
                 .Id            (LObjectEndereco.GetValue<Integer>('id'))
@@ -694,31 +692,32 @@ begin
               .&End
             .Put
             .DataSet(FDSEndereco);
-        //Inserindo dados na tabela numero
+        //Atualizando dados na tabela numero
         LObjectNumero := TJSONObject(LObjectEndereco.GetValue('numero'));
         FController
-              .FactoryEntidade
-                .DAONumero
-                  .This
-                    .Id                 (LObjectNumero  .GetValue<Integer>('id'))
-                    .IdEndereco         (LObjectEndereco.GetValue<Integer>('id'))
-                    .NumeroEndereco     (LObjectNumero  .GetValue<String>('numeroendereco'))
-                    .ComplementoEndereco(LObjectNumero  .GetValue<String>('complementoendereco'))
-                  .&End
-                .Put;
-        //Inserindo dados na tabela enderecoPessoa
+          .FactoryDAO
+            .DAONumero
+              .This
+                .Id                 (LObjectNumero  .GetValue<Integer>('id'))
+                .IdEndereco         (LObjectEndereco.GetValue<Integer>('id'))
+                .NumeroEndereco     (LObjectNumero  .GetValue<String>('numeroendereco'))
+                .ComplementoEndereco(LObjectNumero  .GetValue<String>('complementoendereco'))
+              .&End
+            .Put;
+        //Atualizando dados na tabela enderecoPessoa
         FController
-               .FactoryEntidade
-                 .DAOEnderecoPessoa
-                   .This
-                     .IdEmpresa (FIdEmpresa)
-                     .IdEndereco(LObjectEndereco.GetValue<Integer>('id'))
-                     .IdPessoa  (LObjectPessoa .GetValue('id').Value.ToInteger)
-                   .&End
-                 .Put;
+          .FactoryDAO
+            .DAOEnderecoPessoa
+              .This
+                .IdEmpresa (FIdEmpresa)
+                .IdEndereco(LObjectEndereco.GetValue<Integer>('id'))
+                .IdPessoa  (LObjectPessoa .GetValue('id').Value.ToInteger)
+              .&End
+            .Put;
       end;
     except
-      raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+      on E: Exception do
+      raise Res.Status(500).Send('Ocorreu um erro interno no servidor'+E.Message);
     end;
     //Obtém os dados JSON do corpo da requisição da tabela('emailPessoa')
     LArrayEmail := LObjectPessoa.Get('emailPessoa').JsonValue as TJSONArray;
@@ -729,20 +728,21 @@ begin
         //Extraindo os dados do(s) emai(s)  e salvando no banco de dados
         LObjectEmail :=  LArrayEmail.Items[I] as TJSONObject;
         FController
-               .FactoryEntidade
-                 .DAOEmailPessoa
-                   .This
-                     .Id       (LObjectEmail  .GetValue<Integer>('id'))
-                     .IdEmpresa(FIdEmpresa)
-                     .IdPessoa (LObjectPessoa.GetValue<Integer>('id'))
-                     .Email    (LObjectEmail  .GetValue<String> ('email'))
-                     .TipoEmail(LObjectEmail  .GetValue<String> ('tipoemail'))
-                     .Ativo    (LObjectEmail  .GetValue<Integer>('ativo'))
-                   .&End
-                 .Put;
+          .FactoryDAO
+            .DAOEmailPessoa
+              .This
+                .Id       (LObjectEmail  .GetValue<Integer>('id'))
+                .IdEmpresa(FIdEmpresa)
+                .IdPessoa (LObjectPessoa.GetValue<Integer>('id'))
+                .Email    (LObjectEmail  .GetValue<String> ('email'))
+                .TipoEmail(LObjectEmail  .GetValue<String> ('tipoemail'))
+                .Ativo    (LObjectEmail  .GetValue<Integer>('ativo'))
+              .&End
+            .Put;
       end;
     except
-      raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+      on E: Exception do
+      raise Res.Status(500).Send('Ocorreu um erro interno no servidor'+E.Message);
     end;
     //Obtém os dados JSON do corpo da requisição da tabela('telefonePessoa')
     LArrayTelefone := LObjectPessoa.Get('telefonePessoa').JsonValue as TJSONArray;
@@ -753,22 +753,23 @@ begin
         //Extraindo os dados do(s) telefone(s) e salvando no banco de dados
         LObjectTelefone := LArrayTelefone.Items[I] as TJSONObject;
         FController
-               .FactoryEntidade
-                 .DAOTelefonePessoa
-                   .This
-                     .Id            (LObjectTelefone.GetValue<Integer>('id'))
-                     .IdEmpresa     (FIdEmpresa)
-                     .IdPessoa      (LObjectPessoa .GetValue<Integer>('id'))
-                     .Operadora     (LObjectTelefone.GetValue<String> ('operadora'))
-                     .DDD           (LObjectTelefone.GetValue<String> ('ddd'))
-                     .NumeroTelefone(LObjectTelefone.GetValue<String> ('numerotelefone'))
-                     .TipoTelefone  (LObjectTelefone.GetValue<String> ('tipotelefone'))
-                     .Ativo         (LObjectTelefone.GetValue<Integer>('ativo'))
-                   .&End
-                 .Put;
+          .FactoryDAO
+            .DAOTelefonePessoa
+              .This
+                .Id            (LObjectTelefone.GetValue<Integer>('id'))
+                .IdEmpresa     (FIdEmpresa)
+                .IdPessoa      (LObjectPessoa .GetValue<Integer>('id'))
+                .Operadora     (LObjectTelefone.GetValue<String> ('operadora'))
+                .DDD           (LObjectTelefone.GetValue<String> ('ddd'))
+                .NumeroTelefone(LObjectTelefone.GetValue<String> ('numerotelefone'))
+                .TipoTelefone  (LObjectTelefone.GetValue<String> ('tipotelefone'))
+                .Ativo         (LObjectTelefone.GetValue<Integer>('ativo'))
+              .&End
+            .Put;
       end;
     except
-      raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+      on E: Exception do
+      raise Res.Status(500).Send('Ocorreu um erro interno no servidor'+E.Message);
     end;
   finally
     Res.Status(204).Send('Registro alterado com sucesso!');
@@ -780,7 +781,7 @@ begin
   try
     try
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOPessoa
             .This
               .Id(Req.Params['id'].ToInt64)
@@ -788,7 +789,8 @@ begin
           .Delete
           .DataSet(FDSPessoa);
     except
-      raise Res.Status(500).Send('Ocorreu um erro interno no servidor.');
+      on E: Exception do
+      raise Res.Status(500).Send('Ocorreu um erro interno no servidor'+E.Message);
     End;
   Finally
     Res.Status(204).Send('Registro excluído com sucesso!');

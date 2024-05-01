@@ -66,7 +66,7 @@ begin
     try
       if ((Req.Query.Field('email').AsString<>'') and (Req.Query.Field('senha').AsString<>'')) then
         FQuantidadeRegistro := FController
-                                .FactoryEntidade
+                                .FactoryDAO
                                   .DAOUsuario
                                     .This
                                       .Email(Req.Query.Field('email').AsString)
@@ -77,7 +77,7 @@ begin
                                   .QuantidadeRegistro
       else
         FQuantidadeRegistro := FController
-                                .FactoryEntidade
+                                .FactoryDAO
                                   .DAOUsuario
                                     .GetAll
                                     .DataSet(FDataSource)
@@ -109,7 +109,7 @@ begin
   Try
      try
        FController
-         .FactoryEntidade
+         .FactoryDAO
            .DAOUsuario
              .GetbyId(Req.Params['id'].ToInt64)
              .DataSet(FDataSource);
@@ -131,7 +131,7 @@ begin
   try
     try
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOUsuario
             .This
               .IdEmpresa  (FBody.GetValue<integer>('idempresa'))
@@ -156,7 +156,7 @@ begin
   try
     try
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOUsuario
             .This
               .Id         (FBody.GetValue<Integer>('id'))
@@ -182,7 +182,7 @@ begin
   try
     try
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOUsuario
             .This
               .Id(FBody.GetValue<Integer>('id'))

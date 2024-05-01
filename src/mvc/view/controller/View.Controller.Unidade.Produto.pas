@@ -66,7 +66,7 @@ begin
     try
       if Req.Query.Field('nomeunidade').AsString<>'' then
         FQuantidadeRegistro := FController
-                                .FactoryEntidade
+                                .FactoryDAO
                                   .DAOUnidadeProduto
                                     .This
                                       .NomeUnidade(Req.Query.Field('nomeunidade').AsString)
@@ -76,7 +76,7 @@ begin
                                   .QuantidadeRegistro
       else
        FQuantidadeRegistro:= FController
-                              .FactoryEntidade
+                              .FactoryDAO
                                 .DAOUnidadeProduto
                                   .GetAll
                                 .DataSet(FDataSource)
@@ -111,7 +111,7 @@ begin
   Try
      try
        FController
-         .FactoryEntidade
+         .FactoryDAO
            .DAOUnidadeProduto
              .GetbyId(Req.Params['id'].ToInt64)
              .DataSet(FDataSource);
@@ -137,7 +137,7 @@ begin
     try
       FJSONObject := Req.Body<TJSONObject>;
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOUnidadeProduto
             .This
               .Unidade    (FJSONObject.GetValue<String> ('unidade'))
@@ -163,7 +163,7 @@ begin
     try
       FJSONObject := Req.Body<TJSONObject>;
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOUnidadeProduto
             .This
               .Id         (FJSONObject.GetValue<Integer>('id'))
@@ -189,7 +189,7 @@ begin
   try
     try
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOUnidadeProduto
             .This
               .Id(Req.Params['id'].ToInt64)

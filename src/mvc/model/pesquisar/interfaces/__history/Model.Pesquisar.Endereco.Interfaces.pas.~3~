@@ -1,0 +1,20 @@
+unit Model.Pesquisar.Endereco.Interfaces;
+
+interface
+
+uses
+  Model.Entidade.Endereco.Interfaces;
+
+type
+  iPesquisarEndereco = Interface
+    ['{3BCA3CE6-9D62-44EB-9D35-5CF28EDF36D5}']
+    function GetbyCep(Cep : String) : iPesquisarEndereco;
+    function Found   : Boolean;
+    function Error   : Boolean;
+    function Empresa : iEntidadeEndereco<iPesquisarEndereco>;
+    function &End    : iPesquisarEndereco;
+  End;
+
+implementation
+
+end.

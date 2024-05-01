@@ -29,6 +29,7 @@ type
       FDataSource : TDataSource;
       FController : iController;
       FQuantidadeRegistro : Integer;
+
       procedure GetAll (Req: THorseRequest; Res: THorseResponse; Next : TProc);
       procedure GetbyId(Req: THorseRequest; Res: THorseResponse; Next : TProc);
       procedure Post   (Req: THorseRequest; Res: THorseResponse; Next : TProc);
@@ -65,7 +66,7 @@ begin
       if ((Req.Query.Field('nomeproduto').AsString<>'') or (Req.Query.Field('gtin').AsString<>'')
       or (Req.Query.Field('ceantrib').AsString<>'') or (Req.Query.Field('cean').AsString<>'')) then
        FQuantidadeRegistro := FController
-                                .FactoryEntidade
+                                .FactoryDAO
                                   .DAOProduto
                                     .This
                                       .NomeProduto(Req.Query.Field('nomeproduto').AsString)
@@ -78,7 +79,7 @@ begin
                                   .QuantidadeRegistro
       else
         FQuantidadeRegistro := FController
-                                  .FactoryEntidade
+                                  .FactoryDAO
                                     .DAOProduto
                                       .GetAll
                                       .DataSet(FDataSource)
@@ -115,7 +116,7 @@ begin
   Try
      try
        FController
-         .FactoryEntidade
+         .FactoryDAO
            .DAOProduto
              .GetbyId(Req.Params['id'].ToInt64)
              .DataSet(FDataSource);
@@ -143,7 +144,7 @@ begin
     try
       FBody := Req.Body<TJSONObject>;
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOProduto
             .This
               .IdEmpresa            (FBody.GetValue<integer>  ('idempresa'))
@@ -192,7 +193,7 @@ begin
     try
       FBody := Req.Body<TJSONObject>;
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOProduto
             .This
               .Id                   (FBody.GetValue<integer>  ('id'))
@@ -241,7 +242,7 @@ begin
   try
     try
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOProduto
             .This
               .Id(Req.Params['id'].ToInt64)

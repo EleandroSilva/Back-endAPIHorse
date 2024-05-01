@@ -1,6 +1,18 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{            Início do projeto 23/04/2024               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
 unit Tabela.Swagger.Caixa;
 
 interface
+
+uses
+  GBSwagger.Model.Attributes;
 
 type
   TCaixa = class

@@ -1,0 +1,7 @@
+unit Model.DAO.Caixa.Pedido.Interfaces;
+
+interface
+
+implementation
+
+end.

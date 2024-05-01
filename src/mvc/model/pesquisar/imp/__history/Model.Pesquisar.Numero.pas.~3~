@@ -1,0 +1,29 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 01/05/2024 14:07           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Pesquisar.Numero;
+
+interface
+
+uses
+  Model.Pesquisar.Numero.Interfaces;
+
+type
+  TPesquisarNumero = class(TInterfacedObject, iPesquisarNumero)
+    private
+
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iPesquisarNumero;
+  end;
+
+implementation
+
+end.

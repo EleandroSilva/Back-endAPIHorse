@@ -1,0 +1,46 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 25/04/2024 20:00           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Tabela.Swagger.Pedido;
+
+interface
+
+type
+  TPedido = class
+    private
+      FId              : Integer;
+      FIdEmpresa       : Integer;
+      FIdPessoa        : Integer;
+      FIdPagamento     : Integer;
+      FIdUsuario       : Integer;
+      FValorProduto    : Currency;
+      FValorDesconto   : Currency;
+      FValorReceber    : Currency;
+      FDataHoraEmissao : TDateTime;
+      FStatus          : Integer;
+    public
+      property id             (Value : Integer)   : iEntidadePedido<T>; overload;
+      property idempresa      (Value : Integer)   : iEntidadePedido<T>; overload;
+      property idpessoa       (Value : Integer)   : iEntidadePedido<T>; overload;
+      property idpagamento    (Value : Integer)   : iEntidadePedido<T>; overload;
+      property idusuario      (Value : Integer)   : iEntidadePedido<T>; overload;
+      property valorproduto   (Value : Currency)  : iEntidadePedido<T>; overload;
+      property valordesconto  (Value : Currency)  : iEntidadePedido<T>; overload;
+      property valorreceber   (Value : Currency)  : iEntidadePedido<T>; overload;
+      property datahoraemissao(Value : TDateTime) : iEntidadePedido<T>; overload;
+      property status         (Value : Integer)   : iEntidadePedido<T>; overload;
+
+      //Injeção de dependência
+      //property pedidoitem      : iEntidadePessoa<iEntidadePedido<T>>;
+      //property pedidopagamento : iEntidadePessoa<iEntidadePedido<T>>;
+  end;
+
+implementation
+
+end.

@@ -2,6 +2,9 @@ unit Tabela.Swagger.Natureza.Juridica;
 
 interface
 
+uses
+  GBSwagger.Model.Attributes;
+
 type
   TNaturezaJuridica = class
     private

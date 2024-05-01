@@ -1,0 +1,37 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 30/04/2024 14:18           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Cadastrar.Endereco.Empresa.Interfaces;
+
+interface
+
+uses
+  System.JSON,
+  Model.Entidade.Endereco.Empresa.Interfaces,
+  Model.Entidade.Empresa.Interfaces;
+
+type
+  iCadastrarEnderecoEmpresa = interface
+    ['{6923CF8E-B5E9-4452-A53E-16D4BB3CC3D7}']
+    function JSONObjectPai(Value : TJSONObject) : iCadastrarEnderecoEmpresa; overload;
+    function JSONObjectPai                      : TJSONObject;      overload;
+    function Encontrei : Boolean;
+    function Error : Boolean;
+    //
+    function Getby(IdEmpresa, IdEndereco : Integer) : iCadastrarEnderecoEmpresa;
+    function Post : iCadastrarEnderecoEmpresa;
+    function LoopEnderecoEmpresa : TJSONValue;
+    //injeção de dependência
+    function EnderecoEmpresa : iEntidadeEnderecoEmpresa<iCadastrarEnderecoEmpresa>;
+    function &End : iCadastrarEnderecoEmpresa;
+  end;
+
+implementation
+
+end.

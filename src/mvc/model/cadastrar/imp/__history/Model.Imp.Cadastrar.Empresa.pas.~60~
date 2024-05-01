@@ -1,0 +1,320 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 26/04/2024 17:41           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Cadastrar.Empresa;
+
+interface
+
+uses
+  Data.DB,
+  System.JSON,
+  System.SysUtils,
+
+  DataSet.Serialize,
+  Controller.Interfaces,
+  Model.Cadastrar.Empresa.Interfaces,
+  Model.Entidade.Empresa.Interfaces;
+
+type
+  TCadastrarEmpresa = class(TInterfacedObject, iCadastrarEmpresa)
+    private
+      FController : iController;
+      FEmpresa    : iEntidadeEmpresa<iCadastrarEmpresa>;
+
+      FJSONArrayEmpresa  : TJSONArray;
+      FJSONObjectEmpresa : TJSONObject;
+      FJSONObjectPai     : TJSONObject;
+
+      FDSEmpresa  : TDataSource;
+      FIdEmpresa  : Integer;
+
+      FFound : Boolean;
+      FError : Boolean;
+
+      function CadastrarEndereco : Boolean;
+      function CadastrarEmail    : Boolean;
+      function CadastrarTelefone : Boolean;
+      function AlterarEndereco   : Boolean;
+      function AlterarEmail      : Boolean;
+      function AlterarTelefone   : Boolean;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iCadastrarEmpresa;
+
+      function JSONObjectPai(Value : TJSONObject) : iCadastrarEmpresa; overload;
+      function JSONObjectPai                      : TJSONObject;       overload;
+      function Post   : iCadastrarEmpresa;
+      function Put    : iCadastrarEmpresa;
+      function Delete : iCadastrarEmpresa;
+
+      function Found : Boolean;
+      function Error : Boolean;
+      //injeção de dependência
+      function Empresa : iEntidadeEmpresa<iCadastrarEmpresa>;
+      function &End    : iCadastrarEmpresa;
+  end;
+
+implementation
+
+uses
+  Imp.Controller,
+  Model.Entidade.Imp.Empresa;
+
+{ TCadastrarEmpresa }
+
+constructor TCadastrarEmpresa.Create;
+begin
+  FController := TController.New;
+  FEmpresa    := TEntidadeEmpresa<iCadastrarEmpresa>.New(Self);
+  FDSEmpresa  := TDataSource.Create(nil);
+
+  FFound := False;
+  FError := False;
+end;
+
+destructor TCadastrarEmpresa.Destroy;
+begin
+  inherited;
+end;
+
+class function TCadastrarEmpresa.New: iCadastrarEmpresa;
+begin
+  Result := Self.Create;
+end;
+
+function TCadastrarEmpresa.JSONObjectPai(Value: TJSONObject): iCadastrarEmpresa;
+begin
+  Result := Self;
+  FJSONObjectPai := Value;
+end;
+
+function TCadastrarEmpresa.JSONObjectPai: TJSONObject;
+begin
+  Result := FJSONObjectPai;
+end;
+
+function TCadastrarEmpresa.Post: iCadastrarEmpresa;
+begin
+  Result := Self;
+  try
+    if not FController
+            .FactoryPesquisar
+              .PesquisarEmpresa
+                .GetbyCNPJ(FEmpresa.CNPJ)
+                  .Found then
+    begin
+      FJSONObjectEmpresa := FJSONObjectPai;
+      FController
+       .FactoryDAO
+         .DAOEmpresa
+           .This
+             .CNPJ                 (FJSONObjectEmpresa.GetValue<String>   ('cnpj'))
+             .InscricaoEstadual    (FJSONObjectEmpresa.GetValue<String>   ('inscricaoestadual'))
+             .NomeEmpresarial      (FJSONObjectEmpresa.GetValue<String>   ('nomeempresarial'))
+             .NomeFantasia         (FJSONObjectEmpresa.GetValue<String>   ('nomefantasia'))
+             .IdNaturezaJuridica   (FJSONObjectEmpresa.GetValue<Integer>  ('idnaturezajuridica'))
+             .DataHoraEmissao      (FJSONObjectEmpresa.GetValue<TDateTime>('datahoraemissao'))
+             .DataSituacaoCadastral(FJSONObjectEmpresa.GetValue<TDateTime>('datasituacaocadastral'))
+             .Ativo                (1)
+           .&End
+         .Post
+         .DataSet(FDSEmpresa);
+      FEmpresa.Id(FDSEmpresa.DataSet.FieldByName('id').AsInteger);
+      FIdEmpresa := FEmpresa.Id;
+
+      //Chamo o cadastrar endereco; email e telefone na sequência
+      if not CadastrarEndereco then
+        if not CadastrarEmail then
+          CadastrarTelefone;
+    end;
+  except
+    on E: Exception do
+    begin
+      WriteLn('Erro ao tentar incluir registro: ' + E.Message);
+      FError := True;
+    end;
+  end;
+end;
+
+//alterar tabela empresa
+function TCadastrarEmpresa.Put: iCadastrarEmpresa;
+begin
+  Result := Self;
+  if not FController
+          .FactoryPesquisar
+            .PesquisarEmpresa
+              .GetbyId(FEmpresa.Id)
+                .Found then
+  begin
+    FJSONObjectEmpresa := FJSONObjectPai; //Tabela Pai Empresa
+    try
+      FController
+        .FactoryDAO
+          .DAOEmpresa
+            .This
+              .Id                   (FJSONObjectEmpresa.GetValue<Integer>  ('id'))
+              .CNPJ                 (FJSONObjectEmpresa.GetValue<String>   ('cnpj'))
+              .InscricaoEstadual    (FJSONObjectEmpresa.GetValue<String>   ('inscricaoestadual'))
+              .NomeEmpresarial      (FJSONObjectEmpresa.GetValue<String>   ('nomeempresarial'))
+              .NomeFantasia         (FJSONObjectEmpresa.GetValue<String>   ('nomefantasia'))
+              .IdNaturezaJuridica   (FJSONObjectEmpresa.GetValue<Integer>  ('idnaturezajuridica'))
+              .DataHoraEmissao      (FJSONObjectEmpresa.GetValue<TDateTime>('datahoraemissao'))
+              .DataSituacaoCadastral(FJSONObjectEmpresa.GetValue<TDateTime>('datasituacaocadastral'))
+              .Ativo                (FJSONObjectEmpresa.GetValue<Integer>  ('ativo'))
+            .&End
+          .Put
+          .DataSet(FDSEmpresa);
+      //Chamo function para alterar--> endereco; email e telefone na sequência
+      if not AlterarEndereco then
+        if not AlterarEmail then
+          AlterarTelefone;
+    except
+      on E: Exception do
+      begin
+        WriteLn('Erro ao tentar alterar registro: ' + E.Message);
+        FError := True;
+      end;
+    end;
+  end;
+end;
+
+function TCadastrarEmpresa.Delete: iCadastrarEmpresa;
+begin
+  Result := Self;
+  FError := False;
+  try
+    FController
+      .FactoryDAO
+        .DAOEmpresa
+          .This
+            .Id(FIdEmpresa)
+          .&End
+          .Delete
+          .DataSet(FDSEmpresa);
+  except
+    on E: Exception do
+    begin
+      WriteLn('Erro ao tentar alterar registro: ' + E.Message);
+      FError := True;
+    end;
+  end;
+end;
+
+function TCadastrarEmpresa.Empresa: iEntidadeEmpresa<iCadastrarEmpresa>;
+begin
+  Result := FEmpresa;
+end;
+
+function TCadastrarEmpresa.Found: Boolean;
+begin
+  Result := FFound;
+end;
+
+function TCadastrarEmpresa.Error: Boolean;
+begin
+  Result := FError;
+end;
+
+function TCadastrarEmpresa.&End: iCadastrarEmpresa;
+begin
+  Result := Self;
+end;
+
+//cadastrar endereco
+function TCadastrarEmpresa.CadastrarEndereco : Boolean;
+begin
+  Result := False;
+  Result := FController
+              .FactoryCadastro
+                .CadastrarEndereco
+                  .Empresa.Id(FIdEmpresa)
+                  .&End
+                .JSONObjectPai(FJSONObjectEmpresa)
+                .Post
+                .Error;
+end;
+
+function TCadastrarEmpresa.CadastrarEmail: Boolean;
+begin
+  //Obtém os dados JSON do corpo da requisição da tabela('emailempresa')
+  Result := False;
+  Result := FController
+              .FactoryCadastro
+                .CadastrarEmailEmpresa
+                  .EmailEmpresa
+                  .IdEmpresa(FIdEmpresa)
+                  .&End
+                .JSONObjectPai(FJSONObjectEmpresa)
+                .Post
+                .Error;
+end;
+//cadastrar telefone
+function TCadastrarEmpresa.CadastrarTelefone: Boolean;
+begin
+  //Obtém os dados JSON do corpo da requisição da tabela('emailempresa')
+  Result := False;
+  Result := FController
+              .FactoryCadastro
+                .CadastrarTelefoneEmpresa
+                  .TelefoneEmpresa
+                  .IdEmpresa(FIdEmpresa)
+                  .&End
+                .JSONObjectPai(FJSONObjectEmpresa)
+                .Post
+                .Error;
+end;
+
+//Alterar endereco
+function TCadastrarEmpresa.AlterarEndereco: Boolean;
+begin
+  Result := False;
+  Result := FController
+              .FactoryCadastro
+                .CadastrarEndereco
+                  .Empresa.Id(FIdEmpresa)
+                  .&End
+                .JSONObjectPai(FJSONObjectEmpresa)
+                .Put
+                .Error;
+end;
+
+//Alterar email
+function TCadastrarEmpresa.AlterarEmail: Boolean;
+begin
+  //Obtém os dados JSON do corpo da requisição da tabela('emailempresa')
+  Result := False;
+  Result := FController
+              .FactoryCadastro
+                .CadastrarEmailEmpresa
+                  .EmailEmpresa
+                  .IdEmpresa(FIdEmpresa)
+                  .&End
+                .JSONObjectPai(FJSONObjectEmpresa)
+                .Put
+                .Error;
+end;
+
+//Alterar Telefone
+function TCadastrarEmpresa.AlterarTelefone: Boolean;
+begin
+  //Obtém os dados JSON do corpo da requisição da tabela('emailempresa')
+  Result := False;
+  Result := FController
+              .FactoryCadastro
+                .CadastrarTelefoneEmpresa
+                  .TelefoneEmpresa
+                  .IdEmpresa(FIdEmpresa)
+                  .&End
+                .JSONObjectPai(FJSONObjectEmpresa)
+                .Put
+                .Error;
+end;
+
+end.

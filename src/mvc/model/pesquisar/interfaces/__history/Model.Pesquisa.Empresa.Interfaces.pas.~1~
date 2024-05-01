@@ -1,0 +1,7 @@
+unit Model.Pesquisa.Empresa.Interfaces;
+
+interface
+
+implementation
+
+end.

@@ -56,7 +56,7 @@ begin
     try
       if ((Req.Query.Field('cep').AsString<>'') or (Req.Query.Field('endereco').AsString<>'')) then
         FQuantidadeRegistro := FController
-                                .FactoryEntidade
+                                .FactoryDAO
                                   .DAOEndereco
                                     .This
                                       .Cep       (Req.Query.Field('cep').AsString)
@@ -66,7 +66,7 @@ begin
                                   .DataSet(FDataSource)
                                   .QuantidadeRegistro else
         FQuantidadeRegistro := FController
-                                .FactoryEntidade
+                                .FactoryDAO
                                   .DAOEndereco
                                     .GetAll
                                   .DataSet(FDataSource)
@@ -98,7 +98,7 @@ begin
   Try
      try
        FController
-         .FactoryEntidade
+         .FactoryDAO
            .DAOEndereco
              .GetbyId(Req.Params['id'].ToInt64)
            .DataSet(FDataSource);
@@ -122,7 +122,7 @@ begin
     try
       FJSONObject := Req.Body<TJSONObject>;
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOEndereco
             .This
               .Cep           (FJSONObject.GetValue<String> ('cep'))
@@ -142,7 +142,7 @@ begin
     end;
     try
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAONumero
             .This
               .IdEndereco         (FDataSource.DataSet.FieldByName('id').AsInteger)
@@ -166,7 +166,7 @@ begin
     try
       FJSONObject := Req.Body<TJSONObject>;
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOEndereco
             .This
               .Id            (FJSONObject.GetValue<Integer>('id'))
@@ -182,7 +182,7 @@ begin
           .Put
           .DataSet(FDataSource);
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAONumero
             .This
               .Id                 (FJSONObject.GetValue<Integer>('id'))
@@ -206,7 +206,7 @@ begin
   try
     try
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOEndereco
             .This
               .Id(Req.Params['id'].ToInt64)

@@ -1,0 +1,52 @@
+unit Imp.Controller.Cadastro;
+
+interface
+
+uses
+  Controller.Cadastro.Interfaces,
+  Model.Factory.Cadastro.Interfaces;
+
+
+type
+  TController =class(TInterfacedObject, iControllerCadastro)
+    private
+      FFactoryCadastro : iFactoryCadastro;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iFactoryCadastro;
+      function FactoryCadastro : iFactoryCadastro;
+  end;
+
+implementation
+
+uses
+  Model.Factory.Imp.Cadastro;
+
+
+{ TController }
+
+constructor TController.Create;
+begin
+  //
+end;
+
+destructor TController.Destroy;
+begin
+  inherited;
+end;
+
+class function TController.New: iFactoryCadastro;
+begin
+  Result := Self.Create;
+end;
+
+function TController.FactoryCadastro: iFactoryCadastro;
+begin
+  if not Assigned(FFactoryCadastro) then
+    FFactoryCadastro := TFactoryCadastro.New;
+
+  Result := FFactoryCadastro;
+end;
+
+end.

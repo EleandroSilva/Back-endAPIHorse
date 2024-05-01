@@ -18,26 +18,28 @@ uses
 type
   iEntidadePedido<T> = interface
     ['{9ADB11B4-C6A1-4733-BDCC-477527BB9623}']
-    function Id             (Value : Integer)   : iEntidadePedido<T>; overload;
-    function Id                                 : Integer;            overload;
-    function IdEmpresa      (Value : Integer)   : iEntidadePedido<T>; overload;
-    function IdEmpresa                          : Integer;            overload;
-    function IdPessoa       (Value : Integer)   : iEntidadePedido<T>; overload;
-    function IdPessoa                           : Integer;            overload;
-    function IdPagamento    (Value : Integer)   : iEntidadePedido<T>; overload;
-    function IdPagamento                        : Integer;            overload;
-    function IdUsuario      (Value : Integer)   : iEntidadePedido<T>; overload;
-    function IdUsuario                          : Integer;            overload;
-    function ValorProduto   (Value : Currency)  : iEntidadePedido<T>; overload;
-    function ValorProduto                       : Currency;           overload;
-    function ValorDesconto  (Value : Currency)  : iEntidadePedido<T>; overload;
-    function ValorDesconto                      : Currency;           overload;
-    function ValorReceber   (Value : Currency)  : iEntidadePedido<T>; overload;
-    function ValorReceber                       : Currency;           overload;
-    function DataHoraEmissao(Value : TDateTime) : iEntidadePedido<T>; overload;
-    function DataHoraEmissao                    : TDateTime;          overload;
-    function Status         (Value : Integer)   : iEntidadePedido<T>; overload;
-    function Status                             : Integer;            overload;
+    function Id                 (Value : Integer)   : iEntidadePedido<T>; overload;
+    function Id                                     : Integer;            overload;
+    function IdEmpresa          (Value : Integer)   : iEntidadePedido<T>; overload;
+    function IdEmpresa                              : Integer;            overload;
+    function IdCaixa            (Value : Integer)   : iEntidadePedido<T>; overload;
+    function IdCaixa                                : Integer;            overload;
+    function IdPessoa           (Value : Integer)   : iEntidadePedido<T>; overload;
+    function IdPessoa                               : Integer;            overload;
+    function IdCondicaoPagamento(Value : Integer)   : iEntidadePedido<T>; overload;
+    function IdCondicaoPagamento                    : Integer;            overload;
+    function IdUsuario          (Value : Integer)   : iEntidadePedido<T>; overload;
+    function IdUsuario                              : Integer;            overload;
+    function ValorProduto       (Value : Currency)  : iEntidadePedido<T>; overload;
+    function ValorProduto                           : Currency;           overload;
+    function ValorDesconto      (Value : Currency)  : iEntidadePedido<T>; overload;
+    function ValorDesconto                          : Currency;           overload;
+    function ValorReceber       (Value : Currency)  : iEntidadePedido<T>; overload;
+    function ValorReceber                           : Currency;           overload;
+    function DataHoraEmissao    (Value : TDateTime) : iEntidadePedido<T>; overload;
+    function DataHoraEmissao                        : TDateTime;          overload;
+    function Status             (Value : Integer)   : iEntidadePedido<T>; overload;
+    function Status                                 : Integer;            overload;
 
     //Injeção de dependência
     function Pessoa  : iEntidadePessoa<iEntidadePedido<T>>;

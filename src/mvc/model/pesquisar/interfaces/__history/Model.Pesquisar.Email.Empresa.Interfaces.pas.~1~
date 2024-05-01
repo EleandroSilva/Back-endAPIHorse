@@ -1,0 +1,7 @@
+unit Model.Pesquisar.Email.Empresa.Interfaces;
+
+interface
+
+implementation
+
+end.

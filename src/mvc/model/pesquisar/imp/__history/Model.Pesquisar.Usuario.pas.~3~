@@ -1,0 +1,42 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 01/05/2024 15:11           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Pesquisar.Usuario;
+
+interface
+
+uses
+  Model.Pesquisar.Usuario.Interfaces,
+  Model.Entidade.Usuario.Interfaces,
+  Controller.Interfaces;
+
+type
+  TPesquisarUsuario = class(TInterfacedObject, iPesquisarUsuario)
+    private
+      FController : iController;
+      FUsuario    : iEntidadeUsuario<iPesquisarUsuario>;
+
+      FFound : Boolean;
+      FError : Boolean;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iPesquisarUsuario;
+
+      function Getby(Email, Senha: String) : iPesquisarUsuario;
+      function Found : Boolean;
+      function Error : Boolean;
+
+      function Usuario : iEntidadeUsuario<iPesquisarUsuario>;
+      function &End   : iPesquisarUsuario;
+  end;
+
+implementation
+
+end.

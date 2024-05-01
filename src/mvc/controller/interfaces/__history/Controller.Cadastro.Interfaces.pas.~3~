@@ -1,0 +1,16 @@
+unit Controller.Cadastro.Interfaces;
+
+interface
+
+uses
+  Model.Factory.Cadastro.Interfaces;
+
+type
+  iControllerCadastro= interface
+    ['{CA6B0828-7291-4789-8AFE-7E0113704D3C}']
+    function FactoryCadastro : iFactoryCadastro;
+  end;
+
+implementation
+
+end.

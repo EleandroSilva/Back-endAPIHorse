@@ -59,8 +59,8 @@ type
       function DataSet                           : TDataSet;    overload;
       function GetAll                            : iDAOEmpresa;
       function GetbyId(Id : Variant)             : iDAOEmpresa;
-      function GetbyParams                       : iDAOEmpresa; overload;
-      function GetbyParams(aCNPJ: String)        : iDAOEmpresa; overload;
+      function GetbyCNPJ(CNPJ: String)           : iDAOEmpresa;
+      function GetbyParams                       : iDAOEmpresa;
       function Post                              : iDAOEmpresa;
       function Put                               : iDAOEmpresa;
       function Delete                            : iDAOEmpresa;
@@ -160,16 +160,16 @@ begin
   end;
 end;
 
-function TDAOEmpresa.GetbyParams(aCNPJ: String): iDAOEmpresa;
+function TDAOEmpresa.GetbyCNPJ(CNPJ: String): iDAOEmpresa;
 begin
   Result := Self;
-  FUteis.ValidaCnpjCeiCpf(aCNPJ, True);
+  FUteis.ValidaCnpjCeiCpf(CNPJ, True);
   try
     try
       FDataSet := FQuery
                     .SQL(FSQL)
                     .Add('where e.cnpj=:cnpj')
-                    .Params('cnpj', aCNPJ)
+                    .Params('cnpj', CNPJ)
                     .Open
                   .DataSet;
     except

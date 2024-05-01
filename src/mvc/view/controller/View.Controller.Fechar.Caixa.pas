@@ -77,7 +77,7 @@ begin
     try
       if Req.Query.Field('nomeusuario').AsString<>'' then
         lQuantidadeRegistro := FController
-                                 .FactoryEntidade
+                                 .FactoryDAO
                                    .DAOFecharCaixa
                                      .This
                                        .Usuario
@@ -89,7 +89,7 @@ begin
                                    .QuantidadeRegistro
       else
         lQuantidadeRegistro := FController
-                                 .FactoryEntidade
+                                 .FactoryDAO
                                    .DAOFecharCaixa
                                      .GetAll
                                    .DataSet(FDSFecharCaixa)
@@ -134,7 +134,7 @@ begin
   try
     try
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOFecharCaixa
             .GetbyId(Req.Params['id'].ToInt64)
           .DataSet(FDSFecharCaixa)
@@ -166,7 +166,7 @@ begin
     try
       FJSONObjectfecharCaixa := Req.Body<TJSONObject>;
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOFecharCaixa
             .This
               .IdCaixa        (FJSONObjectfecharCaixa.GetValue<integer>  ('idcaixa'))
@@ -178,7 +178,7 @@ begin
           .Post;
       //altero o status do caixa para caixa fechado
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOCaixa
             .This
               .Id    (FJSONObjectFecharCaixa.GetValue<Integer>('idcaixa'))
@@ -205,7 +205,7 @@ begin
     try
       FJSONObjectFecharCaixa := Req.Body<TJSONObject>;
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOFecharCaixa
             .This
               .Id          (FJSONObjectFecharCaixa.GetValue<Integer> ('id'))
@@ -215,7 +215,7 @@ begin
           .Put;
       //altero o status do caixa para caixa fechado
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOCaixa
             .This
               .Id    (FJSONObjectFecharCaixa.GetValue<Integer>('idcaixa'))
@@ -242,7 +242,7 @@ begin
   try
     try
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOFecharCaixa
             .This
               .Id(Req.Params['id'].ToInt64)

@@ -1,0 +1,16 @@
+unit Model.Factory.Interfaces;
+
+interface
+
+uses
+  View.Cadastrar.Usuario.Interfaces;
+
+type
+  iViewFactory = Interface
+    ['{6CAC6594-6B93-4419-A63D-51763B62549E}']
+    function CadastrarUsuario : iCadastrarUsuario;
+  End;
+
+implementation
+
+end.

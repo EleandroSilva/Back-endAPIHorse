@@ -13,8 +13,8 @@ type
       [weak]
       FParent     : T;
       FId         : Integer;
-      FIdEndereco : Integer;
       FIdEmpresa  : Integer;
+      FIdEndereco : Integer;
 
       FEndereco   : iEntidadeEndereco<iEntidadeEnderecoEmpresa<T>>;//EnderecoEmpresa
       FNumero     : iEntidadeNumero  <iEntidadeEnderecoEmpresa<T>>;//Numero
@@ -24,10 +24,10 @@ type
       class function New(Parent : T)       : iEntidadeEnderecoEmpresa<T>;
       function Id        (Value : Integer) : iEntidadeEnderecoEmpresa<T>; overload;
       function Id                          : Integer;                     overload;
-      function IdEndereco(Value : Integer) : iEntidadeEnderecoEmpresa<T>; overload;
-      function IdEndereco                  : Integer;                     overload;
       function IdEmpresa (Value : Integer) : iEntidadeEnderecoEmpresa<T>; overload;
       function IdEmpresa                   : Integer;                     overload;
+      function IdEndereco(Value : Integer) : iEntidadeEnderecoEmpresa<T>; overload;
+      function IdEndereco                  : Integer;                     overload;
 
       //Injeção de dependência
       function Endereco : iEntidadeEndereco<iEntidadeEnderecoEmpresa<T>>;

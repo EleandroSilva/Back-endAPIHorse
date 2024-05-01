@@ -24,7 +24,7 @@ uses
   Model.Conexao.Query.Interfaces;
 
 Type
-  TPedidoPagamento = class(TInterfacedObject, iDAOPedidoPagamento)
+  TDAOPedidoPagamento = class(TInterfacedObject, iDAOPedidoPagamento)
     private
       FPedidoPagamento : iEntidadePedidoPagamento<iDAOPedidoPagamento>;
       FConexao     : iConexao;
@@ -37,7 +37,6 @@ Type
       FSQL=('select '+
             'pp.id, '+
             'pp.idpedido, '+
-            'pp.idpagamento, '+
             'pp.datavencimento, '+
             'pp.valorparcela '+
             'from pedidopagamento pp '
@@ -52,7 +51,8 @@ Type
       function DataSet    (DataSource : TDataSource) : iDAOPedidoPagamento; overload;
       function DataSet                               : TDataSet;            overload;
       function GetAll                                : iDAOPedidoPagamento;
-      function GetbyId    (Id : Variant)             : iDAOPedidoPagamento;
+      function GetbyId    (Id : Variant)             : iDAOPedidoPagamento; overload;
+      function GetbyId    (IdParent : Integer)       : iDAOPedidoPagamento; overload;
       function GetbyParams                           : iDAOPedidoPagamento; overload;
       function Post                                  : iDAOPedidoPagamento;
       function Put                                   : iDAOPedidoPagamento;
@@ -70,9 +70,9 @@ uses
   Model.Conexao.Firedac.MySQL.Imp,
   Model.Conexao.Query.Imp;
 
-{ TPedidoPagamento }
+{ TDAOPedidoPagamento }
 
-constructor TPedidoPagamento.Create;
+constructor TDAOPedidoPagamento.Create;
 begin
   FPedidoPagamento  := TEntidadePedidoPagamento<iDAOPedidoPagamento>.New(Self);
   FConexao := TModelConexaoFiredacMySQL.New;
@@ -81,18 +81,18 @@ begin
   FMSG     := TMensagens.Create;
 end;
 
-destructor TPedidoPagamento.Destroy;
+destructor TDAOPedidoPagamento.Destroy;
 begin
   FreeAndNil(FMSG);
   inherited;
 end;
 
-class function TPedidoPagamento.New: iDAOPedidoPagamento;
+class function TDAOPedidoPagamento.New: iDAOPedidoPagamento;
 begin
   Result := Self.Create;
 end;
 
-function TPedidoPagamento.DataSet(DataSource: TDataSource): iDAOPedidoPagamento;
+function TDAOPedidoPagamento.DataSet(DataSource: TDataSource): iDAOPedidoPagamento;
 begin
   Result := Self;
   if not Assigned(FDataset) then
@@ -101,12 +101,12 @@ begin
     DataSource.DataSet := FDataSet;
 end;
 
-function TPedidoPagamento.DataSet: TDataSet;
+function TDAOPedidoPagamento.DataSet: TDataSet;
 begin
   Result := FDataSet;
 end;
 
-function TPedidoPagamento.GetAll: iDAOPedidoPagamento;
+function TDAOPedidoPagamento.GetAll: iDAOPedidoPagamento;
 begin
   Result := Self;
   try
@@ -130,7 +130,7 @@ begin
   end;
 end;
 
-function TPedidoPagamento.GetbyId(Id: Variant): iDAOPedidoPagamento;
+function TDAOPedidoPagamento.GetbyId(Id: Variant): iDAOPedidoPagamento;
 begin
   Result := Self;
   try
@@ -152,8 +152,32 @@ begin
   end;
 end;
 
-function TPedidoPagamento.GetbyParams: iDAOPedidoPagamento;
+function TDAOPedidoPagamento.GetbyId(IdParent: Integer): iDAOPedidoPagamento;
 begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Add('where pp.Idpedido=:Idpedido')
+                    .Params('Idpedido', IdParent)
+                    .Open
+                  .DataSet;
+    except
+      on E: Exception do
+      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+      FPedidoPagamento.Id(FDataSet.FieldByName('idpedido').AsInteger)
+    else
+      FPedidoPagamento.Id(0);
+  end;
+end;
+
+function TDAOPedidoPagamento.GetbyParams: iDAOPedidoPagamento;
+begin
+  {analisar como vai ser este filtro
   Result := Self;
   try
     try
@@ -172,21 +196,19 @@ begin
       FPedidoPagamento.Id(FDataSet.FieldByName('idpedido').AsInteger)
     else
       FPedidoPagamento.Id(0);
-  end;
+  end;}
 end;
 
-function TPedidoPagamento.Post: iDAOPedidoPagamento;
+function TDAOPedidoPagamento.Post: iDAOPedidoPagamento;
 const
   LSQL=('insert into pedidoitem( '+
                              'idpedido, '+
-                             'idpagamento, '+
                              'datavencimento, '+
                              'valorparcela '+
                            ')'+
                              ' values '+
                            '('+
                              ':idpedido, '+
-                             ':idpagamento, '+
                              ':datavencimento, '+
                              ':valorparcela '+
                             ')'
@@ -199,7 +221,6 @@ begin
       FQuery
         .SQL(LSQL)
           .Params('idpedido'       , FPedidoPagamento.IdPedido)
-          .Params('idpagamento'    , FPedidoPagamento.IdPagamento)
           .Params('datavencimento' , FPedidoPagamento.DataVencimento)
           .Params('valorparcela'   , FPedidoPagamento.ValorParcela)
         .ExecSQL;
@@ -220,11 +241,10 @@ begin
   end;
 end;
 
-function TPedidoPagamento.Put: iDAOPedidoPagamento;
+function TDAOPedidoPagamento.Put: iDAOPedidoPagamento;
 const
   LSQL=('update pedidoitem set '+
                        'idpedido      =:idpedido, '+
-                       'idpagamento   =:idpagamento, '+
                        'datavencimento=:datavencimento, '+
                        'valorparcela  =:valorparcela '+
                        'where id      =:id '
@@ -238,7 +258,6 @@ begin
         .SQL(LSQL)
           .Params('id'             , FPedidoPagamento.Id)
           .Params('idpedido'       , FPedidoPagamento.IdPedido)
-          .Params('idpagamento'    , FPedidoPagamento.IdPagamento)
           .Params('datavencimento' , FPedidoPagamento.DataVencimento)
           .Params('valorparcela'   , FPedidoPagamento.ValorParcela)
         .ExecSQL;
@@ -259,7 +278,7 @@ begin
   end;
 end;
 
-function TPedidoPagamento.Delete: iDAOPedidoPagamento;
+function TDAOPedidoPagamento.Delete: iDAOPedidoPagamento;
 const
   LSQL=('delete from pedidopagamento where id=:id ');
 begin
@@ -282,7 +301,7 @@ begin
   end;
 end;
 
-function TPedidoPagamento.LoopRegistro(Value: Integer): Integer;
+function TDAOPedidoPagamento.LoopRegistro(Value: Integer): Integer;
 begin
   FDataSet.First;
   try
@@ -296,12 +315,12 @@ begin
   end;
 end;
 
-function TPedidoPagamento.QuantidadeRegistro: Integer;
+function TDAOPedidoPagamento.QuantidadeRegistro: Integer;
 begin
   Result := LoopRegistro(0);
 end;
 
-function TPedidoPagamento.This: iEntidadePedidoPagamento<iDAOPedidoPagamento>;
+function TDAOPedidoPagamento.This: iEntidadePedidoPagamento<iDAOPedidoPagamento>;
 begin
   Result := FPedidoPagamento;
 end;

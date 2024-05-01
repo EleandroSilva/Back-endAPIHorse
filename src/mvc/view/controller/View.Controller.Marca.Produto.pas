@@ -67,7 +67,7 @@ begin
     try
       if Req.Query.Field('nomemarca').AsString<>'' then
         FQuantidadeRegistro := FController
-                                .FactoryEntidade
+                                .FactoryDAO
                                   .DAOMarcaProduto
                                     .This
                                       .NomeMarca(Req.Query.Field('nomemarca').AsString)
@@ -77,7 +77,7 @@ begin
                                   .QuantidadeRegistro
       else
         FQuantidadeRegistro:= FController
-                              .FactoryEntidade
+                              .FactoryDAO
                                 .DAOMarcaProduto
                                   .GetAll
                                 .DataSet(FDataSource)
@@ -113,7 +113,7 @@ begin
   Try
      try
        FController
-         .FactoryEntidade
+         .FactoryDAO
            .DAOMarcaProduto
              .GetbyId(Req.Params['id'].ToInt64)
            .DataSet(FDataSource);
@@ -140,7 +140,7 @@ begin
     try
       FJSONObject := Req.Body<TJSONObject>;
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOMarcaProduto
             .This
               .IdEmpresa      (FJSONObject.GetValue<integer>  ('idempresa'))
@@ -168,7 +168,7 @@ begin
     try
       FJSONObject := Req.Body<TJSONObject>;
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOMarcaProduto
             .This
               .Id             (FJSONObject.GetValue<Integer>  ('id'))
@@ -196,7 +196,7 @@ begin
   try
     try
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOMarcaProduto
             .This
               .Id(Req.Params['id'].ToInt64)

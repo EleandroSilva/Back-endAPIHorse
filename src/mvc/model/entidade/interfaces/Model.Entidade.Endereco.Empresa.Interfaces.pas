@@ -8,13 +8,13 @@ uses
 
 type
   iEntidadeEnderecoEmpresa<T> = Interface
-    ['{70A087E5-2329-4902-8B25-78FD009355E1}']
+    ['{7522CABF-A400-4F5E-A053-FFEF2767571A}']
     function Id        (Value : Integer) : iEntidadeEnderecoEmpresa<T>; overload;
     function Id                          : Integer;                     overload;
-    function IdEndereco(Value : Integer) : iEntidadeEnderecoEmpresa<T>; overload;
-    function IdEndereco                  : Integer;                     overload;
     function IdEmpresa (Value : Integer) : iEntidadeEnderecoEmpresa<T>; overload;
     function IdEmpresa                   : Integer;                     overload;
+    function IdEndereco(Value : Integer) : iEntidadeEnderecoEmpresa<T>; overload;
+    function IdEndereco                  : Integer;                     overload;
 
     //Injeção de dependência
     function Endereco : iEntidadeEndereco<iEntidadeEnderecoEmpresa<T>>;

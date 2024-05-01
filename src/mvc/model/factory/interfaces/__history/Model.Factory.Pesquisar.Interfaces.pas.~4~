@@ -1,0 +1,30 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 30/04/2024 20:04           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Factory.Pesquisar.Interfaces;
+
+interface
+
+uses
+  Model.Pesquisar.Empresa.Interfaces,
+  Model.Pesquisar.Endereco.Empresa.Interfaces;
+
+type
+  iFactoryPesquisar = interface
+    ['{3BAFF66A-F259-4FAB-90EA-46BB0BBD274D}']
+    function PesquisarEmpresa : iPesquisarEmpresa;
+
+
+    function PesquisarEnderecoEmpresa : iPesquisarEnderecoEmpresa;
+  end;
+
+
+implementation
+
+end.

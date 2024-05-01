@@ -18,7 +18,8 @@ uses
   Tabela.Swagger.Numero,
   Tabela.Swagger.Email.Empresa,
   Tabela.Swagger.Telefone.Empresa,
-  Tabela.Swagger.Natureza.Juridica;
+  Tabela.Swagger.Natureza.Juridica,
+  Tabela.Swagger.Usuario;
 
 
 //Tabela que salva os clientes da empresa BeMoreWeb-Empresa que vai usar nosso sistema
@@ -34,6 +35,7 @@ type
       FDataHoraEmissao       : TDate;  {TDate-Data que foi cadastrada no sistema-Not Null}
       FDataSituacaoCadastral : TDate;  {TDate-Data da abertura da empresa-Not Null}
       FAtivo                 : Integer;{Integer->0-Inativo; 1-Ativo-Not Null}
+      FUsuario               : TObjectList<TUsuario>;
       FEndereco              : TObjectList<TEndereco>;//crio a classe endereco
       FNumero                : TObjectList<TNumero>;
       FEMailEmpresa          : TObjectList<TEmailEmpresa>;//crio a classe emailempresa
@@ -42,7 +44,7 @@ type
       [SwagParamQuery('id', true)]
       [SwagProp('PRIMARY KEY (auto_increment)', True)]
       [SwagProp(False, True)]
-      property id                    : Integer  read FId                    write FId;
+      property id : Integer  read FId                    write FId;
       [SwagProp('Varchar(18) Max18-Min18->Formato CNPJ 99.999.999/9999-99', True)]
       [SwagParamQuery('Varchar(18) Max18-Min18->Formato CNPJ 99.999.999/9999-99'),false,false]
       property cnpj                  : String   read FCNPJ                  write FCNPJ;
@@ -63,16 +65,19 @@ type
       [SwagProp('Data da abertura da empresa. Encontrar no https://www.sintegra.gov.br/', True)]
       property datasituacaocadastral : TDate    read FDataSituacaoCadastral write FDataSituacaoCadastral;
       [SwagProp('(0-Intativo ou 1-Ativo)', True)]
-      property ativo                 : Integer  read FAtivo                 write FAtivo;
+      property ativo : Integer read FAtivo write FAtivo;
+      //campos tabela de usuario
+      property usuario : TObjectList<TUsuario> read FUsuario write FUsuario;
       //campos pertencem a tabela endereco
-      property endereco         : TObjectList<TEndereco>        read FEndereco        write FEndereco;
-      property numero           : TObjectList<TNumero>          read FNumero          write FNumero;
+      property endereco : TObjectList<TEndereco> read FEndereco write FEndereco;
+      property numero   : TObjectList<TNumero>   read FNumero   write FNumero;
       //campos tabela email da empresa
-      property emailempresa     : TObjectList<TEmailEmpresa>    read FEMailEmpresa    write FEmailEmpresa;
+      property emailempresa   : TObjectList<TEmailEmpresa>     read FEMailEmpresa    write FEmailEmpresa;
       //campos tabela telefone da empresa
-      property telefoneempresa  : TObjectList<TTelefoneEmpresa> read FTelefoneEmpresa write FTelefoneEmpresa;
+      property telefoneempresa : TObjectList<TTelefoneEmpresa> read FTelefoneEmpresa write FTelefoneEmpresa;
   end;
 
 implementation
+
 
 end.

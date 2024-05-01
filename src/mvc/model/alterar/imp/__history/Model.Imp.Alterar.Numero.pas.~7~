@@ -1,0 +1,117 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 01/05/2024 11:37           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Alterar.Numero;
+
+interface
+
+uses
+  Data.DB,
+  System.SysUtils,
+  System.JSON,
+
+  Model.Alterar.Numero.Interfaces,
+  Model.Entidade.Numero.Interfaces,
+  Controller.Interfaces;
+
+type
+  TAlterarNumero = class(TInterfacedObject, iAlterarNumero)
+    private
+      FController : iController;
+      FNumero     : iEntidadeNumero<iAlterarNumero>;
+
+      FDSNumero   : TDataSource;
+      FJSONObject : TJSONObject;
+      FJSONArray  : TJSONArray;
+
+      FIdNumero : Integer;
+      FFound : Boolean;
+      FError : Boolean;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iAlterarNumero;
+
+      function JSONObject(Value : TJSONObject) : iAlterarNumero; overload;
+      function JSONObject                      : TJSONObject;      overload;
+      function Put    : iAlterarNumero;
+      function Found  : Boolean;
+      function Error  : Boolean;
+
+      //injeção de dependência
+      function Numero : iEntidadeNumero<iAlterarNumero>;
+      function &End   : iAlterarNumero;
+  end;
+
+implementation
+
+uses
+  Imp.Controller,
+  Model.Entidade.Imp.Numero;
+
+{ TAlterarNumero }
+
+constructor TAlterarNumero.Create;
+begin
+  FController := TController.New;
+  FNumero     := TEntidadeNumero<iAlterarNumero>.New(Self);
+  FDSNumero   := TDataSource.Create(nil);
+
+  FFound := False;
+  FError := False;
+end;
+
+destructor TAlterarNumero.Destroy;
+begin
+  inherited;
+end;
+
+class function TAlterarNumero.New: iAlterarNumero;
+begin
+  Result := Self.Create;
+end;
+
+function TAlterarNumero.JSONObject(Value: TJSONObject): iAlterarNumero;
+begin
+  Result := Self;
+  FJSONObject := Value;
+end;
+
+function TAlterarNumero.JSONObject: TJSONObject;
+begin
+  Result := FJSONObject;
+end;
+
+function TAlterarNumero.Put: iAlterarNumero;
+begin
+
+end;
+
+function TAlterarNumero.Found: Boolean;
+begin
+  Result := FFound;
+end;
+
+function TAlterarNumero.Error: Boolean;
+begin
+  Result := FError;
+end;
+
+//Injeção de dependêmcia
+function TAlterarNumero.Numero: iEntidadeNumero<iAlterarNumero>;
+begin
+  Result := FNumero;
+end;
+
+function TAlterarNumero.&End: iAlterarNumero;
+begin
+  Result := Self;
+end;
+
+end.

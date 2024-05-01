@@ -23,7 +23,7 @@ type
 
 implementation
 
-{ TSwaggerEmpresa }
+{ TSwaggerCaixa }
 
 class procedure TSwaggerCaixa.SwaggerCaixa;
 begin
@@ -53,7 +53,7 @@ begin
     .&End
     .Path('caixa/{id}')
       .Tag('Caixa')
-        .GET('encontrar usuário por id')
+        .GET('encontrar caixa por id')
           .AddParamPath('id', 'Id do Caixa')
             .Schema(SWAG_INTEGER)
           .&End

@@ -1,0 +1,35 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 26/04/2024 17:41           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Alterar.Empresa.Interfaces;
+
+interface
+
+uses
+  System.JSON,
+
+  Model.Entidade.Empresa.Interfaces;
+
+type
+  iAlterarEmpresa = Interface
+    ['{EC95F7CC-6EF7-40D9-9DAE-07B674C34D46}']
+    function JSONObject(Value : TJSONObject) : iAlteraEmpresa; overload;
+    function JSONObject                      : TJSONObject;     overload;
+    function Put    : iAlteraEmpresa;
+    function Found  : Boolean;
+    function Error  : Boolean;
+
+    //injeção de dependência
+    function Empresa : iEntidadeEmpresa<iAlteraEmpresa>;
+    function &End    : iAlteraEmpresa;
+  End;
+
+implementation
+
+end.

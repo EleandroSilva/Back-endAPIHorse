@@ -1,0 +1,42 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 01/05/2024 13:38           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Pesquisar.Endereco;
+
+interface
+
+uses
+  Data.DB,
+  System.JSON,
+  System.SysUtils,
+
+  DataSet.Serialize,
+  Controller.Interfaces,
+  Model.Pesquisar.Endereco.Interfaces,
+  Model.Entidade.Endereco.Interfaces;
+
+Type
+  TPesquisarEndereco = class(TInterfacedObject, iPesquisarEndereco)
+    private
+
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iPesquisarEndereco;
+
+      function GetbyCep(Cep : String) : iPesquisarEndereco;
+      function Found   : Boolean;
+      function Error   : Boolean;
+      function Empresa : iEntidadeEndereco<iPesquisarEndereco>;
+      function &End    : iPesquisarEndereco;
+  end;
+
+implementation
+
+end.

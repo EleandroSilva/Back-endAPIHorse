@@ -21,7 +21,6 @@ type
       FParent         : T;
       FId             : Integer;
       FIdPedido       : Integer;
-      FIdPagamento    : Integer;
       FDataVencimento : TDateTime;
       FValorParcela   : Currency;
     public
@@ -33,8 +32,6 @@ type
       function Id                                : Integer;                     overload;
       function IdPedido      (Value : Integer)   : iEntidadePedidoPagamento<T>; overload;
       function IdPedido                          : Integer;                     overload;
-      function IdPagamento   (Value : Integer)   : iEntidadePedidoPagamento<T>; overload;
-      function IdPagamento                       : Integer;                     overload;
       function DataVencimento(Value : TDateTime) : iEntidadePedidoPagamento<T>; overload;
       function DataVencimento                    : TDateTime;                   overload;
       function ValorParcela  (Value : Currency)  : iEntidadePedidoPagamento<T>; overload;
@@ -83,17 +80,6 @@ end;
 function TEntidadePedidoPagamento<T>.IdPedido: Integer;
 begin
   Result := FIdPedido;
-end;
-
-function TEntidadePedidoPagamento<T>.IdPagamento(Value: Integer): iEntidadePedidoPagamento<T>;
-begin
-  Result := Self;
-  FIdPagamento := Value;
-end;
-
-function TEntidadePedidoPagamento<T>.IdPagamento: Integer;
-begin
-  Result := FIdPagamento;
 end;
 
 function TEntidadePedidoPagamento<T>.DataVencimento(Value: TDateTime): iEntidadePedidoPagamento<T>;

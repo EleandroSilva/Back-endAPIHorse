@@ -77,7 +77,7 @@ begin
     try
       if Req.Query.Field('nomeusuario').AsString<>'' then
         lQuantidadeRegistro := FController
-                                 .FactoryEntidade
+                                 .FactoryDAO
                                    .DAOCaixa
                                      .This
                                        .Usuario
@@ -89,7 +89,7 @@ begin
                                    .QuantidadeRegistro
       else
         lQuantidadeRegistro := FController
-                                 .FactoryEntidade
+                                 .FactoryDAO
                                    .DAOCaixa
                                      .GetAll
                                    .DataSet(FDSCaixa)
@@ -125,7 +125,7 @@ begin
   try
     try
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOCaixa
             .GetbyId(Req.Params['id'].ToInt64)
           .DataSet(FDSCaixa)
@@ -157,7 +157,7 @@ begin
     try
       FJSONObjectCaixa := Req.Body<TJSONObject>;
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOCaixa
             .This
               .IdEmpresa      (FJSONObjectCaixa.GetValue<integer>  ('idempresa'))
@@ -187,7 +187,7 @@ begin
     try
       FJSONObjectCaixa := Req.Body<TJSONObject>;
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOCaixa
             .This
               .Id          (FJSONObjectCaixa.GetValue<Integer>  ('id'))
@@ -214,7 +214,7 @@ begin
   try
     try
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOCaixa
             .This
               .Id(Req.Params['id'].ToInt64)

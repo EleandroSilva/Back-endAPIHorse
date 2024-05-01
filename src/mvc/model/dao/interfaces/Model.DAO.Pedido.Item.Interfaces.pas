@@ -21,7 +21,8 @@ type
     function DataSet    (DataSource : TDataSource) : iDAOPedidoItem; overload;
     function DataSet                               : TDataSet;       overload;
     function GetAll                                : iDAOPedidoItem;
-    function GetbyId    (Id : Variant)             : iDAOPedidoItem;
+    function GetbyId    (Id : Variant)             : iDAOPedidoItem; overload;
+    function GetbyId    (IdParent : Integer)       : iDAOPedidoItem; overload;
     function GetbyParams                           : iDAOPedidoItem; overload;
     function GetbyParams(aIdProduto : Variant)     : iDAOPedidoItem; overload;
     function GetbyParams(aNomeProduto : String)    : iDAOPedidoItem; overload;

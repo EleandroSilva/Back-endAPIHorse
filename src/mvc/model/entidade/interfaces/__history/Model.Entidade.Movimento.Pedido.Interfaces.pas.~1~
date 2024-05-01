@@ -1,0 +1,7 @@
+unit Model.Entidade.Movimento.Pedido.Interfaces;
+
+interface
+
+implementation
+
+end.

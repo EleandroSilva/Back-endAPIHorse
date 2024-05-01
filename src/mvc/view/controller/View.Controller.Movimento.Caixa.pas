@@ -75,7 +75,7 @@ begin
     try
       if Req.Query.Field('nomeusuario').AsString<>'' then
         lQuantidadeRegistro := FController
-                                 .FactoryEntidade
+                                 .FactoryDAO
                                    .DAOMovimentoCaixa
                                      .This
                                        .Usuario
@@ -87,7 +87,7 @@ begin
                                    .QuantidadeRegistro
       else
         lQuantidadeRegistro := FController
-                                 .FactoryEntidade
+                                 .FactoryDAO
                                    .DAOMovimentoCaixa
                                      .GetAll
                                    .DataSet(FDSMovimentoCaixa)
@@ -132,7 +132,7 @@ begin
   try
     try
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOMovimentoCaixa
             .GetbyId(Req.Params['id'].ToInt64)
           .DataSet(FDSMovimentoCaixa)
@@ -164,7 +164,7 @@ begin
     try
       FJSONObjectMovimentoCaixa := Req.Body<TJSONObject>;
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOMovimentoCaixa
             .This
               .IdCaixa         (FJSONObjectMovimentoCaixa.GetValue<integer>  ('idcaixa'))
@@ -198,7 +198,7 @@ begin
     try
       FJSONObjectMovimentoCaixa := Req.Body<TJSONObject>;
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOMovimentoCaixa
             .This
               .Id          (FJSONObjectMovimentoCaixa.GetValue<Integer> ('id'))
@@ -208,7 +208,7 @@ begin
           .Put;
       //altero o status do caixa para caixa fechado
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOCaixa
             .This
               .Id    (FJSONObjectMovimentoCaixa.GetValue<Integer>('idcaixa'))
@@ -236,7 +236,7 @@ begin
   try
     try
       FController
-        .FactoryEntidade
+        .FactoryDAO
           .DAOMovimentoCaixa
             .This
               .Id(Req.Params['id'].ToInt64)

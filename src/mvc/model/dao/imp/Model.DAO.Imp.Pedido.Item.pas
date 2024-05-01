@@ -56,7 +56,8 @@ type
       function DataSet    (DataSource : TDataSource) : iDAOPedidoItem; overload;
       function DataSet                               : TDataSet;       overload;
       function GetAll                                : iDAOPedidoItem;
-      function GetbyId    (Id : Variant)             : iDAOPedidoItem;
+      function GetbyId    (Id : Variant)             : iDAOPedidoItem; overload;
+      function GetbyId    (IdParent : Integer)       : iDAOPedidoItem; overload;
       function GetbyParams                           : iDAOPedidoItem; overload;
       function GetbyParams(aIdProduto : Variant)     : iDAOPedidoItem; overload;
       function GetbyParams(aNomeProduto : String)    : iDAOPedidoItem; overload;
@@ -157,8 +158,32 @@ begin
   end;
 end;
 
+function TDAOPedidoItem.GetbyId(IdParent: Integer): iDAOPedidoItem;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Add('where pi.idpedido=:idpedido')
+                    .Params('idpedido', IdParent)
+                    .Open
+                  .DataSet;
+    except
+      on E: Exception do
+      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+      FPedidoItem.Id(FDataSet.FieldByName('idpedido').AsInteger)
+    else
+      FPedidoItem.Id(0);
+  end;
+end;
+
 function TDAOPedidoItem.GetbyParams: iDAOPedidoItem;
 begin
+  {analisar como será este filtro
   Result := Self;
   try
     try
@@ -178,6 +203,7 @@ begin
     else
       FPedidoItem.Id(0);
   end;
+  }
 end;
 
 function TDAOPedidoItem.GetbyParams(aIdProduto: Variant): iDAOPedidoItem;

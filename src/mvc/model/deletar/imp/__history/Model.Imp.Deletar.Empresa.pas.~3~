@@ -1,0 +1,37 @@
+unit Model.Imp.Deletar.Empresa;
+
+interface
+
+uses
+  Data.DB,
+
+  Model.Deletar.Empresa.Interfaces,
+  Model.Entidade.Empresa.Interfaces,
+  Controller.Interfaces;
+
+type
+  TDeletarEmpresa = class(TInterfacedObject, iDeletarEmpresa)
+    private
+      FController : iController;
+      FEmpresa    : iEntidadeEmpresa<iDeletarEmpresa>;
+      FDSEmpresa  : TDataSource;
+
+      FFound : Boolean;
+      FError : Boolean;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDeletarEmpresa;
+
+      function Delete : iDeletarEmpresa;
+
+      function Found  : Boolean;
+      function Error  : Boolean;
+      //injeção de dependência
+      function Empresa : iEntidadeEmpresa<iDeletarEmpresa>;
+      function &End    : iDeletarEmpresa;
+  end;
+
+implementation
+
+end.

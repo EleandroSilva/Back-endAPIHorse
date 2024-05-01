@@ -18,13 +18,14 @@ uses
 
 type
   iDAOEmpresa = interface
-    ['{D0039C56-072A-4099-825B-1E07FC70CFC3}']
+    ['{FEFEC630-0C85-4F02-9F3F-1E24019F279F}']
     function DataSet(DataSource : TDataSource) : iDAOEmpresa; overload;
     function DataSet                           : TDataSet;    overload;
     function GetAll                            : iDAOEmpresa;
-    function GetbyId(Id : Variant)             : iDAOEmpresa;
-    function GetbyParams                       : iDAOEmpresa; overload;
-    function GetbyParams(aCNPJ: String)        : iDAOEmpresa; overload;
+    function GetbyId  (Id : Variant)           : iDAOEmpresa;
+    function GetbyCNPJ(CNPJ: String)           : iDAOEmpresa;
+    function GetbyParams                       : iDAOEmpresa;
+
     function Post                              : iDAOEmpresa;
     function Put                               : iDAOEmpresa;
     function Delete                            : iDAOEmpresa;

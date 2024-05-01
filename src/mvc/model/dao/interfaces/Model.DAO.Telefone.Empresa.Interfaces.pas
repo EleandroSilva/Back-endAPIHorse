@@ -19,15 +19,16 @@ uses
 type
   iDAOTelefoneEmpresa = interface
     ['{A97FF857-2667-454B-930B-F9EABBA6A1F7}']
-    function DataSet(DataSource : TDataSource) : iDAOTelefoneEmpresa; overload;
-    function DataSet                           : TDataSet;            overload;
-    function GetAll                            : iDAOTelefoneEmpresa;
-    function GetbyId(Id : Variant)             : iDAOTelefoneEmpresa;
-    function GetbyParams                       : iDAOTelefoneEmpresa;
-    function Post                              : iDAOTelefoneEmpresa;
-    function Put                               : iDAOTelefoneEmpresa;
-    function Delete                            : iDAOTelefoneEmpresa;
-    function QuantidadeRegistro                : Integer;
+    function DataSet(DataSource : TDataSource)      : iDAOTelefoneEmpresa; overload;
+    function DataSet                                : TDataSet;            overload;
+    function GetAll                                 : iDAOTelefoneEmpresa;
+    function GetbyId(Id : Variant)                  : iDAOTelefoneEmpresa;
+    function GetbyParams                            : iDAOTelefoneEmpresa; overload;
+    function GetbyParams(const iDAOTelefoneEmpresa) : iDAOTelefoneEmpresa; overload;
+    function Post                                   : iDAOTelefoneEmpresa;
+    function Put                                    : iDAOTelefoneEmpresa;
+    function Delete                                 : iDAOTelefoneEmpresa;
+    function QuantidadeRegistro                     : Integer;
 
     function This : iEntidadeTelefoneEmpresa<iDAOTelefoneEmpresa>;
   end;

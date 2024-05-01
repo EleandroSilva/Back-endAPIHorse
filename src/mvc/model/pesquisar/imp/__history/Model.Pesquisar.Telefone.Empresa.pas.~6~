@@ -1,0 +1,123 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 01/05/2024 14:52           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Pesquisar.Telefone.Empresa;
+
+interface
+
+uses
+  Data.DB,
+  System.JSON,
+  System.SysUtils,
+
+  DataSet.Serialize,
+  Model.Pesquisar.Telefone.Empresa.Interfaces,
+  Model.Entidade.Telefone.Empresa.Interfaces,
+  Controller.Interfaces;
+
+type
+  TPesquisarTelefoneEmpresa = class(TInterfacedObject, iPesquisarTelefoneEmpresa)
+    private
+      FController : iController;
+      FTelefoneEmpresa   : iEntidadeTelefoneEmpresa<iPesquisarTelefoneEmpresa>;
+      FDSTelefoneEmpresa : TDataSource;
+
+      FJSONObject : TJSONObject;
+      FJSONArray  : TJSONArray;
+
+      FFound : Boolean;
+      FError : Boolean;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iPesquisarTelefoneEmpresa;
+      function GetBy(IdEmpresa : Integer; DDD, NumeroTelefone: String) :iPesquisarTelefoneEmpresa;
+      function LoopTelefoneEmpresa : TJSONValue;
+      function Found : Boolean;
+      function Error : Boolean;
+
+      //injeção de dependência
+      function TelefoneEmpresa : iEntidadeTelefoneEmpresa<iPesquisarTelefoneEmpresa>;
+      function &End : iPesquisarTelefoneEmpresa;
+  end;
+
+implementation
+
+uses
+  Imp.Controller,
+  Model.Entidade.Imp.Telefone.Empresa;
+
+{ TPesquisarNumero }
+
+constructor TPesquisarTelefoneEmpresa.Create;
+begin
+  FController := TController.New;
+  FTelefoneEmpresa   := TEntidadeTelefoneEmpresa<iPesquisarTelefoneEmpresa>.New(Self);
+  FDSTelefoneEmpresa := TDataSource.Create(nil);
+
+  FFound := False;
+  FError := False;
+end;
+
+destructor TPesquisarTelefoneEmpresa.Destroy;
+begin
+  inherited;
+end;
+
+class function TPesquisarTelefoneEmpresa.New: iPesquisarTelefoneEmpresa;
+begin
+  Result := Self.Create;
+end;
+
+function TPesquisarTelefoneEmpresa.Getby(IdEndereco: Integer; NumeroEndereco: String): iPesquisarTelefoneEmpresa;
+begin
+  Result := Self;
+  FFound := False;
+  try
+    FController
+      .FactoryDAO
+        .DAONumero
+          .This
+            .IdEndereco    (IdEndereco)
+            .NumeroEndereco(NumeroEndereco)
+          .&End
+        .GetbyParams
+        .DataSet(FDSTelefoneEmpresa);
+  except
+    on E: Exception do
+    begin
+      WriteLn('Erro ao tentar alterar número da tabela numero: ' + E.Message);
+      FError := True;
+    end;
+  end;
+  FFound := not FDSTelefoneEmpresa.DataSet.IsEmpty;
+end;
+
+function TPesquisarTelefoneEmpresa.Found: Boolean;
+begin
+  Result := FFound;
+end;
+
+function TPesquisarTelefoneEmpresa.Error: Boolean;
+begin
+  Result := FError;
+end;
+
+//Injeção de dependência
+function TPesquisarTelefoneEmpresa.Numero: iEntidadeTelefoneEmpresa<iPesquisarTelefoneEmpresa>;
+begin
+  Result := FTelefoneEmpresa;
+end;
+
+function TPesquisarTelefoneEmpresa.&End: iPesquisarTelefoneEmpresa;
+begin
+  Result := Self;
+end;
+
+end.

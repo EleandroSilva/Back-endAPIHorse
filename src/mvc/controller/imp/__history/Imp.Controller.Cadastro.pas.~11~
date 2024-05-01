@@ -1,0 +1,61 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 29/04/2024 17:28           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Imp.Controller.Cadastro;
+
+interface
+
+uses
+  Controller.Cadastro.Interfaces,
+  Model.Factory.Cadastro.Interfaces;
+
+
+type
+  TController =class(TInterfacedObject, iControllerCadastro)
+    private
+      FFactoryCadastro : iFactoryCadastro;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iFactoryCadastro;
+      function FactoryCadastro : iFactoryCadastro;
+  end;
+
+implementation
+
+uses
+  Model.Factory.Imp.Cadastro;
+
+
+{ TController }
+
+constructor TController.Create;
+begin
+  //
+end;
+
+destructor TController.Destroy;
+begin
+  inherited;
+end;
+
+class function TController.New: iFactoryCadastro;
+begin
+  Result := Self.Create;
+end;
+
+function TController.FactoryCadastro: iFactoryCadastro;
+begin
+  if not Assigned(FFactoryCadastro) then
+    FFactoryCadastro := TFactoryCadastro.New;
+
+  Result := FFactoryCadastro;
+end;
+
+end.

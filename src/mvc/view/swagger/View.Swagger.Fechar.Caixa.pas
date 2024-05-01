@@ -23,7 +23,7 @@ type
 
 implementation
 
-{ TSwaggerEmpresa }
+{ TSwaggerFecharCaixa }
 
 class procedure TSwaggerFecharCaixa.SwaggerFecharCaixa;
 begin
@@ -53,7 +53,7 @@ begin
     .&End
     .Path('fechar-caixa/{id}')
       .Tag('Fechar caixa')
-        .GET('encontrar usuário por id')
+        .GET('encontrar fechar-caixa por id')
           .AddParamPath('id', 'Id do Fechar caixa')
             .Schema(SWAG_INTEGER)
           .&End

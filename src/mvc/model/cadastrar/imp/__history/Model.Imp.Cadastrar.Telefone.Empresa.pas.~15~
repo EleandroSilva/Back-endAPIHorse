@@ -1,0 +1,228 @@
+unit Model.Imp.Cadastrar.Telefone.Empresa;
+
+interface
+
+uses
+  Data.DB,
+  System.JSON,
+  System.SysUtils,
+
+  DataSet.Serialize,
+  Controller.Interfaces,
+  Model.Cadastrar.Telefone.Empresa.Interfaces,
+  Model.Entidade.Telefone.Empresa.Interfaces;
+
+type
+  TCadastrarTelefoneEmpresa = class(TInterfacedObject, iCadastrarTelefoneEmpresa)
+    private
+      FController : iController;
+      FTelefoneEmpresa    : iEntidadeTelefoneEmpresa<iCadastrarTelefoneEmpresa>;
+      FJSONArrayTelefone  : TJSONArray;
+      FJSONObjectTelefone : TJSONObject;
+      FJSONObjectPai      : TJSONObject;
+
+      FDSTelefoneEmpresa  : TDataSource;
+      FEncontrei : Boolean;
+      FError     : Boolean;
+      FQuantidadeRegistro : Integer;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iCadastrarTelefoneEmpresa;
+
+      function JSONObjectPai(Value : TJSONObject) : iCadastrarTelefoneEmpresa; overload;
+      function JSONObjectPai                      : TJSONObject;            overload;
+      function Encontrei : Boolean;
+      function Error     : Boolean;
+      //
+      function GetBy(IdEmpresa : Integer; DDD, NumeroTelefone: String) : iCadastrarTelefoneEmpresa;
+      function Post : iCadastrarTelefoneEmpresa;
+      function Put  : iCadastrarTelefoneEmpresa;
+      function LoopTelefoneEmpresa : TJSONValue;
+      //injeção de dependência
+      function TelefoneEmpresa : iEntidadeTelefoneEmpresa<iCadastrarTelefoneEmpresa>;
+      function &End : iCadastrarTelefoneEmpresa;
+  end;
+
+implementation
+
+uses
+  Imp.Controller,
+  Model.Entidade.Imp.Telefone.Empresa;
+
+{ TCadastrarTelefoneEmpresa }
+
+constructor TCadastrarTelefoneEmpresa.Create;
+begin
+  FController        := TController.New;
+  FTelefoneEmpresa   := TEntidadeTelefoneEmpresa<iCadastrarTelefoneEmpresa>.New(Self);
+  FDSTelefoneEmpresa := TDataSource.Create(nil);
+
+  FEncontrei := False;
+  FError := False;
+end;
+
+destructor TCadastrarTelefoneEmpresa.Destroy;
+begin
+  inherited;
+end;
+
+class function TCadastrarTelefoneEmpresa.New: iCadastrarTelefoneEmpresa;
+begin
+  Result := Self.Create;
+end;
+
+function TCadastrarTelefoneEmpresa.JSONObjectPai(Value: TJSONObject): iCadastrarTelefoneEmpresa;
+begin
+  Result := Self;
+  FJSONObjectPai := Value;
+end;
+
+function TCadastrarTelefoneEmpresa.JSONObjectPai: TJSONObject;
+begin
+  Result := FJSONObjectPai;
+end;
+
+//loop para carregar os telefones da tabela empresa
+function TCadastrarTelefoneEmpresa.LoopTelefoneEmpresa: TJSONValue;
+begin
+  FQuantidadeRegistro:= FController
+                           .FactoryEntidade
+                              .DAOTelefoneEmpresa
+                                .This
+                                  .IdEmpresa(FTelefoneEmpresa.IdEmpresa)
+                                .&End
+                              .GetbyParams(Self)
+                              .DataSet(FDSTelefoneEmpresa)
+                              .QuantidadeRegistro;
+
+  if not FDSTelefoneEmpresa.DataSet.IsEmpty then
+  begin
+    Result := True;
+    FJSONArrayTelefone := TJSONArray.Create;//JSONArray
+
+    FDSTelefoneEmpresa.DataSet.First;
+    while not FDSTelefoneEmpresa.DataSet.Eof do
+    begin
+      FJSONObjectTelefone := TJSONObject.Create;//JSONObject
+      FJSONObjectTelefone := FDSTelefoneEmpresa.DataSet.ToJSONObject;
+      Result := FJSONObjectTelefone;
+      // Se tiver mais de um registro, adiciona ao array
+      if FQuantidadeRegistro > 1 then
+      begin
+        FJSONArrayTelefone.Add(FJSONObjectTelefone);
+        Result := FJSONArrayTelefone;
+      end;
+      FDSTelefoneEmpresa.DataSet.Next;
+    end;
+  end;
+end;
+
+function TCadastrarTelefoneEmpresa.GetBy(IdEmpresa: Integer; DDD, NumeroTelefone: String): iCadastrarTelefoneEmpresa;
+begin
+  Result := Self;
+  FController
+    .FactoryEntidade
+      .DAOTelefoneEmpresa
+        .This
+          .IdEmpresa(IdEmpresa)
+          .NumeroTelefone(NumeroTelefone)
+        .&End
+      .GetbyParams
+      .DataSet(FDSTelefoneEmpresa);
+  FEncontrei := Not FDSTelefoneEmpresa.DataSet.IsEmpty;
+end;
+
+function TCadastrarTelefoneEmpresa.Post: iCadastrarTelefoneEmpresa;
+Var
+  I : Integer;
+begin
+  Result := Self;
+  FJSONArrayTelefone := FJSONObjectPai.GetValue('telefoneempresa') as TJSONArray;
+  try
+    //Loop emails
+    for I := 0 to FJSONArrayTelefone.Count - 1 do
+    begin
+      //Extraindo os dados do(s) emai(s)  e salvando no banco de dados
+      FJSONObjectTelefone :=  FJSONArrayTelefone.Items[I] as TJSONObject;
+      //verifico se consta o email que esta vindo no json. Na tabela emailempresa, se não existir insiro.
+      if not Getby(FTelefoneEmpresa.IdEmpresa , FJSONObjectTelefone.GetValue<String>('ddd'), FJSONObjectTelefone.GetValue<String>('numerotelefone')).Encontrei Then
+        FController
+          .FactoryEntidade
+            .DAOTelefoneEmpresa
+              .This
+                .IdEmpresa     (FTelefoneEmpresa.IdEmpresa)
+                .Operadora     (FJSONObjectTelefone.GetValue<String>('operadora'))
+                .DDD           (FJSONObjectTelefone.GetValue<String>('ddd'))
+                .NumeroTelefone(FJSONObjectTelefone.GetValue<String>('numerotelefone'))
+                .TipoTelefone  (FJSONObjectTelefone.GetValue<String>('tipotelefone'))
+                .Ativo         (1)
+              .&End
+            .Post;
+    end;
+  except
+    on E: Exception do
+    begin
+      WriteLn('Erro ao tentar incluir registro: ' + E.Message);
+      FError := True;
+    end;
+  end;
+end;
+
+function TCadastrarTelefoneEmpresa.Put: iCadastrarTelefoneEmpresa;
+Var
+  I : Integer;
+begin
+  //Obtém os dados JSON do corpo da requisição da tabela('telefoneempresa')
+  FJSONArrayTelefone := FJSONObjectPai.Get('telefoneempresa').JsonValue as TJSONArray;
+  try
+    //Loop telefone(s)
+    for I := 0 to FJSONArrayTelefone.Count - 1 do
+    begin
+      //Extraindo os dados do(s) telefone(s) e salvando no banco de dados
+      FJSONObjectTelefone := FJSONArrayTelefone.Items[I] as TJSONObject;
+      FController
+        .FactoryEntidade
+          .DAOTelefoneEmpresa
+            .This
+              .Id            (FJSONObjectTelefone.GetValue<Integer>('id'))
+              .IdEmpresa     (FJSONObjectPai.GetValue<Integer>('id'))
+              .Operadora     (FJSONObjectTelefone.GetValue<String> ('operadora'))
+              .DDD           (FJSONObjectTelefone.GetValue<String> ('ddd'))
+              .NumeroTelefone(FJSONObjectTelefone.GetValue<String> ('numerotelefone'))
+              .TipoTelefone  (FJSONObjectTelefone.GetValue<String> ('tipotelefone'))
+              .Ativo         (FJSONObjectTelefone.GetValue<Integer>('ativo'))
+            .&End
+            .Put;
+    end;
+  except
+    on E: Exception do
+    begin
+      WriteLn('Erro ao tentar alterar registro: ' + E.Message);
+      FError := True;
+    end;
+  end;
+end;
+
+function TCadastrarTelefoneEmpresa.Encontrei: Boolean;
+begin
+  Result := FEncontrei;
+end;
+
+function TCadastrarTelefoneEmpresa.Error: Boolean;
+begin
+  Result := FError;
+end;
+
+//Injeção de dependência
+function TCadastrarTelefoneEmpresa.TelefoneEmpresa: iEntidadeTelefoneEmpresa<iCadastrarTelefoneEmpresa>;
+begin
+  Result := FTelefoneEmpresa;
+end;
+
+function TCadastrarTelefoneEmpresa.&End: iCadastrarTelefoneEmpresa;
+begin
+  Result := Self;
+end;
+
+end.

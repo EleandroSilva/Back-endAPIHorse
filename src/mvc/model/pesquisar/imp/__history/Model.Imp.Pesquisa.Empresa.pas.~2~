@@ -1,0 +1,37 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 30/04/2024 20:04           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Pesquisa.Empresa;
+
+interface
+
+uses
+  Model.Pesquisa.Empresa.Interfaces,
+  Model.Entidade.Empresa.Interfaces;
+
+type
+  TPesquisaEmpresa = class(TInterfacedObject, iPesquisaEmpresa)
+    private
+
+    public
+      constructor Create;
+      Destructor Destroy; override;
+      class function New : iPesquisaEmpresa;
+
+      function GetbyId             (Id : Variant)             : iPesquisaEmpresa;
+      function GetbyCNPJ           (CNPJ: String)             : iPesquisaEmpresa;
+      function GetbyNomeEmpresarial(NomeEmpresarial : String) : iPesquisaEmpresa;
+
+      function Empresa : iEntidadeEmpresa<iPesquisaEmpresa>;
+      function &End    : iPesquisaEmpresa;
+  end;
+
+implementation
+
+end.

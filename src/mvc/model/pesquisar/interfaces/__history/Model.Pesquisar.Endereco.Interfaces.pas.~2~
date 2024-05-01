@@ -1,0 +1,13 @@
+unit Model.Pesquisar.Endereco.Interfaces;
+
+interface
+
+type
+  iPesquisarEndereco = Interface
+    ['{3BCA3CE6-9D62-44EB-9D35-5CF28EDF36D5}']
+    function GetbyCep(Cep : String) : iPesquisarEndereco;
+  End;
+
+implementation
+
+end.

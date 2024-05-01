@@ -22,6 +22,8 @@ type
     function IdUsuario                                : Integer;                       overload;
     function NomeCondicaoPagamento(Value : String)    : iEntidadeCondicaoPagamento<T>; overload;
     function NomeCondicaoPagamento                    : String;                        overload;
+    function QuantidadePagamento  (Value : Integer)   : iEntidadeCondicaoPagamento<T>; overload;
+    function QuantidadePagamento                      : Integer;                       overload;
     function TotalDias            (Value : Integer)   : iEntidadeCondicaoPagamento<T>; overload;
     function TotalDias                                : Integer;                       overload;
     function PrazoMedio           (Value : Integer)   : iEntidadeCondicaoPagamento<T>; overload;

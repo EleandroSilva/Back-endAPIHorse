@@ -145,54 +145,51 @@ function TDAOPessoa.GetbyId(Id: Variant): iDAOPessoa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where p.id=:id')
                     .Params('Id', Id)
                     .Open
                   .DataSet;
     except
-      raise Exception.Create(FMSG.MSGerroGet);
+      on E: Exception do
+      raise Exception.Create(FMSG.MSGerroGet+E.Message);
     end;
-  finally
   if not FDataSet.IsEmpty then
   begin
     FPessoa.Id(FDataSet.FieldByName('id').AsInteger);
     QuantidadeRegistro;
-  end else FPessoa.Id(0);
-  end;
+  end
+  else
+    FPessoa.Id(0);
 end;
 
 function TDAOPessoa.GetbyParams(Key: Integer; Value : String): iDAOPessoa;
 begin
   Result := Self;
   try
-   try
-     case Key of
-       0 : FDataSet := FQuery
-                   .SQL(FSQL+' where ' + FUteis.Pesquisar('p.nomepessoa', ';' + Value))
-                   .Open
-                 .DataSet;
-       1 : FDataSet := FQuery
-                   .SQL(FSQL+' where ' + FUteis.Pesquisar('p.sobrenome', ';' + Value))
-                   .Open
-                 .DataSet;
-     end;
-
-   except
-     on E: Exception do
-     raise exception.Create(FMSG.MSGerroGet+E.Message);
-   end;
-  finally
-    if not FDataSet.IsEmpty then
-    begin
-      FPessoa.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FPessoa.Id(0);
+    case Key of
+      0 : FDataSet := FQuery
+                         .SQL(FSQL+' where ' + FUteis.Pesquisar('p.nomepessoa', ';' + Value))
+                         .Open
+                      .DataSet;
+      1 : FDataSet := FQuery
+                         .SQL(FSQL+' where ' + FUteis.Pesquisar('p.sobrenome', ';' + Value))
+                         .Open
+                      .DataSet;
+    end;
+    except
+      on E: Exception do
+      raise exception.Create(FMSG.MSGerroGet+E.Message);
   end;
+
+  if not FDataSet.IsEmpty then
+  begin
+    FPessoa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FPessoa.Id(0);
 end;
 
 function TDAOPessoa.GetbyParams(aCPFCNPJ: String): iDAOPessoa;

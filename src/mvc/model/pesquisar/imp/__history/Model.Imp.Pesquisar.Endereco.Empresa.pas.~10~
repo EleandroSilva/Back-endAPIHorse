@@ -1,0 +1,100 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 01/05/2024 11:37           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Pesquisar.Endereco.Empresa;
+
+interface
+
+uses
+  Model.Pesquisar.Endereco.Empresa.Interfaces,
+  Model.Entidade.Endereco.Empresa.Interfaces,
+  Controller.Interfaces;
+
+type
+  TPesquisarEnderecoEmpresa = class(TInterfacedObject, iPesquisarEnderecoEmpresa)
+    private
+      FController      : iController;
+      FEnderecoEmpresa : iEntidadeEnderecoEmpresa<iPesquisarEnderecoEmpresa>;
+
+      FFound : Boolean;
+      FError : Boolean;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iPesquisarEnderecoEmpresa;
+
+      function GetbyId       (Id : Variant)       : iPesquisarEnderecoEmpresa;
+      function GetbyIdEmpresa(IdEmpresa: Integer) : iPesquisarEnderecoEmpresa;
+
+      function Found : Boolean;
+      function Error : Boolean;
+
+      function EnderecoEmpresa : iEntidadeEnderecoEmpresa<iPesquisarEnderecoEmpresa>;
+      function &End  : iPesquisarEnderecoEmpresa;
+  end;
+
+implementation
+
+uses
+  Imp.Controller,
+  Model.Entidade.Imp.Endereco.Empresa;
+
+{ TPesquisarEnderecoEmpresa }
+
+constructor TPesquisarEnderecoEmpresa.Create;
+begin
+  FController      := TController.New;
+  FEnderecoEmpresa := TEntidadeEnderecoEmpresa<iPesquisarEnderecoEmpresa>.New(Self);
+
+  FFound := False;
+  FError := False;
+end;
+
+destructor TPesquisarEnderecoEmpresa.Destroy;
+begin
+  inherited;
+end;
+
+class function TPesquisarEnderecoEmpresa.New: iPesquisarEnderecoEmpresa;
+begin
+  Result := Self.Create;
+end;
+
+function TPesquisarEnderecoEmpresa.GetbyId(Id: Variant): iPesquisarEnderecoEmpresa;
+begin
+
+end;
+
+function TPesquisarEnderecoEmpresa.GetbyIdEmpresa(IdEmpresa: Integer): iPesquisarEnderecoEmpresa;
+begin
+
+end;
+
+function TPesquisarEnderecoEmpresa.Found: Boolean;
+begin
+  Result := FFound;
+end;
+
+function TPesquisarEnderecoEmpresa.Error: Boolean;
+begin
+  Result := FError;
+end;
+
+//Injeção de dependência
+function TPesquisarEnderecoEmpresa.EnderecoEmpresa: iEntidadeEnderecoEmpresa<iPesquisarEnderecoEmpresa>;
+begin
+  Result := FEnderecoEmpresa;
+end;
+
+function TPesquisarEnderecoEmpresa.&End: iPesquisarEnderecoEmpresa;
+begin
+  Result := Self;
+end;
+
+end.

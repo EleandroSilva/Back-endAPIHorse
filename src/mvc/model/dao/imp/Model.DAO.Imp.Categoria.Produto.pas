@@ -146,7 +146,7 @@ begin
   finally
     if not FDataSet.IsEmpty then
       FCategoriaProduto.Id(FDataSet.FieldByName('id').AsInteger)
-      else
+    else
       FCategoriaProduto.Id(0);
   end;
 end;

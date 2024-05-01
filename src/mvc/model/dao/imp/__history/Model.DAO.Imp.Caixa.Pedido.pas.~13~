@@ -1,0 +1,170 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 26/04/2024 16:08           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.DAO.Imp.Caixa.Pedido;
+
+interface
+
+uses
+  Data.DB,
+  System.SysUtils,
+
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Caixa.Pedido.Interfaces,
+  Model.Entidade.Caixa.Pedido.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Conexao.Query.Interfaces;
+
+type
+  TDAOCaixaPedido= class(TInterfacedObject, iDAOCaixaPedido)
+    private
+      FCaixaPedido : iEntidadeCaixaPedido<iDAOCaixaPedido>;
+      FConexao : iConexao;
+      FQuery   : iQuery;
+      FMSG     : TMensagens;
+      FDataSet : TDataSet;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDAOCaixaPedido;
+
+      function DataSet(DataSource : TDataSource) : iDAOCaixaPedido; overload;
+      function DataSet                           : TDataSet;        overload;
+      function GetAll                            : iDAOCaixaPedido;
+      function GetbyId(Id : Variant)             : iDAOCaixaPedido;
+      function GetbyParams                       : iDAOCaixaPedido;
+      function Post                              : iDAOCaixaPedido;
+      function Put                               : iDAOCaixaPedido;
+      function Delete                            : iDAOCaixaPedido;
+      function QuantidadeRegistro                : Integer;
+
+      function This : iEntidadeCaixaPedido<iDAOCaixaPedido>;
+  end;
+
+implementation
+
+uses
+  Model.Entidade.Imp.Caixa.Pedido,
+  Model.Conexao.Firedac.MySQL.Imp,
+  Model.Conexao.Query.Imp;
+
+{ TDAOCaixaPedido }
+
+constructor TDAOCaixaPedido.Create;
+begin
+  FCaixaPedido  := TEntidadeCaixaPedido<iDAOCaixaPedido>.New(Self);
+  FConexao := TModelConexaoFiredacMySQL.New;
+  FQuery   := TQuery.New;
+  FMSG     := TMensagens.Create;
+end;
+
+destructor TDAOCaixaPedido.Destroy;
+begin
+   FreeAndNil(FMSG);
+  inherited;
+end;
+
+class function TDAOCaixaPedido.New: iDAOCaixaPedido;
+begin
+  Result := Self.Create;
+end;
+
+function TDAOCaixaPedido.DataSet(DataSource: TDataSource): iDAOCaixaPedido;
+begin
+  Result := Self;
+  if not Assigned(FDataset) then
+    DataSource.DataSet := FQuery.DataSet
+  else
+    DataSource.DataSet := FDataSet;
+end;
+
+function TDAOCaixaPedido.DataSet: TDataSet;
+begin
+  Result := FDataSet;
+end;
+
+function TDAOCaixaPedido.GetAll: iDAOCaixaPedido;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Add('order by p.id asc')
+                    .Open
+                  .DataSet;
+    except
+     raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+      FCaixaPedido.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+      FCaixaPedido.Id(0);
+  end;
+end;
+
+function TDAOCaixaPedido.GetbyId(Id: Variant): iDAOCaixaPedido;
+begin
+  Result := Self;
+  try
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                  .Add('cp.id', 'id')
+                  .Params('id', id)
+                    .Open
+                .DataSet;
+    except
+      on E: Exception do
+      raise exception.Create(FMSG.MSGerroGet+E.Message);
+  end;
+
+  if not FDataSet.IsEmpty then
+  begin
+    FCaixaPedido.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FCaixaPedido.Id(0);
+end;
+
+function TDAOCaixaPedido.GetbyParams: iDAOCaixaPedido;
+begin
+
+end;
+
+function TDAOCaixaPedido.Post: iDAOCaixaPedido;
+begin
+
+end;
+
+function TDAOCaixaPedido.Put: iDAOCaixaPedido;
+begin
+
+end;
+
+function TDAOCaixaPedido.QuantidadeRegistro: Integer;
+begin
+
+end;
+
+function TDAOCaixaPedido.Delete: iDAOCaixaPedido;
+begin
+
+end;
+
+function TDAOCaixaPedido.This: iEntidadeCaixaPedido<iDAOCaixaPedido>;
+begin
+  Result := FCaixaPedido;
+end;
+
+
+
+end.

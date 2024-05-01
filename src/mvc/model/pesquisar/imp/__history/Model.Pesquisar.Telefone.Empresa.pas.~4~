@@ -1,0 +1,50 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 01/05/2024 14:52           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Pesquisar.Telefone.Empresa;
+
+interface
+
+uses
+  Data.DB,
+  System.JSON,
+  System.SysUtils,
+
+  DataSet.Serialize,
+  Model.Pesquisar.Telefone.Empresa.Interfaces,
+  Model.Entidade.Telefone.Empresa.Interfaces,
+  Controller.Interfaces;
+
+type
+  TPesquisarTelefoneEmpresa = class(TInterfacedObject, iPesquisarTelefoneEmpresa)
+    private
+      FController : iController;
+      FTelefoneEmpresa   : iEntidadeTelefoneEmpresa<iPesquisarTelefoneEmpresa>;
+      FDSTelefoneEmpresa : TDataSource;
+
+      FJSONObject : TJSONObject;
+      FJSONArray  : TJSONArray;
+
+      FFound : Boolean;
+      FError : Boolean;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iPesquisarTelefoneEmpresa;
+      function Getby(IdEndereco : Integer; NumeroEndereco : String) : iPesquisarTelefoneEmpresa;
+      function Found : Boolean;
+      function Error : Boolean;
+
+      function Numero : iEntidadeTelefoneEmpresa<iPesquisarTelefoneEmpresa>;
+      function &End   : iPesquisarTelefoneEmpresa;
+  end;
+
+implementation
+
+end.

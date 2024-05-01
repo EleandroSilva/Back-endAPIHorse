@@ -37,10 +37,11 @@ type
       FSQL=('select '+
             'p.id, '+
             'p.idempresa, '+
+            'p.idcaixa, '+
             'p.idpessoa, '+
             'pp.nomepessoa, '+
             'pp.cpfcnpj, '+
-            'p.idpagamento, '+
+            'p.idcondicaopagamento, '+
             'cpp.nomecondicaopagamento, '+
             'p.idusuario, '+
             'u.nomeusuario, '+
@@ -51,7 +52,7 @@ type
             'p.status '+
             'from pedido p '+
             'inner join pessoa             pp on pp.id  = p.idpessoa '+
-            'inner join condicaopagamento cpp on cpp.id = p.idpagamento '+
+            'inner join condicaopagamento cpp on cpp.id = p.idcondicaopagamento '+
             'inner join usuario             u on u.id   = p.idusuario '
             );
       function LoopRegistro(Value : Integer): Integer;
@@ -267,8 +268,9 @@ function TDAOPedido.Post: iDAOPedido;
 const
   LSQL=('insert into pedido( '+
                              'idempresa, '+
+                             'idcaixa, '+
                              'idpessoa, '+
-                             'idpagamento, '+
+                             'idcondicaopagamento, '+
                              'idusuario, '+
                              'valorproduto, '+
                              'valordesconto, '+
@@ -279,8 +281,9 @@ const
                              ' values '+
                            '('+
                              ':idempresa, '+
+                             ':idcaixa, '+
                              ':idpessoa, '+
-                             ':idpagamento, '+
+                             ':idcondicaopagamento, '+
                              ':idusuario, '+
                              ':valorproduto, '+
                              ':valordesconto, '+
@@ -296,15 +299,16 @@ begin
     try
       FQuery
         .SQL(LSQL)
-          .Params('idempresa'       , FPedido.IdEmpresa)
-          .Params('idpessoa'        , FPedido.IdPessoa)
-          .Params('idpagamento'     , FPedido.IdPagamento)
-          .Params('idusuario'       , FPedido.IdUsuario)
-          .Params('valorproduto'    , FPedido.ValorProduto)
-          .Params('valordesconto'   , FPedido.ValorDesconto)
-          .Params('valorreceber'    , FPedido.ValorReceber)
-          .Params('datahoraemissao' , FPedido.DataHoraEmissao)
-          .Params('status'          , FPedido.Status)
+          .Params('idempresa'           , FPedido.IdEmpresa)
+          .Params('idcaixa'             , FPedido.IdCaixa)
+          .Params('idpessoa'            , FPedido.IdPessoa)
+          .Params('idcondicaopagamento' , FPedido.IdCondicaoPagamento)
+          .Params('idusuario'           , FPedido.IdUsuario)
+          .Params('valorproduto'        , FPedido.ValorProduto)
+          .Params('valordesconto'       , FPedido.ValorDesconto)
+          .Params('valorreceber'        , FPedido.ValorReceber)
+          .Params('datahoraemissao'     , FPedido.DataHoraEmissao)
+          .Params('status'              , FPedido.Status)
         .ExecSQL;
     except
       on E: Exception do
@@ -326,16 +330,17 @@ end;
 function TDAOPedido.Put: iDAOPedido;
 const
   LSQL=('update pedido set '+
-                       'idempresa      =:idempresa, '+
-                       'idpessoa       =:idpessoa, '+
-                       'idpagamento    =:idpagamento, '+
-                       'idusuario      =:idusuario, '+
-                       'valorproduto   =:valorproduto, '+
-                       'valordesconto  =:valordesconto, '+
-                       'valorreceber   =:valorreceber, '+
-                       'datahoraemissao=:datahoraemissao, '+
-                       'status         =:status '+
-                       'where id       =:id '
+                       'idempresa          =:idempresa, '+
+                       'idcaixa            =:idcaixa, '+
+                       'idpessoa           =:idpessoa, '+
+                       'idcondicaopagamento=:idcondicaopagamento, '+
+                       'idusuario          =:idusuario, '+
+                       'valorproduto       =:valorproduto, '+
+                       'valordesconto      =:valordesconto, '+
+                       'valorreceber       =:valorreceber, '+
+                       'datahoraemissao    =:datahoraemissao, '+
+                       'status             =:status '+
+                       'where id           =:id '
        );
 begin
   Result := Self;
@@ -345,16 +350,17 @@ begin
     try
       FQuery
         .SQL(LSQL)
-          .Params('id'              , FPedido.Id)
-          .Params('idempresa'       , FPedido.IdEmpresa)
-          .Params('idpessoa'        , FPedido.IdPessoa)
-          .Params('idpagamento'     , FPedido.IdPagamento)
-          .Params('idusuario'       , FPedido.IdUsuario)
-          .Params('valorproduto'    , FPedido.ValorProduto)
-          .Params('valordesconto'   , FPedido.ValorDesconto)
-          .Params('valorreceber'    , FPedido.ValorReceber)
-          .Params('datahoraemissao' , FPedido.DataHoraEmissao)
-          .Params('status'          , FPedido.Status)
+          .Params('id'                  , FPedido.Id)
+          .Params('idempresa'           , FPedido.IdEmpresa)
+          .Params('idcaixa'             , FPedido.IdCaixa)
+          .Params('idpessoa'            , FPedido.IdPessoa)
+          .Params('idcondicaopagamento' , FPedido.IdCondicaoPagamento)
+          .Params('idusuario'           , FPedido.IdUsuario)
+          .Params('valorproduto'        , FPedido.ValorProduto)
+          .Params('valordesconto'       , FPedido.ValorDesconto)
+          .Params('valorreceber'        , FPedido.ValorReceber)
+          .Params('datahoraemissao'     , FPedido.DataHoraEmissao)
+          .Params('status'              , FPedido.Status)
         .ExecSQL;
     except
       on E: Exception do
@@ -371,13 +377,13 @@ end;
 
 function TDAOPedido.Delete: iDAOPedido;
 const
-  LSQL=('delete from pedido where id=:id ');
+  LSQL=('delete from pedido');
 begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
       FQuery.SQL(LSQL)
+              .Add('where id=:id')
               .Params('id', FPedido.Id)
             .ExecSQL;
     except
@@ -386,10 +392,8 @@ begin
         FConexao.Rollback;
         raise Exception.Create(FMSG.MSGerroDelete+E.Message);
       end;
-    end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOPedido.LoopRegistro(Value: Integer): Integer;

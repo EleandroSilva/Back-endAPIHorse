@@ -11,6 +11,9 @@ unit Tabela.Swagger.Endereco.Pessoa;
 
 interface
 
+uses
+  GBSwagger.Model.Attributes;
+
 //Tabela com relacionamento com a tabela endereco <-Id=IdEndereco->tabela enderecoempresa
 //                                tabela empresa  <-Id=IdEmpresa ->tabela enderecoempresa
 

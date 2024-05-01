@@ -23,6 +23,7 @@ type
     function GetAll                                         : iDAOEnderecoEmpresa;
     function GetbyId(Id : Variant)                          : iDAOEnderecoEmpresa;
     function GetbyParams                                    : iDAOEnderecoEmpresa; overload;
+    function GetbyParams(const iDAOEnderecoEmpresa)         : iDAOEnderecoEmpresa; overload;
     function GetbyParams(aIdEmpresa, aIdEndereco : Variant) : iDAOEnderecoEmpresa; overload;
     function Post                                           : iDAOEnderecoEmpresa;
     function Put                                            : iDAOEnderecoEmpresa;

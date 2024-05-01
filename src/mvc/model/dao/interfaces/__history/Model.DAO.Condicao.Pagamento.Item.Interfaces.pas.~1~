@@ -1,0 +1,7 @@
+unit Model.DAO.Condicao.Pagamento.Item.Interfaces;
+
+interface
+
+implementation
+
+end.

@@ -1,0 +1,134 @@
+unit Model.Imp.Alterar.Telefone.Empresa;
+
+interface
+
+uses
+  Data.DB,
+  System.SysUtils,
+  System.JSON,
+
+  Model.Alterar.Telefone.Empresa.Interfaces,
+  Model.Entidade.Telefone.Empresa.Interfaces,
+  Controller.Interfaces;
+
+type
+  TAlterarTelefoneEmpresa = class(TInterfacedObject, iAlterarEmailEmpresa)
+    private
+      FController     : iController;
+      FEmailEmpresa   : iEntidadeEmailEmpresa<iAlterarEmailEmpresa>;
+      FDSEmailEmpresa : TDataSource;
+
+      FJSONObject : TJSONObject;
+      FJSONArray  : TJSONArray;
+
+      FFound : Boolean;
+      FError : Boolean;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iAlterarEmailEmpresa;
+
+      function JSONObject(Value : TJSONObject) : iAlterarEmailEmpresa; overload;
+      function JSONObject                      : TJSONObject;          overload;
+      function Put    : iAlterarEmailEmpresa;
+      function Found  : Boolean;
+      function Error  : Boolean;
+
+      //injeção de dependência
+      function EmailEmpresa : iEntidadeEmailEmpresa<iAlterarEmailEmpresa>;
+      function &End    : iAlterarEmailEmpresa;
+  end;
+
+implementation
+
+uses
+  Imp.Controller,
+  Model.Entidade.Imp.Email.Empresa;
+
+{ TAlterarTelefoneEmpresa }
+
+constructor TAlterarTelefoneEmpresa.Create;
+begin
+  FController     := TController.New;
+  FEmailEmpresa   := TEntidadeEmailEmpresa<iAlterarEmailEmpresa>.New(Self);
+  FDSEmailEmpresa := TDataSource.Create(nil);
+
+  FFound := False;
+  FError := False;
+end;
+
+destructor TAlterarTelefoneEmpresa.Destroy;
+begin
+  inherited;
+end;
+
+class function TAlterarTelefoneEmpresa.New: iAlterarEmailEmpresa;
+begin
+  Result := Self.Create;
+end;
+
+function TAlterarTelefoneEmpresa.JSONObject(Value: TJSONObject): iAlterarEmailEmpresa;
+begin
+  Result := Self;
+  FJSONObject := Value;
+end;
+
+function TAlterarTelefoneEmpresa.JSONObject: TJSONObject;
+begin
+  Result := FJSONObject;
+end;
+
+function TAlterarTelefoneEmpresa.Put: iAlterarEmailEmpresa;
+Var
+  I : Integer;
+begin
+  FJSONArray := FJSONObject.Get('emailempresa').JsonValue as TJSONArray;
+  try
+    //Loop emails
+    for I := 0 to FJSONArray.Count - 1 do
+    begin
+      //Extraindo os dados do(s) emai(s)  e salvando no banco de dados
+      FJSONObject :=  FJSONArray.Items[I] as TJSONObject;
+      FController
+        .FactoryDAO
+          .DAOEmailEmpresa
+            .This
+              .Id       (FJSONObject.GetValue<Integer>('id'))
+              .IdEmpresa(FEmailEmpresa.IdEmpresa)
+              .Email    (FJSONObject.GetValue<String> ('email'))
+              .TipoEmail(FJSONObject.GetValue<String> ('tipoemail'))
+              .Ativo    (FJSONObject.GetValue<Integer>('ativo'))
+            .&End
+          .Put;
+      end;
+    except
+      on E: Exception do
+      begin
+        WriteLn('Erro ao tentar alterar o registro: ' + E.Message);
+        FError := True;
+      end;
+  end;
+end;
+
+function TAlterarTelefoneEmpresa.Found: Boolean;
+begin
+  Result := FFound;
+end;
+
+function TAlterarTelefoneEmpresa.Error: Boolean;
+begin
+  Result := FError;
+end;
+
+//Injeção de dependência
+function TAlterarTelefoneEmpresa.EmailEmpresa: iEntidadeEmailEmpresa<iAlterarEmailEmpresa>;
+begin
+  Result := FEmailEmpresa;
+end;
+
+function TAlterarTelefoneEmpresa.&End: iAlterarEmailEmpresa;
+begin
+  Result := Self;
+end;
+
+end.
