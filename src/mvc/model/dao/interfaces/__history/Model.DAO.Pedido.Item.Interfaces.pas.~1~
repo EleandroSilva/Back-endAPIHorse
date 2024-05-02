@@ -1,7 +1,0 @@
-unit Model.DAO.Pedido.Item.Interfaces;
-
-interface
-
-implementation
-
-end.

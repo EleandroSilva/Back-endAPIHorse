@@ -1,7 +1,0 @@
-unit Model.Entidade.Forma.Pagamento.Interfaces;
-
-interface
-
-implementation
-
-end.

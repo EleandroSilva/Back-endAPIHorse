@@ -1,7 +1,0 @@
-unit Model.Entidade.Imp.Telefone.Empresa;
-
-interface
-
-implementation
-
-end.

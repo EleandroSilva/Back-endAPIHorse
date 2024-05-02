@@ -1,7 +1,0 @@
-unit Model.DAO.Imp.Caixa.Diario.Encerramento;
-
-interface
-
-implementation
-
-end.

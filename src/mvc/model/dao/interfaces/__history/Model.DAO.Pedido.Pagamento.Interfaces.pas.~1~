@@ -1,7 +1,0 @@
-unit Model.DAO.Pedido.Pagamento.Interfaces;
-
-interface
-
-implementation
-
-end.
