@@ -1,7 +1,0 @@
-unit Model.DAO.Movimento.Pedido.Interfaces;
-
-interface
-
-implementation
-
-end.

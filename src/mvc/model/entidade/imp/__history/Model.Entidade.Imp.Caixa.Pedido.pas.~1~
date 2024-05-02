@@ -1,7 +1,0 @@
-unit Model.Entidade.Imp.Caixa.Pedido;
-
-interface
-
-implementation
-
-end.
