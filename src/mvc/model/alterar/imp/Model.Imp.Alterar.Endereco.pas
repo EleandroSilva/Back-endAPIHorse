@@ -29,6 +29,8 @@ Type
       FJSONObject : TJSONObject;
       FJSONArray  : TJSONArray;
 
+      FJSONObjectNumero : TJSONObject;
+
       FIdEndereco : Integer;
       FFound : Boolean;
       FError : Boolean;

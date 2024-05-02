@@ -18,13 +18,15 @@ uses
 
   Model.Alterar.Empresa.Interfaces,
   Model.Entidade.Empresa.Interfaces,
-  Controller.Interfaces;
+  Controller.Interfaces,
+  Model.Entidade.Endereco.Interfaces;
 
 type
   TAlterarEmpresa = class(TInterfacedObject, iAlterarEmpresa)
     private
       FController : iController;
       FEmpresa    : iEntidadeEmpresa<iAlterarEmpresa>;
+      FEndereco   : iEntidadeEndereco<iAlterarEmpresa>;
       FDSEmpresa  : TDataSource;
       FJSONObject : TJSONObject;
       FFound : Boolean;
@@ -46,21 +48,24 @@ type
       function Error  : Boolean;
 
       //injeção de dependência
-      function Empresa : iEntidadeEmpresa<iAlterarEmpresa>;
-      function &End    : iAlterarEmpresa;
+      function Empresa  : iEntidadeEmpresa<iAlterarEmpresa>;
+      function Endereco : iEntidadeEndereco<iAlterarEmpresa>;
+      function &End     : iAlterarEmpresa;
   end;
 
 implementation
 
 uses
   Model.Entidade.Imp.Empresa,
-  Imp.Controller;
+  Imp.Controller,
+  Model.Entidade.Imp.Endereco;
 
 { TAlterarEmpresa }
 constructor TAlterarEmpresa.Create;
 begin
   FController := TController.New;
-  FEmpresa    := TEntidadeEmpresa<iAlterarEmpresa>.New(Self);
+  FEmpresa    := TEntidadeEmpresa <iAlterarEmpresa>.New(Self);
+  FEndereco   := TEntidadeEndereco<iAlterarEmpresa>.New(Self);
   FDSEmpresa  := TDataSource.Create(nil);
 
   FFound := False;
@@ -141,18 +146,16 @@ end;
 //Alterar endereco
 function TAlterarEmpresa.AlterarEndereco: Boolean;
 begin
-  {Verificar como vai ficar este código confuso para pegar o idendereco da tabela endereco na hora de fazer alteração
   Result := False;
   Result := FController
               .FactoryAlterar
                 .AlterarEndereco
                   .Endereco
-                    .Id(FEmpresa.)
-                  .Empresa.Id(FEmpresa.Id)
+                    .Id(FEndereco.Id)
                   .&End
-                .JSONObjectPai(FJSONObject)
+                .JSONObject(FJSONObject)
                 .Put
-                .Error;}
+                .Error;
 end;
 
 //Alterar email
@@ -191,6 +194,11 @@ end;
 function TAlterarEmpresa.Empresa: iEntidadeEmpresa<iAlterarEmpresa>;
 begin
   Result := FEmpresa;
+end;
+
+function TAlterarEmpresa.Endereco: iEntidadeEndereco<iAlterarEmpresa>;
+begin
+  Result := FEndereco;
 end;
 
 function TAlterarEmpresa.&End: iAlterarEmpresa;

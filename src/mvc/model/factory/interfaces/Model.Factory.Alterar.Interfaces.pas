@@ -17,7 +17,10 @@ uses
   Model.Alterar.Telefone.Empresa.Interfaces,
   Model.Alterar.Endereco.Interfaces,
   Model.Alterar.Numero.Interfaces,
-  Model.Alterar.Usuario.Interfaces;
+  Model.Alterar.Usuario.Interfaces,
+  Model.Alterar.Pessoa.Interfaces,
+  Model.Alterar.Email.Pessoa.Interfaces,
+  Model.Alterar.Telefone.Pessoa.Interfaces;
 
 type
   iFactoryAlterar = Interface
@@ -28,6 +31,9 @@ type
     function AlterarEndereco        : iAlterarEndereco;
     function AlterarNumero          : iAlterarNumero;
     function AlterarUsuario         : iAlterarUsuario;
+    function AlterarPessoa          : iAlterarPessoa;
+    function AlterarEmailPessoa     : iAlterarEmailPessoa;
+    function AlterarTelefonePessoa  : iAlterarTelefonePessoa;
   End;
 
 implementation

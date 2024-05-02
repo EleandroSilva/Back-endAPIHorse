@@ -1,0 +1,39 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 24/04/2024 10:13           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Tabela.Swagger.Condicao.Pagamento.Item;
+
+interface
+
+uses
+  GBSwagger.Model.Attributes;
+
+type
+  TCondicaoPagamentoItem = class
+    private
+      FId                  : Integer;
+      FIdCondicaoPagamento : Integer;
+      FNumeroPagamento     : Integer;
+      FQuantidadeDias      : Integer;
+    public
+      [SwagIgnore]
+      [SwagProp('PRIMARY KEY (auto_increment)', False, False)]
+      property id                  : Integer read FId                  write FId;
+      [SwagIgnore]
+      [SwagProp('FOREIGN KEY Tabela condicaopagamento->id=idcondicaopagamento -API Preenchera esta coluna',True, False)]
+      property idcondicaopagamento : Integer read FIdCondicaoPagamento write FIdCondicaoPagamento;
+      [SwagProp('numero do pagamento, API Preencherá esta coluna,True', True)]
+      property numeropagamento     : Integer read FNumeroPagamento     write FNumeroPagamento;
+      [SwagProp('qtde de dias que tem a parcela-> exemplo 1=30, 2=60', True)]
+      property quantidadedias      : Integer read FQuantidadeDias      write FQuantidadeDias;
+  end;
+
+implementation
+
+end.

@@ -1,0 +1,23 @@
+unit Tabela.Swagger.Email.Pessoa;
+
+interface
+
+type
+  TEmailPessoa = class
+    private
+      FId        : Integer;{bigint ->Primary Key}
+      FIdEmpresa : Integer;{bigint-> Foreign Key->Tabela Empresa(Id)-Excluír=Cascade; Alterar=Cascade}
+      FEmail     : String; {Varchar(20)->Unique Key(IdEmpresa+EMail)}
+      FTipo      : String; {Varchar(100)->Salvar(Pessoal, Comercial, Faturamento, Financeiro, Compras, Telemarketing)}
+      FAtivo     : Integer;{Integer-Not Null 0-Inativo; 1-Ativo}
+    public
+      property Id        : Integer read FId        write FId;
+      property IdEmpresa : Integer read FIdEmpresa write FIdEmpresa;
+      property EMail     : String  read FEMail     write FEMail;
+      property Tipo      : String  read FTipo      write FTipo;
+      property Ativo     : Integer read FAtivo     write FAtivo;
+  end;
+
+implementation
+
+end.

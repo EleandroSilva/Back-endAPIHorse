@@ -13,7 +13,7 @@ interface
 
 uses
   Horse.GBSwagger,
-  Tabela.Swagger.Pedido;
+  Entidade.Swagger.Pedido;
 type
   TSwaggerPedido = class
    private

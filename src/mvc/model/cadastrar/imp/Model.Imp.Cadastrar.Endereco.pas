@@ -20,14 +20,16 @@ uses
   Model.Cadastrar.Endereco.Interfaces,
   Controller.Interfaces,
   Model.Entidade.Endereco.Interfaces,
-  Model.Entidade.Empresa.Interfaces;
+  Model.Entidade.Empresa.Interfaces,
+  Model.Entidade.Pessoa.Interfaces;
 
 type
   TCadastrarEndereco = class(TInterfacedObject, iCadastrarEndereco)
     private
-      FController         : iController;
-      FEndereco           : iEntidadeEndereco<iCadastrarEndereco>;
-      FEmpresa            : iEntidadeEmpresa<iCadastrarEndereco>;
+      FController  : iController;
+      FEndereco    : iEntidadeEndereco<iCadastrarEndereco>;
+      FEmpresa     : iEntidadeEmpresa<iCadastrarEndereco>;
+      FPessoa      : iEntidadePessoa<iCadastrarEndereco>;
       FJSONArrayEndereco  : TJSONArray;
       FJSONObjectEndereco : TJSONObject;
       FJSONObjectPai      : TJSONObject;
@@ -50,6 +52,7 @@ type
       //injeção de dependência
       function Endereco : iEntidadeEndereco<iCadastrarEndereco>;
       function Empresa  : iEntidadeEmpresa<iCadastrarEndereco>;
+      function Pessoa   : iEntidadePessoa<iCadastrarEndereco>;
       function &End : iCadastrarEndereco;
   end;
 
@@ -58,7 +61,8 @@ implementation
 uses
   Imp.Controller,
   Model.Entidade.Imp.Endereco,
-  Model.Entidade.Imp.Empresa;
+  Model.Entidade.Imp.Empresa,
+  Model.Entidade.Imp.Pessoa;
 
 { TCadastrarEndereco }
 
@@ -67,6 +71,7 @@ begin
   FController := TController.New;
   FEndereco   := TEntidadeEndereco<iCadastrarEndereco>.New(Self);
   FEmpresa    := TEntidadeEmpresa<iCadastrarEndereco>.New(Self);
+  FPessoa     := TEntidadePessoa<iCadastrarEndereco>.New(Self);
   FDSEndereco := TDataSource.Create(nil);
   FError      := False;
 end;
@@ -141,17 +146,6 @@ begin
   end;
 end;
 
-function TCadastrarEndereco.Error: Boolean;
-begin
-  Result := FError;
-end;
-
-//Injeção de dependência
-function TCadastrarEndereco.Endereco: iEntidadeEndereco<iCadastrarEndereco>;
-begin
-  Result := FEndereco;
-end;
-
 //Cadastrar Numero
 procedure TCadastrarEndereco.CadastrarNumero;
 begin
@@ -168,9 +162,26 @@ begin
       .Post;
 end;
 
+function TCadastrarEndereco.Error: Boolean;
+begin
+  Result := FError;
+end;
+
+//Injeção de dependência
+function TCadastrarEndereco.Endereco: iEntidadeEndereco<iCadastrarEndereco>;
+begin
+  Result := FEndereco;
+end;
+
+
 function TCadastrarEndereco.Empresa: iEntidadeEmpresa<iCadastrarEndereco>;
 begin
   Result := FEmpresa;
+end;
+
+function TCadastrarEndereco.Pessoa: iEntidadePessoa<iCadastrarEndereco>;
+begin
+  Result := FPessoa;
 end;
 
 function TCadastrarEndereco.&End: iCadastrarEndereco;

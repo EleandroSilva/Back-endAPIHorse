@@ -22,7 +22,8 @@ type
     function DataSet(DataSource : TDataSource) : iDAOTelefonePessoa; overload;
     function DataSet                           : TDataSet;           overload;
     function GetAll                            : iDAOTelefonePessoa;
-    function GetbyId(Id : Variant)             : iDAOTelefonePessoa;
+    function GetbyId(Id : Variant)             : iDAOTelefonePessoa; overload;
+    function GetbyId(IdEmpresa : Integer)      : iDAOTelefonePessoa; overload;
     function GetbyParams                       : iDAOTelefonePessoa;
     function Post                              : iDAOTelefonePessoa;
     function Put                               : iDAOTelefonePessoa;

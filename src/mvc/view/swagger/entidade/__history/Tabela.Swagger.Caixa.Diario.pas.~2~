@@ -1,0 +1,24 @@
+unit Tabela.Swagger.Caixa.Diario;
+
+interface
+
+type
+  TCaixaDiario = class
+    private
+      FId              : Integer;
+      FIdEmpresa       : Integer;
+      FIdUsuario       : Integer;
+      FValorInicial    : Currency;
+      FDataHoraEmissao : TDateTime;
+    public
+      property id              : Integer   read FId              write FId;
+      property idempresa       : Integer   read FIdEmpresa       write FIdEmpresa;
+      property idusuario       : Integer   read FIdUsuario       write FIdUsuario;
+      property valorinicial    : Currency  read FValorInicial    write FValorInicial;
+      property datahoraemissao : TDateTime read FDataHoraEmissao write FDataHoraEmissao;
+      property status          : String    read FStatus          write FStatus;
+  end;
+
+implementation
+
+end.

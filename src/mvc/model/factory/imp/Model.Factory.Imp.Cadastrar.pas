@@ -20,7 +20,10 @@ uses
   Model.Cadastrar.Numero.Interfaces,
   Model.Cadastrar.Endereco.Empresa.Interfaces,
   Model.Cadastrar.Email.Empresa.Interfaces,
-  Model.Cadastrar.Telefone.Empresa.Interfaces;
+  Model.Cadastrar.Telefone.Empresa.Interfaces,
+  Model.Cadastrar.Pessoa.Interfaces,
+  Model.Cadastrar.Email.Pessoa.Interfaces,
+  Model.Cadastrar.Telefone.Pessoa.Interfaces;
 
 type
   TFactoryCadastrar = class(TInterfacedObject, iFactoryCadastrar)
@@ -32,6 +35,9 @@ type
       FCadastrarEnderecoEmpresa : iCadastrarEnderecoEmpresa;
       FCadastrarEmailEmpresa    : iCadastrarEmailEmpresa;
       FCadastrarTelefoneEmpresa : iCadastrarTelefoneEmpresa;
+      FCadastrarPessoa          : iCadastrarPessoa;
+      FCadastrarEmailPessoa     : iCadastrarEmailPessoa;
+      FCadastrarTelefonePessoa  : iCadastrarTelefonePessoa;
     public
       constructor Create;
       destructor Destroy; override;
@@ -44,6 +50,9 @@ type
       function CadastrarEnderecoEmpresa : iCadastrarEnderecoEmpresa;
       function CadastrarEmailEmpresa    : iCadastrarEmailEmpresa;
       function CadastrarTelefoneEmpresa : iCadastrarTelefoneEmpresa;
+      function CadastrarPessoa          : iCadastrarPessoa;
+      function CadastrarEmailPessoa     : iCadastrarEmailPessoa;
+      function CadastrarTelefonePessoa  : iCadastrarTelefonePessoa;
   end;
 
 implementation
@@ -55,7 +64,10 @@ uses
   Model.Imp.Cadastrar.Numero,
   Model.Imp.Cadastrar.Endereco.Empresa,
   Model.Imp.Cadastrar.Email.Empresa,
-  Model.Imp.Cadastrar.Telefone.Empresa;
+  Model.Imp.Cadastrar.Telefone.Empresa,
+  Model.Imp.Cadastrar.Pessoa,
+  Model.Imp.Cadastrar.Email.Pessoa,
+  Model.Imp.Cadastrar.Telefone.Pessoa;
 
 { TViewFactory }
 
@@ -128,6 +140,30 @@ begin
     FCadastrarEnderecoEmpresa := TCadastrarEnderecoEmpresa.New;
 
   Result := FCadastrarEnderecoEmpresa;
+end;
+
+function TFactoryCadastrar.CadastrarPessoa: iCadastrarPessoa;
+begin
+  if not Assigned(FCadastrarPessoa) then
+    FCadastrarPessoa := TCadastrarPessoa.New;
+
+  Result := FCadastrarPessoa;
+end;
+
+function TFactoryCadastrar.CadastrarEmailPessoa: iCadastrarEmailPessoa;
+begin
+  if not Assigned(FCadastrarEmailPessoa) then
+    FCadastrarEmailPessoa := TCadastrarEmailPessoa.New;
+
+  Result := FCadastrarEmailPessoa;
+end;
+
+function TFactoryCadastrar.CadastrarTelefonePessoa: iCadastrarTelefonePessoa;
+begin
+  if not Assigned(FCadastrarTelefonePessoa) then
+    FCadastrarTelefonePessoa := TCadastrarTelefonePessoa.New;
+
+  Result := FCadastrarTelefonePessoa;
 end;
 
 end.

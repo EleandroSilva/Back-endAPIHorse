@@ -51,7 +51,8 @@ type
       function DataSet(DataSource : TDataSource) : iDAOTelefonePessoa; overload;
       function DataSet                           : TDataSet;            overload;
       function GetAll                            : iDAOTelefonePessoa;
-      function GetbyId(Id : Variant)             : iDAOTelefonePessoa;
+      function GetbyId(Id : Variant)             : iDAOTelefonePessoa; overload;
+      function GetbyId(IdEmpresa : Integer)      : iDAOTelefonePessoa; overload;
       function GetbyParams                       : iDAOTelefonePessoa;
       function Post                              : iDAOTelefonePessoa;
       function Put                               : iDAOTelefonePessoa;
@@ -143,6 +144,32 @@ begin
   finally
     if not FDataSet.IsEmpty then
       FTelefonePessoa.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+      FTelefonePessoa.Id(0);
+  end;
+end;
+
+function TDAOTelefonePessoa.GetbyId(IdEmpresa: Integer): iDAOTelefonePessoa;
+begin
+  Result := Self;
+  try
+   try
+     FDataSet := FQuery
+                   .SQL(FSQL)
+                   .Add('where tp.idempresa=:idempresa')
+                   .Params('idempresa', IdEmpresa)
+                   .Open
+                 .DataSet;
+   except
+     on E: Exception do
+     raise exception.Create(FMSG.MSGerroGet+E.Message);
+   end;
+  finally
+    if not FDataSet.IsEmpty then
+    begin
+      FTelefonePessoa.Id(FDataSet.FieldByName('id').AsInteger);
+      QuantidadeRegistro;
+    end
     else
       FTelefonePessoa.Id(0);
   end;

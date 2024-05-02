@@ -1,0 +1,47 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 02/05/2024 10:23           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Pesquisar.Telefone.Pessoa;
+
+interface
+
+uses
+  Data.DB,
+  System.JSON,
+  DataSet.Serialize,
+
+  Model.Pesquisar.Telefone.Pessoa.Interfaces,
+  Controller.Interfaces,
+  Model.Entidade.Telefone.Pessoa.Interfaces;
+
+type
+  TPesquisarTelefonePessoa = class(TInterfacedObject, iPesquisarTelefonePessoa)
+    private
+      FController : iController;
+
+      FFound : Boolean;
+      FError : Boolean;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iPesquisarTelefonePessoa;
+
+      function GetBy(IdPessoa : Integer; DDD, NumeroTelefone: String) :iPesquisarTelefonePessoa;
+      function LoopTelefonePessoa : TJSONValue;
+      function Found : Boolean;
+      function Error : Boolean;
+
+      //injeção de dependência
+      function TelefonePessoa : iEntidadeTelefonePessoa<iPesquisarTelefonePessoa>;
+      function &End : iPesquisarTelefonePessoa;
+  end;
+
+implementation
+
+end.

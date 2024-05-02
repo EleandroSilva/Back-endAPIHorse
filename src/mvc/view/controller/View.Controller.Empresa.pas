@@ -42,14 +42,14 @@ type
       procedure Delete (Req: THorseRequest; Res: THorseResponse; Next : TProc);
       //loop
       procedure LoopEmpresa;
-      function LoopEnderecoEmpresa : TJSONValue;
-      function LoopEmailEmpresa    : TJSONValue;
-      function LoopTelefoneEmpresa : TJSONValue;
+      function  LoopEnderecoEmpresa : TJSONValue;
+      function  LoopEmailEmpresa    : TJSONValue;
+      function  LoopTelefoneEmpresa : TJSONValue;
       //function verificar se esta vindo usuario para ser cadastrado junto com empresa
-      function CadastrarUsuario : Boolean;
+      function  CadastrarUsuario : Boolean;
       //cadastrando dependências
-      function CadastrarEmpresa(Value : TJSONObject) : Boolean;
-      function AlterarEmpresa(Value : TJSONObject) : Boolean;
+      function  CadastrarEmpresa(Value : TJSONObject) : Boolean;
+      function  AlterarEmpresa  (Value : TJSONObject) : Boolean;
       procedure Registry;
     public
       constructor Create;
@@ -164,13 +164,10 @@ end;
 
 
 procedure TViewControllerEmpresa.GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
-var
-  lQuantidadeRegistro : Integer;
 begin
-  lQuantidadeRegistro := 0;
   try
     if Req.Query.Field('cnpj').AsString<>'' then
-      lQuantidadeRegistro := FController
+      FQuantidadeRegistro := FController
                                 .FactoryDAO
                                   .DAOEmpresa
                                   .GetbyCNPJ(Req.Query.Field('cnpj').AsString)
@@ -178,7 +175,7 @@ begin
                                   .QuantidadeRegistro
       else
      if Req.Query.Field('nomeempresarial').AsString<>'' then
-      lQuantidadeRegistro := FController
+      FQuantidadeRegistro := FController
                                 .FactoryDAO
                                   .DAOEmpresa
                                     .This
@@ -188,7 +185,7 @@ begin
                                   .DataSet(FDSEmpresa)
                                   .QuantidadeRegistro
     else
-      lQuantidadeRegistro := FController
+      FQuantidadeRegistro := FController
                                 .FactoryDAO
                                   .DAOEmpresa
                                   .GetAll
@@ -205,8 +202,9 @@ begin
   if not FDSEmpresa.DataSet.IsEmpty then
   begin
     LoopEmpresa;
-      if lQuantidadeRegistro > 1 then
-        Res.Send<TJSONArray>(FJSONArrayEmpresa) else
+      if FQuantidadeRegistro > 1 then
+        Res.Send<TJSONArray>(FJSONArrayEmpresa)
+        else
         Res.Send<TJSONObject>(FJSONObjectEmpresa);
 
     Res.Status(201).Send('Registro encontrado com sucesso!');

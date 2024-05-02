@@ -13,7 +13,7 @@ interface
 
 uses
   Horse.GBSwagger,
-  Tabela.Swagger.Condicao.Pagamento;
+  Entidade.Swagger.Condicao.Pagamento;
 type
   TSwaggerCondicaoPagamento = class
    private

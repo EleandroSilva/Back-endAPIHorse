@@ -48,9 +48,9 @@ type
       function DataSet(DataSource : TDataSource) : iDAOEmailEmpresa; overload;
       function DataSet                           : TDataSet;         overload;
       function GetAll                            : iDAOEmailEmpresa;
-      function GetbyId(Id : Variant)             : iDAOEmailEmpresa;
+      function GetbyId(Id : Variant)             : iDAOEmailEmpresa;  overload;
+      function GetbyId(IdEmpresa : Integer)      : iDAOEmailEmpresa;  overload;
       function GetbyParams                       : iDAOEmailEmpresa;  overload;
-      function GetByParams(const iDAOEmailEmpresa) :iDAOEmailEmpresa; overload;
       function Post                              : iDAOEmailEmpresa;
       function Put                               : iDAOEmailEmpresa;
       function Delete                            : iDAOEmailEmpresa;
@@ -148,7 +148,7 @@ begin
   end;
 end;
 
-function TDAOEmailEmpresa.GetbyParams(const iDAOEmailEmpresa): iDAOEmailEmpresa;
+function TDAOEmailEmpresa.GetbyId(IdEmpresa : Integer) : iDAOEmailEmpresa;
 begin
   Result := Self;
   try

@@ -1,0 +1,7 @@
+unit Model.Cadastrar.Email.Pessoa.Interfaces;
+
+interface
+
+implementation
+
+end.
