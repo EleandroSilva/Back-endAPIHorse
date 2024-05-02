@@ -1,7 +1,7 @@
 {*******************************************************}
 {                    API PDV - JSON                     }
 {                      Be More Web                      }
-{          Início do projeto 13/03/2024 10:28           }
+{          InÃ­cio do projeto 13/03/2024 10:28           }
 {                 www.bemoreweb.com.br                  }
 {                     (17)98169-5336                    }
 {                        2003/2024                      }
@@ -70,6 +70,7 @@ function TController.FactoryDAO: iFactoryDAO;
 begin
   if not Assigned(FFactoryDAO) then
     FFactoryDAO := TFactoryDAO.New;
+    
   Result := FFactoryDAO;
 end;
 
