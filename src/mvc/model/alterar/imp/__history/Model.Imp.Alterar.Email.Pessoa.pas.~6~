@@ -1,0 +1,68 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 02/05/2024 13:42           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Alterar.Email.Pessoa;
+
+interface
+
+uses
+  Data.DB,
+  System.SysUtils,
+  System.JSON,
+
+  Model.Alterar.Email.Pessoa.Interfaces,
+  Model.Entidade.Email.Pessoa.Interfaces,
+  Controller.Interfaces;
+
+type
+  TAlterarEmailPessoa = class(TInterfacedObject, iAlterarEmailPessoa)
+    private
+      FController    : iController;
+      FEmailPessoa   : iEntidadeEmailPessoa<iAlterarEmailPessoa>;
+      FDSEmailPessoa : TDataSource;
+
+      FJSONObject : TJSONObject;
+      FJSONArray  : TJSONArray;
+
+      FFound : Boolean;
+      FError : Boolean;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iAlterarEmailPessoa;
+  end;
+
+implementation
+
+uses
+  Imp.Controller,
+  Model.Entidade.Imp.Email.Pessoa;
+
+{ TAlterarEmailPessoa }
+
+constructor TAlterarEmailPessoa.Create;
+begin
+  FController    := TController.New;
+  FEmailPessoa   := TEntidadeEmailPessoa<iAlterarEmailPessoa>.New(Self);
+  FDSEmailPessoa := TDataSource.Create(nil);
+  FFound := False;
+  FError := False;
+end;
+
+destructor TAlterarEmailPessoa.Destroy;
+begin
+  inherited;
+end;
+
+class function TAlterarEmailPessoa.New: iAlterarEmailPessoa;
+begin
+  Result := Self.Create;
+end;
+
+end.

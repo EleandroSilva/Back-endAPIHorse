@@ -40,6 +40,8 @@ type
     function DataHoraEmissao                        : TDateTime;          overload;
     function Status             (Value : Integer)   : iEntidadePedido<T>; overload;
     function Status                                 : Integer;            overload;
+    function Excluido           (Value : Integer)   : iEntidadePedido<T>; overload;
+    function Excluido                               : Integer;            overload;
 
     //Injeção de dependência
     function Pessoa  : iEntidadePessoa<iEntidadePedido<T>>;

@@ -1,0 +1,17 @@
+unit Tabela.Swagger.Natureza.Juridica;
+
+interface
+
+type
+  TNaturezaJuridica = class
+    private
+      FId                   : Integer;{bigint-Primary Key}
+      FNomeNaturezaJuridica : String; {Varchar(60)-> Not Null}
+    public
+      property Id                   : Integer read FId                   write FId;
+      property NomeNaturezaJuridica : String  read FNomeNaturezaJuridica write FNomeNaturezaJuridica;
+  end;
+
+implementation
+
+end.

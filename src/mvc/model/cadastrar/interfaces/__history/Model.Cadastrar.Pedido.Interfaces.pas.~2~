@@ -1,0 +1,12 @@
+unit Model.Cadastrar.Pedido.Interfaces;
+
+interface
+
+type
+  iCadastrarPedido = Interface
+    ['{A901D5A6-47CF-4BC7-A0AA-9F5C4D27F57C}']
+  End;
+
+implementation
+
+end.

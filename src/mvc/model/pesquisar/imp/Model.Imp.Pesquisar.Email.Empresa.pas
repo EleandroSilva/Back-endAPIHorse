@@ -106,10 +106,7 @@ begin
   FQuantidadeRegistro:= FController
                            .FactoryDAO
                              .DAOEmailEmpresa
-                               .This
-                                 .IdEmpresa(FEmailEmpresa.IdEmpresa)
-                               .&End
-                             .GetbyParams(Self)
+                               .GetbyId(FEmailEmpresa.IdEmpresa)
                              .DataSet(FDSEmailEmpresa)
                              .QuantidadeRegistro;
 

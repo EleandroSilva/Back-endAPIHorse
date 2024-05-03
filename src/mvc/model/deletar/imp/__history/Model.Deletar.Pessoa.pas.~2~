@@ -1,0 +1,47 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 02/05/2024 19:27           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Deletar.Pessoa;
+
+interface
+
+uses
+  Data.DB,
+  System.SysUtils,
+
+  Model.Deletar.Pessoa.Interfaces,
+  Model.Entidade.Pessoa.Interfaces,
+  Controller.Interfaces;
+
+type
+  TDeletarPessoa = class(TInterfacedObject, iDeletarPessoa)
+    private
+      FController : iController;
+      FPessoa    : iEntidadePessoa<iDeletarPessoa>;
+      FDSPessoa  : TDataSource;
+
+      FFound : Boolean;
+      FError : Boolean;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDeletarPessoa;
+
+      function Delete : iDeletarPessoa;
+
+      function Found  : Boolean;
+      function Error  : Boolean;
+      //injeção de dependência
+      function Pessoa : iEntidadePessoa<iDeletarPessoa>;
+      function &End    : iDeletarPessoa;
+  end;
+
+implementation
+
+end.

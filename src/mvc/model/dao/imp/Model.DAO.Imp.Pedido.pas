@@ -49,7 +49,8 @@ type
             'p.valordesconto, '+
             'p.valorreceber, '+
             'p.datahoraemissao, '+
-            'p.status '+
+            'p.status, '+
+            'p.excluido '+
             'from pedido p '+
             'inner join pessoa             pp on pp.id  = p.idpessoa '+
             'inner join condicaopagamento cpp on cpp.id = p.idcondicaopagamento '+
@@ -149,8 +150,11 @@ begin
   try
     try
       FDataSet := FQuery
-                    .SQL(FSQL+' where p.Id=:Id')
+                    .SQL(FSQL)
+                    .Add('where p.Id=:Id')
+                    .Add('and p.excluido=:excluido')
                     .Params('Id', Id)
+                    .params('excluido', FPedido.Excluido)
                     .Open
                   .DataSet;
     except
@@ -173,7 +177,9 @@ begin
       FDataSet := FQuery
                     .SQL(FSQL)
                     .Add('where p.Idpessoa=:Idpessoa')
+                    .Add('and p.excluido=:excluido')
                     .Params('Idpessoa', aIdPessoa)
+                    .params('excluido', FPedido.Excluido)
                     .Open
                   .DataSet;
     except
@@ -196,7 +202,9 @@ begin
       FDataSet := FQuery
                     .SQL(FSQL)
                     .Add('where pp.cpfcnpj=:cpfcnpj')
+                    .Add('and p.excluido=:excluido')
                     .Params('cpfcnpj', FPedido.Pessoa.CPFCNPJ)
+                    .params('excluido', FPedido.Excluido)
                     .Open
                   .DataSet;
     except
@@ -222,7 +230,9 @@ begin
       FDataSet := FQuery
                     .SQL(FSQL)
                     .Add('where p.idusuario=:idusuario')
+                    .Add('and p.excluido=:excluido')
                     .Params('idusuario', FPedido.IdUsuario)
+                    .params('excluido',  FPedido.Excluido)
                     .Open
                   .DataSet;
     except
@@ -276,7 +286,8 @@ const
                              'valordesconto, '+
                              'valorreceber, '+
                              'datahoraemissao, '+
-                             'status '+
+                             'status, '+
+                             'excluido '+
                            ')'+
                              ' values '+
                            '('+
@@ -289,7 +300,8 @@ const
                              ':valordesconto, '+
                              ':valorreceber, '+
                              ':datahoraemissao, '+
-                             ':status '+
+                             ':status, '+
+                             ':excluido '+
                             ')'
        );
 begin
@@ -309,6 +321,7 @@ begin
           .Params('valorreceber'        , FPedido.ValorReceber)
           .Params('datahoraemissao'     , FPedido.DataHoraEmissao)
           .Params('status'              , FPedido.Status)
+          .Params('excluido'            , FPedido.Excluido)
         .ExecSQL;
     except
       on E: Exception do
@@ -339,7 +352,8 @@ const
                        'valordesconto      =:valordesconto, '+
                        'valorreceber       =:valorreceber, '+
                        'datahoraemissao    =:datahoraemissao, '+
-                       'status             =:status '+
+                       'status             =:status, '+
+                       'excluido           =:excluido '+
                        'where id           =:id '
        );
 begin
@@ -361,6 +375,7 @@ begin
           .Params('valorreceber'        , FPedido.ValorReceber)
           .Params('datahoraemissao'     , FPedido.DataHoraEmissao)
           .Params('status'              , FPedido.Status)
+          .Params('excluido'            , FPedido.Excluido)
         .ExecSQL;
     except
       on E: Exception do
@@ -383,8 +398,8 @@ begin
   FConexao.StartTransaction;
   try
       FQuery.SQL(LSQL)
-              .Add('where id=:id')
-              .Params('id', FPedido.Id)
+               .Add('id=:id')
+               .Params('id', FPedido.Id)
             .ExecSQL;
     except
       on E: Exception do

@@ -1,0 +1,107 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 02/05/2024 13:42           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Alterar.Telefone.Pessoa;
+
+interface
+
+uses
+  Data.DB,
+  System.JSON,
+
+
+  Model.Alterar.Telefone.Pessoa.Interfaces,
+  Model.Entidade.Telefone.Pessoa.Interfaces,
+  Controller.Interfaces;
+
+type
+  TAlterarTelefonePessoa = class(TInterfacedObject, iAlterarTelefonePessoa)
+    private
+      FController       : iController;
+      FTelefonePessoa   : iEntidadeTelefonePessoa<iAlterarTelefonePessoa>;
+      FDSTelefonePessoa : TDataSource;
+
+      FJSONObject : TJSONObject;
+      FJSONArray  : TJSONArray;
+
+      FFound : Boolean;
+      FError : Boolean;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iAlterarTelefonePessoa;
+
+      function JSONObject(Value : TJSONObject) : iAlterarTelefonePessoa; overload;
+      function JSONObject                      : TJSONObject;            overload;
+      function Put    : iAlterarTelefonePessoa;
+      function Found  : Boolean;
+      function Error  : Boolean;
+
+      //injeção de dependência
+      function TelefonePessoa : iEntidadeTelefonePessoa<iAlterarTelefonePessoa>;
+      function &End : iAlterarTelefonePessoa;
+  end;
+
+implementation
+
+{ TAlterarTelefonePessoa }
+
+constructor TAlterarTelefonePessoa.Create;
+begin
+
+end;
+
+destructor TAlterarTelefonePessoa.Destroy;
+begin
+
+  inherited;
+end;
+
+function TAlterarTelefonePessoa.&End: iAlterarTelefonePessoa;
+begin
+
+end;
+
+function TAlterarTelefonePessoa.Error: Boolean;
+begin
+
+end;
+
+function TAlterarTelefonePessoa.Found: Boolean;
+begin
+
+end;
+
+function TAlterarTelefonePessoa.JSONObject(
+  Value: TJSONObject): iAlterarTelefonePessoa;
+begin
+
+end;
+
+function TAlterarTelefonePessoa.JSONObject: TJSONObject;
+begin
+
+end;
+
+class function TAlterarTelefonePessoa.New: iAlterarTelefonePessoa;
+begin
+
+end;
+
+function TAlterarTelefonePessoa.Put: iAlterarTelefonePessoa;
+begin
+
+end;
+
+function TAlterarTelefonePessoa.TelefonePessoa: iEntidadeTelefonePessoa<iAlterarTelefonePessoa>;
+begin
+
+end;
+
+end.

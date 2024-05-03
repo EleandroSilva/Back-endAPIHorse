@@ -1,0 +1,40 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 09/04/2024               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Tabela.Swagger.Marca.Produto;
+
+interface
+
+uses
+  GBSwagger.Model.Attributes;
+
+type
+  TMarcaProduto = class
+    private
+      FId        : Integer;{bigint-Primary Key}
+      FIdEmpresa : Integer;
+      FNomeMarca : String; {Varchar(60)-> Not Null}
+      FAtivo     : Integer; {Varchar(2)}
+    public
+      [SwagParamQuery('id', true)]
+      [SwagProp('PRIMARY KEY (auto_increment)', True)]
+      [SwagProp(False, True)]
+      property id        : Integer read FId        write FId;
+      [SwagProp('Foreign Key->Tabela (marcaproduto<-Idempresa=id->Tabela empresa)) Excluír=Cascade; Alterar=Cascade', True)]
+      property idempresa : Integer read FIdEmpresa write FIdEmpresa;
+      [SwagProp('Varchar(60)Max60-Min10', True)]
+      property nomemarca : String  read FNomeMarca write FNomeMarca;
+      [SwagProp(True)]
+      [SwagProp('No POST não precisa precher, somente no PUT-Caso se tornar Ativo=0', True)]
+      property ativo     : Integer read FAtivo     write FAtivo;
+  end;
+
+implementation
+
+end.

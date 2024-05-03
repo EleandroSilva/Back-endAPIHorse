@@ -109,13 +109,13 @@ begin
               .Ativo    (FJSONObject.GetValue<Integer>('ativo'))
             .&End
           .Put;
-      end;
-    except
-      on E: Exception do
-      begin
-        WriteLn('Erro ao tentar alterar o registro: ' + E.Message);
-        FError := True;
-      end;
+    end;
+  except
+    on E: Exception do
+    begin
+      WriteLn('Erro ao tentar alterar o registro: ' + E.Message);
+      FError := True;
+    end;
   end;
 end;
 

@@ -1,0 +1,47 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 09/04/2024               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Tabela.Swagger.Endereco;
+
+interface
+
+uses
+  GBSwagger.Model.Attributes;
+
+type
+  TEndereco = class
+    private
+      FId             : Integer;{bigint-Primary Key}
+      FCep            : String; {Varchar(18)->Unique Key-Not Null}
+      FIBGE           : Integer;{Integer ->Not Null ->Foreign Key Tabela municipio IBGE; Excluír=Cascade; Alterar=Cascade}
+      FTipoLogradouro : String; {Varchar(60)-> Comercial-Residencial-Entrega-Cobranca Not Null}
+      FLogradouro     : String; {Varchar(60)-> Not Null}
+      FBairro         : String; {Varchar(60)->Not Null}
+      FGia            : String;
+      FDDD            : String;
+    public
+      [SwagProp('PRIMARY KEY (auto_increment)', True)]
+      property Id             : Integer read FId              write FId;
+      [SwagProp(True)]
+      property Cep            : String  read FCep             write FCep;
+      [SwagProp(True)]
+      property IBGE           : Integer read FIBGE            write FIBGE;
+      [SwagProp(True)]
+      property TipoLogradouro : String  read FTipoLogradouro  write FTipoLogradouro;
+      [SwagProp(True)]
+      property Logradouro     : String  read FLogradouro      write FLogradouro;
+      [SwagProp(True)]
+      property Bairro         : String  read FBairro          write FBairro;
+      property Gia            : String  read FGia             write FGia;
+      property DDD            : String  read FDDD             write FDDD;
+  end;
+
+implementation
+
+end.

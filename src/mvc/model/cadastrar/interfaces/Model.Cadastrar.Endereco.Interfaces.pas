@@ -14,7 +14,8 @@ interface
 uses
   System.JSON,
   Model.Entidade.Endereco.Interfaces,
-  Model.Entidade.Empresa.Interfaces;
+  Model.Entidade.Empresa.Interfaces,
+  Model.Entidade.Pessoa.Interfaces;
 
 type
   iCadastrarEndereco = interface
@@ -26,6 +27,7 @@ type
     //injeção de dependência
     function Endereco : iEntidadeEndereco<iCadastrarEndereco>;
     function Empresa  : iEntidadeEmpresa<iCadastrarEndereco>;
+    function Pessoa   : iEntidadePessoa<iCadastrarEndereco>;
     function &End : iCadastrarEndereco;
   end;
 
