@@ -1,0 +1,34 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 03/05/2024 14:57           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Cadastrar.Caixa.Pedido;
+
+interface
+
+uses
+  Data.DB,
+  System.JSON,
+  System.SysUtils,
+  DataSet.Serialize,
+
+  Model.Cadastrar.Caixa.Pedido.Interfaces;
+
+type
+  TCadastrarCaixaPedido = class(TInterfacedObject, iCadastrarCaixaPedido)
+    private
+
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iCadastrarCaixaPedido;
+  end;
+
+implementation
+
+end.

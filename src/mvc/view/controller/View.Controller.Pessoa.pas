@@ -305,7 +305,11 @@ begin
       Exit;
     end
     else
+    begin
+      FJSONObjectPessoa := FDSPessoa.DataSet.ToJSONObject();
+      Res.Send<TJSONObject>(FJSONObjectPessoa);
       Res.Status(204).Send('Registro incluído com sucesso!');
+    end;
 end;
 
 procedure TViewControllerPessoa.Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -324,7 +328,7 @@ begin
       Exit;
     end
     else
-      Res.Status(201).Send('Registro alterado com sucesso!');
+      Res.Status(204).Send('Registro alterado com sucesso!');
 end;
 
 

@@ -1,0 +1,44 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 03/05/2024 14:31           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Cadastrar.Pedido.Pagamento;
+
+interface
+
+uses
+  Data.DB,
+  System.SysUtils,
+  System.JSON,
+  DataSet.Serialize,
+
+  Model.Cadastrar.Pedido.Pagamento.Interfaces,
+  Controller.Interfaces,
+  Model.Entidade.Pedido.Pagamento.Interfaces;
+
+type
+  TCadastrarPedidoPagamento = class(TInterfacedObject, iCadastrarPedidoPagamento)
+    private
+      FController : iController;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iCadastrarPedidoPagamento;
+
+      function JSONObjectPai(Value : TJSONObject) : iCadastrarPedidoPagamento; overload;
+      function JSONObjectPai                      : TJSONObject;               overload;
+      function Post   : iCadastrarPedidoPagamento;
+      function Error  : Boolean;
+      //injeção de dependência
+      function PedidoItem : iEntidadePedidoPagamento<iCadastrarPedidoPagamento>;
+      function &End       : iCadastrarPedidoPagamento;
+  end;
+
+implementation
+
+end.

@@ -56,6 +56,7 @@ type
       procedure LoopPedido;
       function  LoopPedidoItem      : Boolean;
       function  LoopPedidoPagamento : Boolean;
+      function  CadastrarPedido(Value : TJSONObject) : Boolean;
       //Horse
       procedure GetAll (Req: THorseRequest; Res: THorseResponse; Next : TProc);
       procedure GetbyId(Req: THorseRequest; Res: THorseResponse; Next : TProc);
@@ -74,6 +75,17 @@ uses
   Imp.Controller;
 
 { TViewControllerPedido }
+function TViewControllerPedido.CadastrarPedido(Value: TJSONObject): Boolean;
+begin
+  Result := False;
+  Result :=FController
+             .FactoryCadastrar
+               .CadastrarPedido
+                 .JSONObjectPai(Value)
+                 .Post
+                 .Error;
+end;
+
 constructor TViewControllerPedido.Create;
 begin
   FController   := TController.New;
@@ -279,137 +291,15 @@ Var
   LJSONObjectPagamento : TJSONObject;//JSONObect->PedidoPagamento
   I : Integer;
 begin
-  //tabela pai(Pedido)
-  LJSONObjectPedido := Req.Body<TJSONObject>;
-  try
-    try
-      FController
-        .FactoryDAO
-          .DAOPedido
-            .This
-              .IdEmpresa          (LJSONObjectPedido.GetValue<Integer>  ('idempresa'))
-              .IdCaixa            (LJSONObjectPedido.GetValue<Integer>  ('idcaixa'))
-              .IdPessoa           (LJSONObjectPedido.GetValue<Integer>  ('idpessoa'))
-              .IdCondicaoPagamento(LJSONObjectPedido.GetValue<Integer>  ('idcondicaopagamento'))
-              .IdUsuario          (LJSONObjectPedido.GetValue<Integer>  ('idusuario'))
-              .ValorProduto       (LJSONObjectPedido.GetValue<Currency> ('valorproduto'))
-              .ValorDesconto      (LJSONObjectPedido.GetValue<Currency> ('valordesconto'))
-              .ValorReceber       (LJSONObjectPedido.GetValue<Currency> ('valorreceber'))
-              .DataHoraEmissao    (LJSONObjectPedido.GetValue<TDateTime>('datahoraemissao'))
-            .Status(0) //(CRIAR PARAMENTO DA EMPRESA, INFORMAR SE NA DIGITAÇÃO TIPO DE INFORMAÇÃO)0-Pedido como orçamento 1-Pedido faturado 3-Pedido Cancelado 4-Pedido Excluído
-          .&End
-          .Post
-          .DataSet(FDSPedido);
-          //Pegando os id(s), necessários para inserir na tabela caixapedido
-          FIdPedido  := FDSPedido.DataSet.FieldByName('id').AsInteger;
-          FIdEmpresa := LJSONObjectPedido.GetValue<Integer>('idempresa');
-          FIdCaixa   := LJSONObjectPedido.GetValue<Integer>('idcaixa');
-          FIdUsuario := LJSONObjectPedido.GetValue<Integer>('idusuario');
-      except
-        on E: Exception do
-        begin
-          Res.Status(500).Send('Ocorreu um erro interno no servidor'+E.Message);
-          Exit;
-        end;
-      end;
-
-      //Obtém os dados JSON do corpo da requisição da tabela('pedidoitem')
-      LJSONArrayItem := LJSONObjectPedido.GetValue('pedidoitem') as TJSONArray;
-      // Loop inserindo pedidoitem(ns)
-      for I := 0 to LJSONArrayItem.Count - 1 do
-      begin
-        //Extraindo os dados do pedidoitem e salvando na tabela
-        LJSONObjectItem := LJSONArrayItem.Items[I] as TJSONObject;
-        try
-          FController
-            .FactoryDAO
-              .DAOPedidoItem
-                .This
-                  .IdPedido         (FIdPedido)
-                  .IdProduto        (LJSONObjectItem.GetValue<Integer> ('idproduto'))
-                  .Quantidade       (LJSONObjectItem.GetValue<Currency>('quantidade'))
-                  .ValorUnitario    (LJSONObjectItem.GetValue<Currency>('valorunitario'))
-                  .ValorProduto     (LJSONObjectItem.GetValue<Currency>('valorproduto'))
-                  .ValorDescontoItem(LJSONObjectItem.GetValue<Currency>('valordescontoitem'))
-                  .ValorFinalItem   (LJSONObjectItem.GetValue<Currency>('valorfinalitem'))
-                .&End
-              .Post;
-          except
-            on E: Exception do
-            begin
-              Res.Status(500).Send('Ocorreu um erro interno no servidor'+E.Message);
-              FController
-                .FactoryDAO
-                  .DAOPessoa
-                    .This
-                      .Id(FIdPedido)
-                    .&End
-                  .Delete;
-              Exit;
-            end;
-          end;
-      end;
-
-      //Obtém os dados JSON do corpo da requisição da tabela('pedidopagamento')
-      LJSONArrayPagamento := LJSONObjectPedido.GetValue('pedidopagamento') as TJSONArray;
-      // Loop inserindo pedidopagamento(ns)
-      for I := 0 to LJSONArrayPagamento.Count - 1 do
-      begin
-        //Extraindo os dados do pagamento do pedido e salvando os dados na tabela
-        LJSONObjectPagamento := LJSONArrayPagamento.Items[I] as TJSONObject;
-        try
-          FController
-            .FactoryDAO
-              .DAOPedidoPagamento
-                .This
-                  .IdPedido      (FIdPedido)
-                  .DataVencimento(LJSONObjectPagamento.GetValue<TDateTime> ('datavencimento'))
-                  .ValorParcela  (LJSONObjectPagamento.GetValue<Currency>('valorparcela'))
-                .&End
-              .Post;
-          except
-            on E: Exception do
-            begin
-              Res.Status(500).Send('Ocorreu um erro interno no servidor'+E.Message);
-              FController
-                .FactoryDAO
-                  .DAOPedidoPagamento
-                    .This
-                      .Id(FIdPedido)
-                    .&End
-                  .Delete;
-              Exit;
-            end;
-          end;
-      end;
-      //inserindo caixa que este pedido pertence
-      try
-        FController
-          .FactoryDAO
-            .DAOCaixaPedido
-              .This
-                .IdEmpresa(FIdEmpresa)
-                .IdCaixa(FIdCaixa)
-                .IdPedido(FIdPedido)
-                .IdUsuario(FIdUsuario)
-                .DataHoraEmissao(Now)
-              .&End
-            .Post;
-        except
-          on E: Exception do
-          begin
-            Res.Status(500).Send('Ocorreu um erro interno no servidor'+E.Message);
-            FController
-              .FactoryDAO
-                .DAOPessoa
-                  .This
-                    .Id(FIdPedido)
-                  .&End
-                .Delete;
-            Exit;
-        end;
-      end;
-  finally
+  //Lê os dados JSON da requisição (tabela pai='pedido')
+  FJSONObjectPedido := Req.Body<TJSONObject>;
+  if CadastrarPedido(FJSONObjectPedido) Then
+  begin
+    Res.Status(500).Send('Ocorreu um erro interno no servidor!');
+    Exit;
+  end
+  else
+  begin
     FJSONObjectPedido := FDSPedido.DataSet.ToJSONObject();
     Res.Send<TJSONObject>(FJSONObjectPedido);
     Res.Status(204).Send('Registro incluído com sucesso!');

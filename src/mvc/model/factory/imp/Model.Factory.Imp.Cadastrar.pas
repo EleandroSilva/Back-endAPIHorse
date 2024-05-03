@@ -23,7 +23,11 @@ uses
   Model.Cadastrar.Telefone.Empresa.Interfaces,
   Model.Cadastrar.Pessoa.Interfaces,
   Model.Cadastrar.Email.Pessoa.Interfaces,
-  Model.Cadastrar.Telefone.Pessoa.Interfaces;
+  Model.Cadastrar.Telefone.Pessoa.Interfaces,
+  Model.Cadastrar.Pedido.Interfaces,
+  Model.Cadastrar.Pedido.Item.Interfaces,
+  Model.Cadastrar.Pedido.Pagamento.Interfaces,
+  Model.Cadastrar.Caixa.Pedido.Interfaces;
 
 type
   TFactoryCadastrar = class(TInterfacedObject, iFactoryCadastrar)
@@ -38,6 +42,10 @@ type
       FCadastrarPessoa          : iCadastrarPessoa;
       FCadastrarEmailPessoa     : iCadastrarEmailPessoa;
       FCadastrarTelefonePessoa  : iCadastrarTelefonePessoa;
+      FCadastrarPedido          : iCadastrarPedido;
+      FCadastrarPedidoItem      : iCadastrarPedidoItem;
+      FCadastrarPedidoPagamento : iCadastrarPedidoPagamento;
+      FCadastrarCaixaPedido     : iCadastrarCaixaPedido;
     public
       constructor Create;
       destructor Destroy; override;
@@ -53,6 +61,10 @@ type
       function CadastrarPessoa          : iCadastrarPessoa;
       function CadastrarEmailPessoa     : iCadastrarEmailPessoa;
       function CadastrarTelefonePessoa  : iCadastrarTelefonePessoa;
+      function CadastrarPedido          : iCadastrarPedido;
+      function CadastrarPedidoItem      : iCadastrarPedidoItem;
+      function CadastrarPedidoPagamento : iCadastrarPedidoPagamento;
+      function CadastrarCaixaPedido     : iCadastrarCaixaPedido;
   end;
 
 implementation
@@ -67,7 +79,11 @@ uses
   Model.Imp.Cadastrar.Telefone.Empresa,
   Model.Imp.Cadastrar.Pessoa,
   Model.Imp.Cadastrar.Email.Pessoa,
-  Model.Imp.Cadastrar.Telefone.Pessoa;
+  Model.Imp.Cadastrar.Telefone.Pessoa,
+  Model.Imp.Cadastrar.Pedido,
+  Model.Imp.Cadastrar.Pedido.Item,
+  Model.Imp.Cadastrar.Pedido.Pagamento,
+  Model.Imp.Cadastrar.Caixa.Pedido;
 
 { TViewFactory }
 
@@ -164,6 +180,38 @@ begin
     FCadastrarTelefonePessoa := TCadastrarTelefonePessoa.New;
 
   Result := FCadastrarTelefonePessoa;
+end;
+
+function TFactoryCadastrar.CadastrarPedido: iCadastrarPedido;
+begin
+  if not Assigned(FCadastrarPedido) then
+    FCadastrarPedido := TCadastrarPedido.New;
+
+  Result := FCadastrarPedido;
+end;
+
+function TFactoryCadastrar.CadastrarPedidoItem: iCadastrarPedidoItem;
+begin
+  if not Assigned(FCadastrarPedidoItem) then
+    FCadastrarPedidoItem := TCadastrarPedidoItem.New;
+
+  Result := FCadastrarPedidoItem;
+end;
+
+function TFactoryCadastrar.CadastrarPedidoPagamento: iCadastrarPedidoPagamento;
+begin
+  if not Assigned(FCadastrarPedidoPagamento) then
+    FCadastrarPedidoPagamento := TCadastrarPedidoPagamento.New;
+
+  Result := FCadastrarPedidoPagamento;
+end;
+
+function TFactoryCadastrar.CadastrarCaixaPedido: iCadastrarCaixaPedido;
+begin
+  if not Assigned(FCadastrarCaixaPedido) then
+    FCadastrarCaixaPedido := TCadastrarCaixaPedido.New;
+
+  Result := FCadastrarCaixaPedido;
 end;
 
 end.

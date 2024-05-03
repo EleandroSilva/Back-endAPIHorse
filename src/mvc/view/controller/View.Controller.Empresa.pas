@@ -307,7 +307,11 @@ begin
       Exit;
     end
     else
-      Res.Status(201).Send('Registro incluído com sucesso!');
+    begin
+      FJSONObjectEmpresa := FDSEmpresa.DataSet.ToJSONObject();
+      Res.Send<TJSONObject>(FJSONObjectEmpresa);
+      Res.Status(204).Send('Registro incluído com sucesso!');
+    end;
 end;
 
 procedure TViewControllerEmpresa.Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -326,7 +330,7 @@ begin
       Exit;
     end
     else
-      Res.Status(201).Send('Registro alterado com sucesso!');
+      Res.Status(204).Send('Registro alterado com sucesso!');
 end;
 
 procedure TViewControllerEmpresa.Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);

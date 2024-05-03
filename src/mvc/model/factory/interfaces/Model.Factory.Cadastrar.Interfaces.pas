@@ -21,7 +21,11 @@ uses
   Model.Cadastrar.Telefone.Empresa.Interfaces,
   Model.Cadastrar.Pessoa.Interfaces,
   Model.Cadastrar.Email.Pessoa.Interfaces,
-  Model.Cadastrar.Telefone.Pessoa.Interfaces;
+  Model.Cadastrar.Telefone.Pessoa.Interfaces,
+  Model.Cadastrar.Pedido.Interfaces,
+  Model.Cadastrar.Pedido.Item.Interfaces,
+  Model.Cadastrar.Pedido.Pagamento.Interfaces,
+  Model.Cadastrar.Caixa.Pedido.Interfaces;
 
 type
   iFactoryCadastrar = Interface
@@ -36,6 +40,10 @@ type
     function CadastrarPessoa          : iCadastrarPessoa;
     function CadastrarEmailPessoa     : iCadastrarEmailPessoa;
     function CadastrarTelefonePessoa  : iCadastrarTelefonePessoa;
+    function CadastrarPedido          : iCadastrarPedido;
+    function CadastrarPedidoItem      : iCadastrarPedidoItem;
+    function CadastrarPedidoPagamento : iCadastrarPedidoPagamento;
+    function CadastrarCaixaPedido     : iCadastrarCaixaPedido;
   End;
 
 implementation

@@ -1,0 +1,16 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 03/05/2024 14:31           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Cadastrar.Pedido.Pagamento.Interfaces;
+
+interface
+
+implementation
+
+end.

@@ -14,7 +14,8 @@ uses
   Model.Pesquisar.Pessoa.Interfaces,
   Model.Pesquisar.Endereco.Pessoa.Interfaces,
   Model.Pesquisar.Email.Pessoa.Interfaces,
-  Model.Pesquisar.Telefone.Pessoa.Interfaces;
+  Model.Pesquisar.Telefone.Pessoa.Interfaces,
+  Model.Pequisar.Caixa.Interfaces;
 
 
 
@@ -32,6 +33,7 @@ type
       FPesquisarEnderecoPessoa  : iPesquisarEnderecoPessoa;
       FPesquisarEmailPessoa     : iPesquisarEmailPessoa;
       FPesquisarTelefonePessoa  : iPesquisarTelefonePessoa;
+      FPesquisarCaixa           : iPesquisarCaixa;
     public
       constructor Create;
       destructor Destroy; override;
@@ -48,6 +50,7 @@ type
       function PesquisarEnderecoPessoa  : iPesquisarEnderecoPessoa;
       function PesquisarEmailPessoa     : iPesquisarEmailPessoa;
       function PesquisarTelefonePessoa  : iPesquisarTelefonePessoa;
+      function PesquisarCaixa           : iPesquisarCaixa;
   end;
 
 implementation
@@ -63,7 +66,8 @@ uses
   Model.Imp.Pesquisar.Pessoa,
   Model.Imp.Pesquisar.Endereco.Pessoa,
   Model.Imp.Pesquisar.Email.Pessoa,
-  Model.Imp.Pesquisar.Telefone.Pessoa;
+  Model.Imp.Pesquisar.Telefone.Pessoa,
+  Model.Imp.Pesquisar.Caixa;
 
 { TFactoryPesquisar }
 
@@ -168,6 +172,14 @@ begin
     FPesquisarTelefonePessoa := TPesquisarTelefonePessoa.New;
 
   Result := FPesquisarTelefonePessoa;
+end;
+
+function TFactoryPesquisar.PesquisarCaixa: iPesquisarCaixa;
+begin
+  if not Assigned(FPesquisarCaixa) then
+    FPesquisarCaixa := TPesquisarCaixa.New;
+
+  Result := FPesquisarCaixa;
 end;
 
 end.

@@ -1,0 +1,145 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 03/05/2024 13:46           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Cadastrar.Pedido.Item;
+
+interface
+
+uses
+  Data.DB,
+  System.JSON,
+  System.SysUtils,
+  DataSet.Serialize,
+
+  Model.Cadastrar.Pedido.Item.Interfaces,
+  Model.Entidade.Pedido.Item.Interfaces,
+  Controller.Interfaces;
+
+type
+  TCadastrarPedidoItem = class(TInterfacedObject, iCadastrarPedidoItem)
+    private
+      FController   : iController;
+      FPedidoItem   : iEntidadePedidoItem<iCadastrarPedidoItem>;
+      FDSPedidoItem : TDataSource;
+      FError : Boolean;
+
+      FIdPedido     : Integer;
+
+      FJSONObjectPai : TJSONObject;
+      FJSONArray     : TJSONArray;
+      FJSONObject    : TJSONObject;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iCadastrarPedidoItem;
+      function JSONObjectPai(Value : TJSONObject) : iCadastrarPedidoItem; overload;
+      function JSONObjectPai                      : TJSONObject;          overload;
+      function Post   : iCadastrarPedidoItem;
+      function Error  : Boolean;
+      //injeção de dependência
+      function PedidoItem : iEntidadePedidoItem<iCadastrarPedidoItem>;
+      function &End       : iCadastrarPedidoItem;
+  end;
+
+implementation
+
+uses
+  Imp.Controller,
+  Model.Entidade.Imp.Pedido.Item;
+
+{ TCadastrarPedidoItem }
+
+constructor TCadastrarPedidoItem.Create;
+begin
+  FController   := TController.New;
+  FPedidoItem   := TEntidadePedidoItem<iCadastrarPedidoItem>.New(Self);
+  FDSPedidoItem := TDataSource.Create(nil);
+  FError := False;
+end;
+
+destructor TCadastrarPedidoItem.Destroy;
+begin
+  inherited;
+end;
+
+class function TCadastrarPedidoItem.New: iCadastrarPedidoItem;
+begin
+  Result := Self.Create;
+end;
+
+function TCadastrarPedidoItem.JSONObjectPai(Value: TJSONObject): iCadastrarPedidoItem;
+begin
+  Result := Self;
+  FJSONObjectPai := Value;
+end;
+
+function TCadastrarPedidoItem.JSONObjectPai: TJSONObject;
+begin
+  Result := FJSONObjectPai;
+end;
+
+function TCadastrarPedidoItem.Post: iCadastrarPedidoItem;
+Var
+  I : Integer;
+begin
+  //Obtém os dados JSON do corpo da requisição da tabela('pedidoitem')
+  FJSONArray := FJSONObjectPai.GetValue('pedidoitem') as TJSONArray;
+  // Loop inserindo pedidoitem(ns)
+  for I := 0 to FJSONArray.Count - 1 do
+  begin
+    //Extraindo os dados do pedidoitem e salvando na tabela
+    FJSONObject := FJSONArray.Items[I] as TJSONObject;
+    try
+      FController
+        .FactoryDAO
+          .DAOPedidoItem
+            .This
+              .IdPedido         (FIdPedido)
+              .IdProduto        (FJSONObject.GetValue<Integer> ('idproduto'))
+              .Quantidade       (FJSONObject.GetValue<Currency>('quantidade'))
+              .ValorUnitario    (FJSONObject.GetValue<Currency>('valorunitario'))
+              .ValorProduto     (FJSONObject.GetValue<Currency>('valorproduto'))
+              .ValorDescontoItem(FJSONObject.GetValue<Currency>('valordescontoitem'))
+              .ValorFinalItem   (FJSONObject.GetValue<Currency>('valorfinalitem'))
+            .&End
+          .Post;
+    except
+      on E: Exception do
+      begin
+              Res.Status(500).Send('Ocorreu um erro interno no servidor'+E.Message);
+              FController
+                .FactoryDAO
+                  .DAOPessoa
+                    .This
+                      .Id(FIdPedido)
+                    .&End
+                  .Delete;
+              Exit;
+      end;
+    end;
+  end;
+end;
+
+function TCadastrarPedidoItem.Error: Boolean;
+begin
+  Result := FError;
+end;
+
+//Injeção de dependência
+function TCadastrarPedidoItem.PedidoItem: iEntidadePedidoItem<iCadastrarPedidoItem>;
+begin
+  Result := FPedidoItem;
+end;
+
+function TCadastrarPedidoItem.&End: iCadastrarPedidoItem;
+begin
+  Result := Self;
+end;
+
+end.
