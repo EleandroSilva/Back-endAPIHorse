@@ -18,7 +18,14 @@ uses
   Model.Cadastrar.Numero.Interfaces,
   Model.Cadastrar.Endereco.Empresa.Interfaces,
   Model.Cadastrar.Email.Empresa.Interfaces,
-  Model.Cadastrar.Telefone.Empresa.Interfaces;
+  Model.Cadastrar.Telefone.Empresa.Interfaces,
+  Model.Cadastrar.Pessoa.Interfaces,
+  Model.Cadastrar.Email.Pessoa.Interfaces,
+  Model.Cadastrar.Telefone.Pessoa.Interfaces,
+  Model.Cadastrar.Pedido.Interfaces,
+  Model.Cadastrar.Pedido.Item.Interfaces,
+  Model.Cadastrar.Pedido.Pagamento.Interfaces,
+  Model.Cadastrar.Caixa.Pedido.Interfaces;
 
 type
   iFactoryCadastrar = Interface
@@ -30,6 +37,13 @@ type
     function CadastrarEnderecoEmpresa : iCadastrarEnderecoEmpresa;
     function CadastrarEmailEmpresa    : iCadastrarEmailEmpresa;
     function CadastrarTelefoneEmpresa : iCadastrarTelefoneEmpresa;
+    function CadastrarPessoa          : iCadastrarPessoa;
+    function CadastrarEmailPessoa     : iCadastrarEmailPessoa;
+    function CadastrarTelefonePessoa  : iCadastrarTelefonePessoa;
+    function CadastrarPedido          : iCadastrarPedido;
+    function CadastrarPedidoItem      : iCadastrarPedidoItem;
+    function CadastrarPedidoPagamento : iCadastrarPedidoPagamento;
+    function CadastrarCaixaPedido     : iCadastrarCaixaPedido;
   End;
 
 implementation

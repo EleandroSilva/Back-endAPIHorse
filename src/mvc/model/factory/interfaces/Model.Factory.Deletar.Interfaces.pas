@@ -12,12 +12,14 @@ unit Model.Factory.Deletar.Interfaces;
 interface
 
 uses
-  Model.Deletar.Empresa.Interfaces;
+  Model.Deletar.Empresa.Interfaces,
+  Model.Deletar.Pessoa.Interfaces;
 
 type
   iFactoryDeletar = interface
     ['{6659611B-CE27-4AC1-9E02-CF446EB6F9DC}']
     function DeletarEmpresa : iDeletarEmpresa;
+    function DeletarPessoa  : iDeletarPessoa;
   end;
 
 implementation

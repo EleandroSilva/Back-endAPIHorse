@@ -50,7 +50,8 @@ type
       function DataSet(DataSource : TDataSource) : iDAOEmailPessoa; overload;
       function DataSet                           : TDataSet;        overload;
       function GetAll                            : iDAOEmailPessoa;
-      function GetbyId(Id : Variant)             : iDAOEmailPessoa;
+      function GetbyId(Id : Variant)             : iDAOEmailPessoa; overload;
+      function GetbyId(IdEmpresa : Integer)      : iDAOEmailPessoa; overload;
       function GetbyParams                       : iDAOEmailPessoa;
       function Post                              : iDAOEmailPessoa;
       function Put                               : iDAOEmailPessoa;
@@ -143,6 +144,35 @@ begin
   finally
     if not FDataSet.IsEmpty then
       FEmailPessoa.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+      FEmailPessoa.Id(0);
+  end;
+end;
+
+function TDAOEmailPessoa.GetbyId(IdEmpresa: Integer): iDAOEmailPessoa;
+begin
+    Result := Self;
+  try
+   try
+     FDataSet := FQuery
+                   .SQL(FSQL)
+                     .Add('where ep.idempresa=:idempresa')
+                     .Params('idempresa' , IdEmpresa)
+                   .Open
+                 .DataSet;
+   except
+     on E:Exception do
+     begin
+       WriteLn('Erro ao tentar filtrar email por idempresa da tabela emailpessoa: ' + E.Message);
+       raise exception.Create(FMSG.MSGerroGet+E.Message);
+     end;
+   end;
+  finally
+    if not FDataSet.IsEmpty then
+    begin
+      FEmailPessoa.Id(FDataSet.FieldByName('id').AsInteger);
+      QuantidadeRegistro;
+    end
     else
       FEmailPessoa.Id(0);
   end;

@@ -51,16 +51,16 @@ type
       destructor Destroy; override;
       class function New : iDAOTelefoneEmpresa;
 
-      function DataSet(DataSource : TDataSource)      : iDAOTelefoneEmpresa; overload;
-      function DataSet                                : TDataSet;            overload;
-      function GetAll                                 : iDAOTelefoneEmpresa;
-      function GetbyId(Id : Variant)                  : iDAOTelefoneEmpresa;
-      function GetbyParams                            : iDAOTelefoneEmpresa; overload;
-      function GetbyParams(const iDAOTelefoneEmpresa) : iDAOTelefoneEmpresa; overload;
-      function Post                                   : iDAOTelefoneEmpresa;
-      function Put                                    : iDAOTelefoneEmpresa;
-      function Delete                                 : iDAOTelefoneEmpresa;
-      function QuantidadeRegistro                     : Integer;
+      function DataSet(DataSource : TDataSource) : iDAOTelefoneEmpresa; overload;
+      function DataSet                           : TDataSet;            overload;
+      function GetAll                            : iDAOTelefoneEmpresa;
+      function GetbyId(Id : Variant)             : iDAOTelefoneEmpresa; overload;
+      function GetbyId(IdEmpresa : Integer)      : iDAOTelefoneEmpresa; overload;
+      function GetbyParams                       : iDAOTelefoneEmpresa; overload;
+      function Post                              : iDAOTelefoneEmpresa;
+      function Put                               : iDAOTelefoneEmpresa;
+      function Delete                            : iDAOTelefoneEmpresa;
+      function QuantidadeRegistro                : Integer;
 
       function This : iEntidadeTelefoneEmpresa<iDAOTelefoneEmpresa>;
   end;
@@ -156,7 +156,7 @@ begin
 end;
 
 //uso para listar no json junto com a tabela pai(empresa)
-function TDAOTelefoneEmpresa.GetbyParams(const iDAOTelefoneEmpresa): iDAOTelefoneEmpresa;
+function TDAOTelefoneEmpresa.GetbyId(IdEmpresa : Integer): iDAOTelefoneEmpresa;
 begin
   Result := Self;
   try
@@ -164,7 +164,7 @@ begin
      FDataSet := FQuery
                    .SQL(FSQL)
                      .Add('where te.idempresa=:idempresa')
-                     .Params('idempresa' , FTelefoneEmpresa.IdEmpresa)
+                     .Params('idempresa' , IdEmpresa)
                    .Open
                  .DataSet;
    except

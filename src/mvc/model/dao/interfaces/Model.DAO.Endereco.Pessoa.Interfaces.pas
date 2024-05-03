@@ -21,7 +21,8 @@ type
     function DataSet(DataSource : TDataSource)            : iDAOEnderecoPessoa; overload;
     function DataSet                                      : TDataSet;           overload;
     function GetAll                                       : iDAOEnderecoPessoa;
-    function GetbyId(Id : Variant)                        : iDAOEnderecoPessoa;
+    function GetbyId(Id : Variant)                        : iDAOEnderecoPessoa; overload;
+    function GetbyId(IdPessoa : Integer)                  : iDAOEnderecoPessoa; overload;
     function GetbyParams                                  : iDAOEnderecoPessoa; overload;
     function GetbyParams(aIdEmpresa, aIdEndereco, aIdPessoa : Integer) : iDAOEnderecoPessoa; overload;
     function Post                                         : iDAOEnderecoPessoa;

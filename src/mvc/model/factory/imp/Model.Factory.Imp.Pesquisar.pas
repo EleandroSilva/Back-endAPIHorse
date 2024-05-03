@@ -10,7 +10,12 @@ uses
   Model.Pesquisar.Endereco.Interfaces,
   Model.Pesquisar.Numero.Interfaces,
   Model.Pesquisar.Telefone.Empresa.Interfaces,
-  Model.Pesquisar.Usuario.Interfaces;
+  Model.Pesquisar.Usuario.Interfaces,
+  Model.Pesquisar.Pessoa.Interfaces,
+  Model.Pesquisar.Endereco.Pessoa.Interfaces,
+  Model.Pesquisar.Email.Pessoa.Interfaces,
+  Model.Pesquisar.Telefone.Pessoa.Interfaces,
+  Model.Pequisar.Caixa.Interfaces;
 
 
 
@@ -24,6 +29,11 @@ type
       FPesquisarNumero          : iPesquisarNumero;
       FPesquisarTelefoneEmpresa : iPesquisarTelefoneEmpresa;
       FPesquisarUsuario         : iPesquisarUsuario;
+      FPesquisarPessoa          : iPesquisarPessoa;
+      FPesquisarEnderecoPessoa  : iPesquisarEnderecoPessoa;
+      FPesquisarEmailPessoa     : iPesquisarEmailPessoa;
+      FPesquisarTelefonePessoa  : iPesquisarTelefonePessoa;
+      FPesquisarCaixa           : iPesquisarCaixa;
     public
       constructor Create;
       destructor Destroy; override;
@@ -36,6 +46,11 @@ type
       function PesquisarNumero          : iPesquisarNumero;
       function PesquisarTelefoneEmpresa : iPesquisarTelefoneEmpresa;
       function PesquisarUsuario         : iPesquisarUsuario;
+      function PesquisarPessoa          : iPesquisarPessoa;
+      function PesquisarEnderecoPessoa  : iPesquisarEnderecoPessoa;
+      function PesquisarEmailPessoa     : iPesquisarEmailPessoa;
+      function PesquisarTelefonePessoa  : iPesquisarTelefonePessoa;
+      function PesquisarCaixa           : iPesquisarCaixa;
   end;
 
 implementation
@@ -45,9 +60,14 @@ uses
   Model.Imp.Pesquisar.Endereco.Empresa,
   Model.Imp.Pesquisar.Email.Empresa,
   Model.Imp.Pesquisar.Endereco,
-  Model.Pesquisar.Numero,
-  Model.Pesquisar.Telefone.Empresa,
-  Model.Pesquisar.Usuario;
+  Model.Imp.Pesquisar.Numero,
+  Model.Imp.Pesquisar.Telefone.Empresa,
+  Model.Imp.Pesquisar.Usuario,
+  Model.Imp.Pesquisar.Pessoa,
+  Model.Imp.Pesquisar.Endereco.Pessoa,
+  Model.Imp.Pesquisar.Email.Pessoa,
+  Model.Imp.Pesquisar.Telefone.Pessoa,
+  Model.Imp.Pesquisar.Caixa;
 
 { TFactoryPesquisar }
 
@@ -120,6 +140,46 @@ begin
     FPesquisarUsuario := TPesquisarUsuario.New;
 
   Result := FPesquisarUsuario;
+end;
+
+function TFactoryPesquisar.PesquisarPessoa: iPesquisarPessoa;
+begin
+  if not Assigned(FPesquisarPessoa) then
+    FPesquisarPessoa := TPesquisarPessoa.New;
+
+  Result := FPesquisarPessoa;
+end;
+
+function TFactoryPesquisar.PesquisarEnderecoPessoa: iPesquisarEnderecoPessoa;
+begin
+  if not Assigned(FPesquisarEnderecoPessoa) then
+    FPesquisarEnderecoPessoa := TPesquisarEnderecoPessoa.New;
+
+  Result := FPesquisarEnderecoPessoa;
+end;
+
+function TFactoryPesquisar.PesquisarEmailPessoa: iPesquisarEmailPessoa;
+begin
+  if not Assigned(FPesquisarEmailPessoa) then
+    FPesquisarEmailPessoa := TPesquisarEmailPessoa.New;
+
+  Result := FPesquisarEmailPessoa;
+end;
+
+function TFactoryPesquisar.PesquisarTelefonePessoa: iPesquisarTelefonePessoa;
+begin
+  if not Assigned(FPesquisarTelefonePessoa) then
+    FPesquisarTelefonePessoa := TPesquisarTelefonePessoa.New;
+
+  Result := FPesquisarTelefonePessoa;
+end;
+
+function TFactoryPesquisar.PesquisarCaixa: iPesquisarCaixa;
+begin
+  if not Assigned(FPesquisarCaixa) then
+    FPesquisarCaixa := TPesquisarCaixa.New;
+
+  Result := FPesquisarCaixa;
 end;
 
 end.

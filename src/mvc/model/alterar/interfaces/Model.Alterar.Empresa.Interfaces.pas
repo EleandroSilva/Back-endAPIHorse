@@ -14,7 +14,8 @@ interface
 uses
   System.JSON,
 
-  Model.Entidade.Empresa.Interfaces;
+  Model.Entidade.Empresa.Interfaces,
+  Model.Entidade.Endereco.Interfaces;
 
 type
   iAlterarEmpresa = Interface
@@ -26,8 +27,9 @@ type
     function Error  : Boolean;
 
     //injeção de dependência
-    function Empresa : iEntidadeEmpresa<iAlterarEmpresa>;
-    function &End    : iAlterarEmpresa;
+    function Empresa  : iEntidadeEmpresa <iAlterarEmpresa>;
+    function Endereco : iEntidadeEndereco<iAlterarEmpresa>;
+    function &End     : iAlterarEmpresa;
   End;
 
 implementation

@@ -31,6 +31,7 @@ type
       FValorReceber        : Currency;
       FDataHoraEmissao     : TDateTime;
       FStatus              : Integer;
+      FExcluido            : Integer;
 
       FPessoa  : iEntidadePessoa<iEntidadePedido<T>>;
     public
@@ -60,6 +61,8 @@ type
       function DataHoraEmissao                        : TDateTime;          overload;
       function Status             (Value : Integer)   : iEntidadePedido<T>; overload;
       function Status                                 : Integer;            overload;
+      function Excluido           (Value : Integer)   : iEntidadePedido<T>; overload;
+      function Excluido                               : Integer;            overload;
 
       //Injeção de dependência
       function Pessoa  : iEntidadePessoa<iEntidadePedido<T>>;
@@ -216,10 +219,20 @@ begin
   Result := FStatus;
 end;
 
+function TEntidadePedido<T>.Excluido(Value: Integer): iEntidadePedido<T>;
+begin
+  Result := Self;
+  FExcluido := Value;
+end;
+
+function TEntidadePedido<T>.Excluido: Integer;
+begin
+  Result := FExcluido;
+end;
+
 function TEntidadePedido<T>.&End: T;
 begin
   Result := FParent;
 end;
-
 
 end.

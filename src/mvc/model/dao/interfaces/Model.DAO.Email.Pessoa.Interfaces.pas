@@ -23,7 +23,8 @@ type
     function DataSet(DataSource : TDataSource) : iDAOEmailPessoa; overload;
     function DataSet                           : TDataSet;        overload;
     function GetAll                            : iDAOEmailPessoa;
-    function GetbyId(Id : Variant)             : iDAOEmailPessoa;
+    function GetbyId(Id : Variant)             : iDAOEmailPessoa; overload;
+    function GetbyId(IdEmpresa : Integer)      : iDAOEmailPessoa; overload;
     function GetbyParams                       : iDAOEmailPessoa;
     function Post                              : iDAOEmailPessoa;
     function Put                               : iDAOEmailPessoa;

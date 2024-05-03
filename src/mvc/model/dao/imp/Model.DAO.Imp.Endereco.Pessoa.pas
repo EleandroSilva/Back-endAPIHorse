@@ -60,7 +60,8 @@ type
       function DataSet(DataSource : TDataSource)            : iDAOEnderecoPessoa; overload;
       function DataSet                                      : TDataSet;           overload;
       function GetAll                                       : iDAOEnderecoPessoa;
-      function GetbyId(Id : Variant)                        : iDAOEnderecoPessoa;
+      function GetbyId(Id : Variant)                        : iDAOEnderecoPessoa; overload;
+      function GetbyId(IdPessoa : Integer)                  : iDAOEnderecoPessoa; overload;
       function GetbyParams                                  : iDAOEnderecoPessoa; overload;
       function GetbyParams(aIdEmpresa, aIdEndereco, aIdPessoa : Integer): iDAOEnderecoPessoa; overload;
       function Post                                         : iDAOEnderecoPessoa;
@@ -160,6 +161,29 @@ begin
   end;
 end;
 
+function TDAOEnderecoPessoa.GetbyId(IdPessoa: Integer): iDAOEnderecoPessoa;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                      .Add('where ep.idpessoa=:idpessoa')
+                      .Params('idpessoa' , IdPessoa)
+                    .Open
+                  .DataSet;
+    except
+      on E: Exception do
+      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+    end;
+  finally
+    if not FDataSet.IsEmpty then
+      FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+      FEnderecoPessoa.Id(0);
+  end
+end;
+
 function TDAOEnderecoPessoa.GetbyParams(aIdEmpresa, aIdEndereco, aIdPessoa : Integer): iDAOEnderecoPessoa;
 begin
   Result := Self;
@@ -184,7 +208,7 @@ begin
       FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger)
     else
       FEnderecoPessoa.Id(0);
-  end
+  end;
 end;
 
 function TDAOEnderecoPessoa.GetbyParams: iDAOEnderecoPessoa;

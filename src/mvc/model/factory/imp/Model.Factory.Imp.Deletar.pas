@@ -4,24 +4,28 @@ interface
 
 uses
   Model.Factory.Deletar.Interfaces,
-  Model.Deletar.Empresa.Interfaces;
+  Model.Deletar.Empresa.Interfaces,
+  Model.Deletar.Pessoa.Interfaces;
 
 type
   TFactoryDeletar = class(TInterfacedObject, iFactoryDeletar)
     private
       FDeletarEmpresa : iDeletarEmpresa;
+      FDeletarPessoa  : iDeletarPessoa;
     public
       constructor Create;
       destructor Destroy; override;
       class function New : iFactoryDeletar;
 
       function DeletarEmpresa : iDeletarEmpresa;
+      function DeletarPessoa  : iDeletarPessoa;
   end;
 
 implementation
 
 uses
-  Model.Imp.Deletar.Empresa;
+  Model.Imp.Deletar.Empresa,
+  Model.Deletar.Pessoa;
 
 { TFactoryDeletar }
 
@@ -46,6 +50,14 @@ begin
     FDeletarEmpresa := TDeletarEmpresa.New;
 
   Result := FDeletarEmpresa;
+end;
+
+function TFactoryDeletar.DeletarPessoa: iDeletarPessoa;
+begin
+  if not Assigned(FDeletarPessoa) then
+    FDeletarPessoa := TDeletarPessoa.New;
+
+  Result := FDeletarPessoa;
 end;
 
 end.

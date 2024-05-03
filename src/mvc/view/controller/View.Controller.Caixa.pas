@@ -58,8 +58,8 @@ uses
 
 constructor TViewControllerCaixa.Create;
 begin
-  FController    := TController.New;
-  FDSCaixa := TDataSource.Create(nil);
+  FController := TController.New;
+  FDSCaixa    := TDataSource.Create(nil);
   Registry;
 end;
 
@@ -69,14 +69,11 @@ begin
 end;
 
 procedure TViewControllerCaixa.GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
-var
-  lQuantidadeRegistro : Integer;
 begin
-  lQuantidadeRegistro := 0;
   try
     try
       if Req.Query.Field('nomeusuario').AsString<>'' then
-        lQuantidadeRegistro := FController
+        FQuantidadeRegistro := FController
                                  .FactoryDAO
                                    .DAOCaixa
                                      .This
@@ -88,7 +85,7 @@ begin
                                    .DataSet(FDSCaixa)
                                    .QuantidadeRegistro
       else
-        lQuantidadeRegistro := FController
+        FQuantidadeRegistro := FController
                                  .FactoryDAO
                                    .DAOCaixa
                                      .GetAll

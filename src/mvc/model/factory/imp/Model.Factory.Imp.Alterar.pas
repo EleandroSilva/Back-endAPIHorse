@@ -18,7 +18,10 @@ uses
   Model.Alterar.Telefone.Empresa.Interfaces,
   Model.Alterar.Endereco.Interfaces,
   Model.Alterar.Numero.Interfaces,
-  Model.Alterar.Usuario.Interfaces;
+  Model.Alterar.Usuario.Interfaces,
+  Model.Alterar.Pessoa.Interfaces,
+  Model.Alterar.Email.Pessoa.Interfaces,
+  Model.Alterar.Telefone.Pessoa.Interfaces;
 
 type
   TFactoryAlterar = class(TInterfacedObject, iFactoryAlterar)
@@ -29,6 +32,9 @@ type
       FAlterarEndereco        : iAlterarEndereco;
       FAlterarNumero          : iAlterarNumero;
       FAlterarUsuario         : iAlterarUsuario;
+      FAlterarPessoa          : iAlterarPessoa;
+      FAlterarEmailPessoa     : iAlterarEmailPessoa;
+      FAlterarTelefonePessoa  : iAlterarTelefonePessoa;
     public
       constructor Create;
       destructor Destroy; override;
@@ -40,6 +46,9 @@ type
       function AlterarEndereco        : iAlterarEndereco;
       function AlterarNumero          : iAlterarNumero;
       function AlterarUsuario         : iAlterarUsuario;
+      function AlterarPessoa          : iAlterarPessoa;
+      function AlterarEmailPessoa     : iAlterarEmailPessoa;
+      function AlterarTelefonePessoa  : iAlterarTelefonePessoa;
   end;
 
 implementation
@@ -50,7 +59,9 @@ uses
   Model.Imp.Alterar.Telefone.Empresa,
   Model.Imp.Alterar.Endereco,
   Model.Imp.Alterar.Numero,
-  Model.Imp.Alterar.Usuario;
+  Model.Imp.Alterar.Usuario,
+  Model.Imp.Alterar.Email.Pessoa, Model.Imp.Alterar.Pessoa,
+  Model.Imp.Alterar.Telefone.Pessoa;
 
 { TFactoryAlterar }
 
@@ -68,6 +79,8 @@ class function TFactoryAlterar.New: iFactoryAlterar;
 begin
   Result := Self.Create;
 end;
+
+
 
 function TFactoryAlterar.AlterarEmpresa: iAlterarEmpresa;
 begin
@@ -115,6 +128,30 @@ begin
     FAlterarUsuario := TAlterarUsuario.New;
 
   Result := FAlterarUsuario;
+end;
+
+function TFactoryAlterar.AlterarPessoa: iAlterarPessoa;
+begin
+  if not Assigned(FAlterarPessoa) then
+    FAlterarPessoa := TAlterarPessoa.New;
+
+  Result := FAlterarPessoa;
+end;
+
+function TFactoryAlterar.AlterarTelefonePessoa: iAlterarTelefonePessoa;
+begin
+  if not Assigned(FAlterarTelefonePessoa) then
+    FAlterarTelefonePessoa := TAlterarTelefonePessoa.New;
+
+  Result := FAlterarTelefonePessoa;
+end;
+
+function TFactoryAlterar.AlterarEmailPessoa: iAlterarEmailPessoa;
+begin
+  if not Assigned(FAlterarEmailPessoa) then
+    FAlterarEmailPessoa := TAlterarEmailPessoa.New;
+
+  Result := FAlterarEmailPessoa;
 end;
 
 end.
