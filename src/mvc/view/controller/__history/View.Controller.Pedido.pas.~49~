@@ -283,6 +283,13 @@ begin
 end;
 
 procedure TViewControllerPedido.Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+Var
+  LJSONObjectPedido    : TJSONObject;//JSONObect->Pedido
+  LJSONArrayItem       : TJSONArray; //JSONArray->PedidoItem
+  LJSONObjectItem      : TJSONObject;//JSONObect->PedidoItem
+  LJSONArrayPagamento  : TJSONArray; //JSONArray->PedidoPagemento
+  LJSONObjectPagamento : TJSONObject;//JSONObect->PedidoPagamento
+  I : Integer;
 begin
   //Lê os dados JSON da requisição (tabela pai='pedido')
   FJSONObjectPedido := Req.Body<TJSONObject>;
