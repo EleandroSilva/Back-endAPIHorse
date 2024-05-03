@@ -309,7 +309,7 @@ begin
   try
     FController
       .FactoryDAO
-        .DAOCondicaoPagamento
+        .DAOPedido
           .This
             .Id(Req.Params['id'].ToInt64)
           .&End
