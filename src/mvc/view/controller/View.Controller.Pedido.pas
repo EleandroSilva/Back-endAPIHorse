@@ -1,7 +1,10 @@
+
+
+
 {*******************************************************}
 {                    API PDV - JSON                     }
 {                      Be More Web                      }
-{          Início do projeto 26/04/2024 12:00           }
+{          InÃ­cio do projeto 26/04/2024 12:00           }
 {                 www.bemoreweb.com.br                  }
 {                     (17)98169-5336                    }
 {                        2003/2024                      }
@@ -103,17 +106,17 @@ begin
     except
       on E: Exception do
       begin
-        WriteLn('Erro durante o loop de pedidoitem, verificar as instruções SQL no DAOPedidoItem: ' + E.Message);
+        WriteLn('Erro durante o loop de pedidoitem, verificar as instruÃ§Ãµes SQL no DAOPedidoItem: ' + E.Message);
         Break;
       end;
     end;
 
     try
-      FJSONObject.AddPair('pedidoitem' , LoopPedidoPagamento);
+      FJSONObject.AddPair('pedidopagemento' , LoopPedidoPagamento);
     except
       on E: Exception do
       begin
-        WriteLn('Erro durante o loop de pedidoitem, verificar as instruções SQL no DAOPedidoPagamento: ' + E.Message);
+        WriteLn('Erro durante o loop de pedidoitem, verificar as instruÃ§Ãµes SQL no DAOPedidoPagamento: ' + E.Message);
         Break;
       end;
     end;
@@ -203,7 +206,7 @@ begin
     Res.Status(201).Send('Registro encontrado com sucesso!');
   end
   else
-    Res.Status(400).Send('Registro não encontrado!');
+    Res.Status(400).Send('Registro nÃ£o encontrado!');
 
 end;
 
@@ -233,12 +236,12 @@ begin
     Res.Status(201).Send('Registro encontrado com sucesso!');
   end
   else
-    Res.Status(400).Send('Registro não encontrado!');
+    Res.Status(400).Send('Registro nÃ£o encontrado!');
 end;
 
 procedure TViewControllerPedido.Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 begin
-  //Lê os dados JSON da requisição (tabela pai='pedido')
+  //LÃª os dados JSON da requisiÃ§Ã£o (tabela pai='pedido')
   FJSONObject := Req.Body<TJSONObject>;
   if CadastrarPedido(FJSONObject) Then
   begin
@@ -249,7 +252,7 @@ begin
   begin
     FJSONObject := FDSPedido.DataSet.ToJSONObject();
     Res.Send<TJSONObject>(FJSONObject);
-    Res.Status(204).Send('Registro incluído com sucesso!');
+    Res.Status(204).Send('Registro incluÃ­do com sucesso!');
   end;
 end;
 
@@ -273,7 +276,7 @@ begin
       on E: Exception do
       raise Res.Status(500).Send('Ocorreu um erro interno no servidor.'+ E.Message);
   End;
-    Res.Status(204).Send('Registro excluído com sucesso!');
+    Res.Status(204).Send('Registro excluÃ­do com sucesso!');
 end;
 
 procedure TViewControllerPedido.Registry;
