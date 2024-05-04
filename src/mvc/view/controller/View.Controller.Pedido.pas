@@ -112,7 +112,7 @@ begin
     end;
 
     try
-      FJSONObject.AddPair('pedidopagemento' , LoopPedidoPagamento);
+      FJSONObject.AddPair('pedidopagamento' , LoopPedidoPagamento);
     except
       on E: Exception do
       begin
