@@ -15,10 +15,7 @@ uses
   Model.Pesquisar.Endereco.Pessoa.Interfaces,
   Model.Pesquisar.Email.Pessoa.Interfaces,
   Model.Pesquisar.Telefone.Pessoa.Interfaces,
-  Model.Pequisar.Caixa.Interfaces,
-  Model.Pesquisar.Pedido.Interfaces,
-  Model.Pesquisar.Pedido.Item.Interfaces,
-  Model.Pesquisar.Pedido.Pagamento.Interfaces;
+  Model.Pequisar.Caixa.Interfaces;
 
 
 
@@ -76,10 +73,7 @@ uses
   Model.Imp.Pesquisar.Endereco.Pessoa,
   Model.Imp.Pesquisar.Email.Pessoa,
   Model.Imp.Pesquisar.Telefone.Pessoa,
-  Model.Imp.Pesquisar.Caixa,
-  Model.Imp.Pesquisar.Pedido,
-  Model.Imp.Pesquisar.Pedido.Item,
-  Model.Imp.Pesquisar.Pedido.Pagamento;
+  Model.Imp.Pesquisar.Caixa;
 
 { TFactoryPesquisar }
 

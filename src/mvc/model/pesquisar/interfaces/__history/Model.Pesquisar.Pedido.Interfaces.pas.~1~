@@ -1,0 +1,7 @@
+unit Model.Pesquisar.Pedido.Interfaces;
+
+interface
+
+implementation
+
+end.

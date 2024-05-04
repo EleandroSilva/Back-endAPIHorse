@@ -1,0 +1,116 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 04/05/2024 11:42           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Alterar.Pedido.Item;
+
+interface
+
+uses
+  Data.DB,
+  System.SysUtils,
+  System.JSON,
+
+  Model.Alterar.Pedido.Item.Interfaces,
+  Model.Entidade.Pedido.Item.Interfaces,
+  Controller.Interfaces;
+
+type
+  TAlterarPedidoItem = class(TInterfacedObject, iAlterarPedidoItem)
+    private
+      FController : iController;
+      FPedidoItem : iEntidadePedidoItem<iAlterarPedidoItem>;
+      FDSPedidoItem : TDataSource;
+      FJSONObject : TJSONObject;
+      FJSONArray  : TJSONArray;
+
+      FFound : Boolean;
+      FError : Boolean;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iAlterarPedidoItem;
+
+      function JSONObject(Value : TJSONObject) : iAlterarPedidoItem; overload;
+      function JSONObject                      : TJSONObject;        overload;
+      function Put    : iAlterarPedidoItem;
+      function Found  : Boolean;
+      function Error  : Boolean;
+
+      //injeção de dependência
+      function PedidoItem : iEntidadePedidoItem<iAlterarPedidoItem>;
+      function &End : iAlterarPedidoItem;
+  end;
+
+implementation
+
+uses
+  Imp.Controller,
+  Model.Entidade.Imp.Pedido.Item;
+
+{ TAlterarPedidoItem }
+
+constructor TAlterarPedidoItem.Create;
+begin
+  FController   := TController.New;
+  FPedidoItem   := TEntidadePedidoItem<iAlterarPedidoItem>.New(Self);
+  FDSPedidoItem := TDataSource.Create(nil);
+  FFound := False;
+  FError := False;
+end;
+
+destructor TAlterarPedidoItem.Destroy;
+begin
+  inherited;
+end;
+
+class function TAlterarPedidoItem.New: iAlterarPedidoItem;
+begin
+  Result := Self.Create;
+end;
+
+function TAlterarPedidoItem.JSONObject(Value: TJSONObject): iAlterarPedidoItem;
+begin
+  Result := Self;
+  FJSONObject := Value;
+end;
+
+function TAlterarPedidoItem.JSONObject: TJSONObject;
+begin
+  Result := FJSONObject;
+end;
+
+function TAlterarPedidoItem.Put: iAlterarPedidoItem;
+begin
+//
+end;
+
+function TAlterarPedidoItem.Found: Boolean;
+begin
+  Result := FFound;
+end;
+
+function TAlterarPedidoItem.Error: Boolean;
+begin
+  Result := FError;
+end;
+
+//Injeção de dependência
+function TAlterarPedidoItem.PedidoItem: iEntidadePedidoItem<iAlterarPedidoItem>;
+begin
+  Result := FPedidoItem;
+end;
+
+function TAlterarPedidoItem.&End: iAlterarPedidoItem;
+begin
+  Result := Self;
+end;
+
+
+
+end.

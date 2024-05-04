@@ -1,0 +1,38 @@
+unit Model.Imp.Pesquisar.Pedido.Item;
+
+interface
+
+uses
+  Data.DB,
+  System.JSON,
+  DataSet.Serialize,
+
+  Model.Pesquisar.Pedido.Item.Interfaces,
+  Model.Entidade.Pedido.Item.Interfaces,
+  Controller.Interfaces;
+
+type
+  TPesquisarPedidoItem = class(TInterfacedObject, iPesquisarPedidoItem)
+    private
+      FController  : iController;
+      FPedidoItem  : iEntidadePedidoItem<iPesquisarPedidoItem>;
+
+      FFound : Boolean;
+      FError : Boolean;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iPesquisarPedidoItem;
+
+      function GetBy(IdPedido : Integer; Email: String) : iPesquisarPedidoItem;
+      function LoopPedidoItem : TJSONValue;
+      function Found : Boolean;
+      function Error : Boolean;
+
+      function PedidoItem : iEntidadePedidoItem<iPesquisarPedidoItem>;
+      function &End : iPesquisarPedidoItem;
+  end;
+
+implementation
+
+end.

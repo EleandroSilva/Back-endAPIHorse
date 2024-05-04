@@ -156,7 +156,7 @@ begin
      FDataSet := FQuery
                    .SQL(FSQL)
                    .Add('where ee.idempresa=:idempresa')
-                   .Params('idempresa', IdEmpresa)
+                   .Params('idempresa', FEmailEmpresa.IdEmpresa)
                    .Open
                  .DataSet;
    except

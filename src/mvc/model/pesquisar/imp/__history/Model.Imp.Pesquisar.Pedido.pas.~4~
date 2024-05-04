@@ -1,0 +1,43 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 04/05/2024 11:42           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Pesquisar.Pedido;
+
+interface
+
+uses
+  Data.DB,
+  System.JSON,
+  System.SysUtils,
+  DataSet.Serialize,
+
+  Model.Pesquisar.Pedido.Interfaces,
+  Model.Entidade.Pedido.Interfaces,
+  Controller.Interfaces;
+
+type
+  TPesquisarPedido = class(TInterfacedObject, iPesquisarPedido)
+    private
+      FController : iController;
+      FPedido     : iEntidadePedido<iPesquisarPedido>;
+      FDSPedido   : TDataSource;
+      FJSONObject : TJSONObject;
+      FJSONArray  : TJSONArray;
+      FFound : Boolean;
+      FError : Boolean;
+      FQuantidadeRegistro : Integer;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iPesquisarPedido;
+  end;
+
+implementation
+
+end.

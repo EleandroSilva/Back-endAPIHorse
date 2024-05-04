@@ -83,13 +83,13 @@ end;
 
 procedure TViewControllerPedido.LoopPedido;
 begin
-  FJSONArray := TJSONArray.Create;//JSONArray tabela pai empresa
+  FJSONArrayPedido := TJSONArray.Create;//JSONArray tabela pai empresa
   FDSPedido.DataSet.First;
   while not FDSPedido.DataSet.Eof do
   begin
-    FJSONObject := TJSONObject.Create;//JSONObject tabela pai empresa
+    FJSONObjectPedido := TJSONObject.Create;//JSONObject tabela pai empresa
     try
-      FJSONObject := FDSPedido.DataSet.ToJSONObject;
+      FJSONObjectPedido := FDSPedido.DataSet.ToJSONObject;
     except
       on E: Exception do
       begin
@@ -99,7 +99,7 @@ begin
     end;
 
     try
-      FJSONObject.AddPair('pedidoitem' , LoopPedidoItem);
+      FJSONObjectPedido.AddPair('pedidoitem' , LoopPedidoItem);
     except
       on E: Exception do
       begin
@@ -109,7 +109,7 @@ begin
     end;
 
     try
-      FJSONObject.AddPair('pedidoitem' , LoopPedidoPagamento);
+      FJSONObjectPedido.AddPair('pedidoitem' , LoopPedidoPagamento);
     except
       on E: Exception do
       begin
@@ -118,7 +118,7 @@ begin
       end;
     end;
 
-    FJSONArray.Add(FJSONObject);
+    FJSONArrayPedido.Add(FJSONObjectPedido);
     FDSPedido.DataSet.Next;
   end;
 end;
@@ -197,8 +197,8 @@ begin
     LoopPedido;
 
     if lQuantidadeRegistro > 1 then
-      Res.Send<TJSONArray>(FJSONArray) else
-      Res.Send<TJSONObject>(FJSONObject);
+      Res.Send<TJSONArray>(FJSONArrayPedido) else
+      Res.Send<TJSONObject>(FJSONObjectPedido);
 
     Res.Status(201).Send('Registro encontrado com sucesso!');
   end
@@ -216,8 +216,8 @@ begin
           .GetbyId(Req.Params['id'].ToInt64)
           .DataSet(FDSPedido);
 
-    FJSONObject := FDSPedido.DataSet.ToJSONObject();
-    Res.Send<TJSONObject>(FJSONObject);
+    FJSONObjectPedido := FDSPedido.DataSet.ToJSONObject();
+    Res.Send<TJSONObject>(FJSONObjectPedido);
   except
     on E: Exception do
     begin
@@ -229,7 +229,7 @@ begin
   if not FDSPedido.DataSet.IsEmpty then
   begin
     LoopPedido;
-    Res.Send<TJSONObject>(FJSONObject);
+    Res.Send<TJSONObject>(FJSONObjectPedido);
     Res.Status(201).Send('Registro encontrado com sucesso!');
   end
   else
@@ -239,16 +239,16 @@ end;
 procedure TViewControllerPedido.Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 begin
   //Lê os dados JSON da requisição (tabela pai='pedido')
-  FJSONObject := Req.Body<TJSONObject>;
-  if CadastrarPedido(FJSONObject) Then
+  FJSONObjectPedido := Req.Body<TJSONObject>;
+  if CadastrarPedido(FJSONObjectPedido) Then
   begin
     Res.Status(500).Send('Ocorreu um erro interno no servidor!');
     Exit;
   end
   else
   begin
-    FJSONObject := FDSPedido.DataSet.ToJSONObject();
-    Res.Send<TJSONObject>(FJSONObject);
+    FJSONObjectPedido := FDSPedido.DataSet.ToJSONObject();
+    Res.Send<TJSONObject>(FJSONObjectPedido);
     Res.Status(204).Send('Registro incluído com sucesso!');
   end;
 end;

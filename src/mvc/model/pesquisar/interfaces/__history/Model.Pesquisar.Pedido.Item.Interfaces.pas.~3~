@@ -1,0 +1,21 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 04/05/2024 11:42           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Pesquisar.Pedido.Item.Interfaces;
+
+interface
+
+type
+  iPesquisarPedidoItem = Interface
+    ['{25A8CBD7-A728-49FC-88EE-2A3889483A0E}']
+  End;
+
+implementation
+
+end.

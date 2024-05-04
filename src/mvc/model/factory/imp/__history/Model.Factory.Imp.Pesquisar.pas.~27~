@@ -76,10 +76,7 @@ uses
   Model.Imp.Pesquisar.Endereco.Pessoa,
   Model.Imp.Pesquisar.Email.Pessoa,
   Model.Imp.Pesquisar.Telefone.Pessoa,
-  Model.Imp.Pesquisar.Caixa,
-  Model.Imp.Pesquisar.Pedido,
-  Model.Imp.Pesquisar.Pedido.Item,
-  Model.Imp.Pesquisar.Pedido.Pagamento;
+  Model.Imp.Pesquisar.Caixa;
 
 { TFactoryPesquisar }
 

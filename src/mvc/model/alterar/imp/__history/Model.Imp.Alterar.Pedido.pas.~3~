@@ -1,0 +1,26 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 04/05/2024 11:42           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Alterar.Pedido;
+
+interface
+
+type
+  TAlterarPedido = class(TInterfacedObject, iAlterarPedido)
+    private
+
+    public
+      constructor Create;
+      destructor Destrou; override;
+      class function New : iAlterarPedido;
+  end;
+
+implementation
+
+end.

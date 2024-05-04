@@ -1,0 +1,21 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 04/05/2024 11:42           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Alterar.Pedido.Pagamento.Interfaces;
+
+interface
+
+type
+  iAlterarPedidoPagamento = Interface
+    ['{EEA4AF97-47DC-451E-8C16-243227231968}']
+  End;
+
+implementation
+
+end.

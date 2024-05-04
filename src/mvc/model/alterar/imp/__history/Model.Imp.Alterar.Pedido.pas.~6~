@@ -1,0 +1,52 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      Be More Web                      }
+{          Início do projeto 04/05/2024 11:42           }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2024                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Alterar.Pedido;
+
+interface
+
+uses
+  Data.DB,
+  System.SysUtils,
+  System.JSON,
+
+  Model.Alterar.Pedido.Interfaces,
+  Model.Entidade.Pedido.Interfaces,
+  Controller.Interfaces;
+
+type
+  TAlterarPedido = class(TInterfacedObject, iAlterarPedido)
+    private
+      FController : iController;
+      FPedido     : iEntidadePedido<iAlterarPedido>;
+      FDSPedido   : TDataSource;
+      FJSONObject : TJSONObject;
+      FJSONArray  : TJSONArray;
+
+      FFound : Boolean;
+      FError : Boolean;
+    public
+      constructor Create;
+      destructor Destrou; override;
+      class function New : iAlterarPedido;
+
+      function JSONObject(Value : TJSONObject) : iAlterarPedido; overload;
+      function JSONObject                      : TJSONObject;    overload;
+      function Put    : iAlterarPedido;
+      function Found  : Boolean;
+      function Error  : Boolean;
+
+      //injeção de dependência
+      function Pedido : iEntidadePedido <iAlterarPedido>;
+      function &End   : iAlterarPedido;
+  end;
+
+implementation
+
+end.

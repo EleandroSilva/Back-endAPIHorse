@@ -15,10 +15,7 @@ uses
   Model.Pesquisar.Endereco.Pessoa.Interfaces,
   Model.Pesquisar.Email.Pessoa.Interfaces,
   Model.Pesquisar.Telefone.Pessoa.Interfaces,
-  Model.Pequisar.Caixa.Interfaces,
-  Model.Pesquisar.Pedido.Interfaces,
-  Model.Pesquisar.Pedido.Item.Interfaces,
-  Model.Pesquisar.Pedido.Pagamento.Interfaces;
+  Model.Pequisar.Caixa.Interfaces;
 
 
 
@@ -37,9 +34,6 @@ type
       FPesquisarEmailPessoa     : iPesquisarEmailPessoa;
       FPesquisarTelefonePessoa  : iPesquisarTelefonePessoa;
       FPesquisarCaixa           : iPesquisarCaixa;
-      FPesquisarPedido          : iPesquisarPedido;
-      FPesquisarPedidoItem      : iPesquisarPedidoItem;
-      FPesquisarPedidoPagamento : iPesquisarPedidoPagamento;
     public
       constructor Create;
       destructor Destroy; override;
@@ -57,9 +51,6 @@ type
       function PesquisarEmailPessoa     : iPesquisarEmailPessoa;
       function PesquisarTelefonePessoa  : iPesquisarTelefonePessoa;
       function PesquisarCaixa           : iPesquisarCaixa;
-      function PesquisarPedido          : iPesquisarPedido;
-      function PesquisarPedidoItem      : iPesquisarPedidoItem;
-      function PesquisarPedidoPagamento : iPesquisarPedidoPagamento;
   end;
 
 implementation
@@ -76,10 +67,7 @@ uses
   Model.Imp.Pesquisar.Endereco.Pessoa,
   Model.Imp.Pesquisar.Email.Pessoa,
   Model.Imp.Pesquisar.Telefone.Pessoa,
-  Model.Imp.Pesquisar.Caixa,
-  Model.Imp.Pesquisar.Pedido,
-  Model.Imp.Pesquisar.Pedido.Item,
-  Model.Imp.Pesquisar.Pedido.Pagamento;
+  Model.Imp.Pesquisar.Caixa;
 
 { TFactoryPesquisar }
 
@@ -192,30 +180,6 @@ begin
     FPesquisarCaixa := TPesquisarCaixa.New;
 
   Result := FPesquisarCaixa;
-end;
-
-function TFactoryPesquisar.PesquisarPedido: iPesquisarPedido;
-begin
-  if not Assigned(FPesquisarPedido) then
-    FPesquisarPedido := TPesquisarPedido.New;
-
-  Result := FPesquisarPedido;
-end;
-
-function TFactoryPesquisar.PesquisarPedidoItem: iPesquisarPedidoItem;
-begin
-  if not Assigned(FPesquisarPedidoItem) then
-    FPesquisarPedidoItem := TPesquisarPedidoItem.New;
-
-  Result := FPesquisarPedidoItem;
-end;
-
-function TFactoryPesquisar.PesquisarPedidoPagamento: iPesquisarPedidoPagamento;
-begin
-  if not Assigned(FPesquisarPedidoPagamento) then
-    FPesquisarPedidoPagamento := TPesquisarPedidoPagamento.New;
-
-  Result := FPesquisarPedidoPagamento;
 end;
 
 end.

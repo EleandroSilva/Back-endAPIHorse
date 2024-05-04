@@ -23,10 +23,7 @@ uses
   Model.Pesquisar.Endereco.Pessoa.Interfaces,
   Model.Pesquisar.Email.Pessoa.Interfaces,
   Model.Pesquisar.Telefone.Pessoa.Interfaces,
-  Model.Pequisar.Caixa.Interfaces,
-  Model.Pesquisar.Pedido.Interfaces,
-  Model.Pesquisar.Pedido.Item.Interfaces,
-  Model.Pesquisar.Pedido.Pagamento.Interfaces;
+  Model.Pequisar.Caixa.Interfaces;
 
 type
   iFactoryPesquisar = interface
@@ -43,9 +40,6 @@ type
     function PesquisarEmailPessoa     : iPesquisarEmailPessoa;
     function PesquisarTelefonePessoa  : iPesquisarTelefonePessoa;
     function PesquisarCaixa           : iPesquisarCaixa;
-    function PesquisarPedido          : iPesquisarPedido;
-    function PesquisarPedidoItem      : iPesquisarPedidoItem;
-    function PesquisarPedidoPagamento : iPesquisarPedidoPagamento;
   end;
 
 

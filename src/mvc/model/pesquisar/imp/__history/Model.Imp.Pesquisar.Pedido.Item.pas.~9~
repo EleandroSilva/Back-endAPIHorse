@@ -1,0 +1,103 @@
+unit Model.Imp.Pesquisar.Pedido.Item;
+
+interface
+
+uses
+  Data.DB,
+  System.JSON,
+  DataSet.Serialize,
+
+  Model.Pesquisar.Pedido.Item.Interfaces,
+  Model.Entidade.Pedido.Item.Interfaces,
+  Controller.Interfaces;
+
+type
+  TPesquisarPedidoItem = class(TInterfacedObject, iPesquisarPedidoItem)
+    private
+      FController  : iController;
+      FPedidoItem  : iEntidadePedidoItem<iPesquisarPedidoItem>;
+
+      FDSPedidoItem : TDataSource;
+
+      FJSONObject : TJSONObject;
+      FJSONArray  : TJSONArray;
+
+      FFound : Boolean;
+      FError : Boolean;
+
+      FQuantidadeRegistro : Integer;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iPesquisarPedidoItem;
+
+      function GetBy(IdPedido : Integer) : iPesquisarPedidoItem;
+      function LoopPedidoItem : TJSONValue;
+      function Found : Boolean;
+      function Error : Boolean;
+
+      function PedidoItem : iEntidadePedidoItem<iPesquisarPedidoItem>;
+      function &End : iPesquisarPedidoItem;
+  end;
+
+implementation
+
+uses
+  Imp.Controller,
+  Model.Entidade.Imp.Pedido.Item;
+
+{ TPesquisarPedidoItem }
+
+constructor TPesquisarPedidoItem.Create;
+begin
+  FController   := TController.New;
+  FPedidoItem   := TEntidadePedidoItem<iPesquisarPedidoItem>.New(Self);
+  FDSPedidoItem := TDataSource.Create(nil);
+  FFound := False;
+  FError := False;
+  FQuantidadeRegistro := 0;
+end;
+
+destructor TPesquisarPedidoItem.Destroy;
+begin
+  inherited;
+end;
+
+class function TPesquisarPedidoItem.New: iPesquisarPedidoItem;
+begin
+  Result := Self.Create;
+end;
+
+function TPesquisarPedidoItem.GetBy(IdPedido: Integer): iPesquisarPedidoItem;
+begin
+  Result := Self;
+
+end;
+
+function TPesquisarPedidoItem.LoopPedidoItem: TJSONValue;
+begin
+
+end;
+
+function TPesquisarPedidoItem.Found: Boolean;
+begin
+  Result := FFound;
+end;
+
+function TPesquisarPedidoItem.Error: Boolean;
+begin
+  Result := FError;
+end;
+
+//Injeção de dependência
+function TPesquisarPedidoItem.PedidoItem: iEntidadePedidoItem<iPesquisarPedidoItem>;
+begin
+  Result := FPedidoItem;
+end;
+
+function TPesquisarPedidoItem.&End: iPesquisarPedidoItem;
+begin
+  Result := Self;
+end;
+
+end.
