@@ -1,7 +1,0 @@
-unit Model.Imp.Cadastrar.Pedido.Pagamento;
-
-interface
-
-implementation
-
-end.

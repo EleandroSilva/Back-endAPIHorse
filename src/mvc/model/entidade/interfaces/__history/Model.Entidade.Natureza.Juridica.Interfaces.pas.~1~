@@ -1,7 +1,0 @@
-unit Model.Entidade.Natureza.Juridica.Interfaces;
-
-interface
-
-implementation
-
-end.
