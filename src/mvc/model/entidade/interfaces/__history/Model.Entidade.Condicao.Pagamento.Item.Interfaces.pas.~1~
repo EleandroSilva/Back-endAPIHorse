@@ -1,7 +1,0 @@
-unit Model.Entidade.Condicao.Pagamento.Item.Interfaces;
-
-interface
-
-implementation
-
-end.

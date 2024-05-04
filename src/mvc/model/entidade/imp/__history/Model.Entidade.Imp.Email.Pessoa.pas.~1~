@@ -1,7 +1,0 @@
-unit Model.Entidade.Imp.Email.Pessoa;
-
-interface
-
-implementation
-
-end.

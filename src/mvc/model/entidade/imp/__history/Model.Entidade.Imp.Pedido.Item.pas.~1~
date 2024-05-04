@@ -1,7 +1,0 @@
-unit Model.Entidade.Imp.Pedido.Item;
-
-interface
-
-implementation
-
-end.

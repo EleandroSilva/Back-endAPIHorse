@@ -1,7 +1,0 @@
-unit Model.Entidade.Imp.Endereco.Pessoa;
-
-interface
-
-implementation
-
-end.

@@ -1,7 +1,0 @@
-unit Model.DAO.Email.Empresa.Interfaces;
-
-interface
-
-implementation
-
-end.
