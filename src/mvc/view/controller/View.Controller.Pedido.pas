@@ -116,7 +116,7 @@ begin
     except
       on E: Exception do
       begin
-        WriteLn('Erro durante o loop de pedidoitem, verificar as instruções SQL no DAOPedidoPagamento: ' + E.Message);
+        WriteLn('Erro durante o loop de pedidopagamento, verificar as instruções SQL no DAOPedidoPagamento: ' + E.Message);
         Break;
       end;
     end;
