@@ -129,7 +129,7 @@ begin
     except
       on E: Exception do
       begin
-        WriteLn('Erro durante o loop de pedidoitem, verificar as instruÃ§Ãµes SQL no DAOPedidoItem: ' + E.Message);
+        WriteLn('Erro durante o loop de pedidoitem, verificar as instruções SQL no DAOPedidoItem: ' + E.Message);
         Break;
       end;
     end;
@@ -275,7 +275,7 @@ begin
   begin
     FJSONObject := FDSPedido.DataSet.ToJSONObject();
     Res.Send<TJSONObject>(FJSONObject);
-    Res.Status(204).Send('Registro incluÃ­do com sucesso!');
+    Res.Status(204).Send('Registro inluído com sucesso!');
   end;
 end;
 
