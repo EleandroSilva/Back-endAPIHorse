@@ -28,7 +28,10 @@ type
       FDSPedido   : TDataSource;
       FJSONObject : TJSONObject;
       FJSONArray  : TJSONArray;
-
+      FIdPedido   : Integer;
+      FIdEmpresa  : Integer;
+      FIdCaixa    : Integer;
+      FIdUsuario  : Integer;
       FFound : Boolean;
       FError : Boolean;
     public
@@ -38,13 +41,13 @@ type
 
       function JSONObject(Value : TJSONObject) : iAlterarPedido; overload;
       function JSONObject                      : TJSONObject;    overload;
-      function Put    : iAlterarPedido;
+      function Put                             : iAlterarPedido; overload;
       function Found  : Boolean;
       function Error  : Boolean;
 
       //injeção de dependência
-      function Pedido : iEntidadePedido <iAlterarPedido>;
-      function &End   : iAlterarPedido;
+      function This : iEntidadePedido<iAlterarPedido>;
+      function &End : iAlterarPedido;
   end;
 
 implementation
@@ -87,7 +90,39 @@ end;
 
 function TAlterarPedido.Put: iAlterarPedido;
 begin
-//
+  //tabela pai(Pedido)
+  FJSONObject := FJSONObject;
+  try
+    FController
+      .FactoryDAO
+        .DAOPedido
+          .This
+            .IdEmpresa          (FJSONObject.GetValue<Integer>  ('idempresa'))
+            .IdCaixa            (FJSONObject.GetValue<Integer>  ('idcaixa'))
+            .IdPessoa           (FJSONObject.GetValue<Integer>  ('idpessoa'))
+            .IdCondicaoPagamento(FJSONObject.GetValue<Integer>  ('idcondicaopagamento'))
+            .IdUsuario          (FJSONObject.GetValue<Integer>  ('idusuario'))
+            .ValorProduto       (FJSONObject.GetValue<Currency> ('valorproduto'))
+            .ValorDesconto      (FJSONObject.GetValue<Currency> ('valordesconto'))
+            .ValorReceber       (FJSONObject.GetValue<Currency> ('valorreceber'))
+            .DataHoraEmissao    (FJSONObject.GetValue<TDateTime>('datahoraemissao'))
+            .Status             (FJSONObject.GetValue<Integer>  ('status')) //(CRIAR PARAMENTO DA EMPRESA, INFORMAR SE NA DIGITAÇÃO TIPO DE INFORMAÇÃO)0-Pedido como orçamento 1-Pedido faturado 3-Pedido Cancelado
+            .Excluido           (FJSONObject.GetValue<Integer>  ('excluido'))//0-Pedido estado normal; 1-Pedido excluído
+          .&End
+        .Post
+        .DataSet(FDSPedido);
+    //Pegando os id(s), necessários para inserir na tabela caixapedido
+    FIdPedido  := FDSPedido.DataSet.FieldByName('id').AsInteger;
+    FIdEmpresa := FJSONObject.GetValue<Integer>('idempresa');
+    FIdCaixa   := FJSONObject.GetValue<Integer>('idcaixa');
+    FIdUsuario := FJSONObject.GetValue<Integer>('idusuario');
+  except
+    on E: Exception do
+    begin
+      WriteLn('Erro ao tentar incluir pedido: ' + E.Message);
+      FError := True;
+    end;
+  end;
 end;
 
 function TAlterarPedido.Found: Boolean;
@@ -101,9 +136,9 @@ begin
 end;
 
 //Injeção de dependência
-function TAlterarPedido.Pedido: iEntidadePedido<iAlterarPedido>;
+function TAlterarPedido.This: iEntidadePedido<iAlterarPedido>;
 begin
-  Result := FPEdido;
+  Result := FPedido;
 end;
 
 function TAlterarPedido.&End: iAlterarPedido;

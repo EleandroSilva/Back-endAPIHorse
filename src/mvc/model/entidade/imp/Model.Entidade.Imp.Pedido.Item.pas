@@ -27,7 +27,7 @@ type
       FValorUnitario     : Currency;
       FValorProduto      : Currency;
       FValorDescontoItem : Currency;
-      FValorFinalItem    : Currency;
+      FValorReceber    : Currency;
 
       FProduto  : iEntidadeProduto<iEntidadePedidoItem<T>>;
     public
@@ -49,8 +49,8 @@ type
       function ValorProduto                        : Currency;               overload;
       function ValorDescontoItem(Value : Currency) : iEntidadePedidoItem<T>; overload;
       function ValorDescontoItem                   : Currency;               overload;
-      function ValorFinalItem   (Value : Currency) : iEntidadePedidoItem<T>; overload;
-      function ValorFinalItem                      : Currency;               overload;
+      function ValorReceber     (Value : Currency) : iEntidadePedidoItem<T>; overload;
+      function ValorReceber                        : Currency;               overload;
 
       //Injeção de dependência
       function Produto  : iEntidadeProduto<iEntidadePedidoItem<T>>;
@@ -74,6 +74,11 @@ end;
 destructor TEntidadePedidoItem<T>.Destroy;
 begin
   inherited;
+end;
+
+class function TEntidadePedidoItem<T>.New(Parent: T): iEntidadePedidoItem<T>;
+begin
+  Result := Self.Create(Parent);
 end;
 
 function TEntidadePedidoItem<T>.Id(Value: Integer): iEntidadePedidoItem<T>;
@@ -100,18 +105,13 @@ end;
 
 function TEntidadePedidoItem<T>.IdProduto(Value: Integer): iEntidadePedidoItem<T>;
 begin
-  result := Self;
+  Result := Self;
   FIdProduto := Value;
 end;
 
 function TEntidadePedidoItem<T>.IdProduto: Integer;
 begin
-  result := FIdProduto;
-end;
-
-class function TEntidadePedidoItem<T>.New(Parent: T): iEntidadePedidoItem<T>;
-begin
-  Result := Self.Create(Parent);
+  Result := FIdProduto;
 end;
 
 function TEntidadePedidoItem<T>.Quantidade(Value: Currency): iEntidadePedidoItem<T>;
@@ -158,15 +158,15 @@ begin
   Result := FValorDescontoItem;
 end;
 
-function TEntidadePedidoItem<T>.ValorFinalItem(Value: Currency): iEntidadePedidoItem<T>;
+function TEntidadePedidoItem<T>.ValorReceber(Value: Currency): iEntidadePedidoItem<T>;
 begin
   Result := Self;
-  FValorFinalItem := Value;
+  FValorReceber := Value;
 end;
 
-function TEntidadePedidoItem<T>.ValorFinalItem: Currency;
+function TEntidadePedidoItem<T>.ValorReceber: Currency;
 begin
-  Result := FValorFinalItem;
+  Result := FValorReceber;
 end;
 
 //Injeção de dependência

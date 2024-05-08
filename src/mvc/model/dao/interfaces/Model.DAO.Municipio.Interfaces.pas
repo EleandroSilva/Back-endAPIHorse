@@ -27,8 +27,8 @@ type
     function Post                              : iDAOMunicipio;
     function Put                               : iDAOMunicipio;
     function Delete                            : iDAOMunicipio;
-    function QuantidadeRegistro                : Integer;
 
+    function QuantidadeRegistro : Integer;
     function This : iEntidadeMunicipio<iDAOMunicipio>;
   end;
 

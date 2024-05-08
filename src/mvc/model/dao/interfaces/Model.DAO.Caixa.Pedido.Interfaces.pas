@@ -26,8 +26,8 @@ type
     function Post                              : iDAOCaixaPedido;
     function Put                               : iDAOCaixaPedido;
     function Delete                            : iDAOCaixaPedido;
-    function QuantidadeRegistro                : Integer;
 
+    function QuantidadeRegistro : Integer;
     function This : iEntidadeCaixaPedido<iDAOCaixaPedido>;
   end;
 

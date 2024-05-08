@@ -27,8 +27,8 @@ type
     function Post                                   : iDAOCondicaoPagamentoItem;
     function Put                                    : iDAOCondicaoPagamentoItem;
     function Delete                                 : iDAOCondicaoPagamentoItem;
-    function QuantidadeRegistro                     : Integer;
 
+    function QuantidadeRegistro : Integer;
     function This : iEntidadeCondicaoPagamentoItem<iDAOCondicaoPagamentoItem>;
   end;
 

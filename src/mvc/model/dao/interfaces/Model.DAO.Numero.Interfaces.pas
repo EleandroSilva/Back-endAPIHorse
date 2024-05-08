@@ -27,8 +27,8 @@ type
     function Post                              : iDAONumero;
     function Put                               : iDAONumero;
     function Delete                            : iDAONumero;
-    function QuantidadeRegistro                : Integer;
 
+    function QuantidadeRegistro : Integer;
     function This : iEntidadeNumero<iDAONumero>;
   end;
 

@@ -56,8 +56,8 @@ type
       function Post                              : iDAOUsuario;
       function Put                               : iDAOUsuario;
       function Delete                            : iDAOUsuario;
-      function QuantidadeRegistro                : Integer;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeUsuario<iDAOUsuario>;
   end;
 
@@ -107,70 +107,73 @@ function TDAOUsuario.GetAll: iDAOUsuario;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOUsuario.GetAll - ao tentar encontrar usuario todos: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FUsuario.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FUsuario.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FUsuario.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FUsuario.Id(0);
 end;
 
 function TDAOUsuario.GetbyId(Id: Variant): iDAOUsuario;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where u.Id=:Id ')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOUsuario.GetbyId - ao tentar encontrar usuario por Id: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FUsuario.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FUsuario.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FUsuario.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FUsuario.Id(0);
 end;
 
 function TDAOUsuario.GetbyParams: iDAOUsuario;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL+' where ((lower(email) like lower(:email) and (senha=:senha))) ')
-                   .Params('email', FUsuario.EMail)
-                   .Params('senha', FUsuario.Senha)
-                   .Open
-                 .DataSet;
-   except
-     on E: Exception do
-     raise exception.Create(FMSG.MSGerroGet+E.Message);
-   end;
-  finally
-    if not FDataSet.IsEmpty then
+    FDataSet := FQuery
+                  .SQL(FSQL+' where ((lower(email) like lower(:email) and (senha=:senha))) ')
+                    .Params('email', FUsuario.EMail)
+                    .Params('senha', FUsuario.Senha)
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
     begin
-      FUsuario.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FUsuario.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOUsuario.GetbyParams - ao tentar encontrar usuario email+senha: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FUsuario.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FUsuario.Id(0);
 end;
 
 function TDAOUsuario.Post: iDAOUsuario;
@@ -197,31 +200,29 @@ begin
   Result := Self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('idempresa'       , FUsuario.IdEmpresa)
-          .Params('nomeusuario'     , FUsuario.NomeUsuario)
-          .Params('email'           , FUsuario.EMail)
-          .Params('senha'           , FUsuario.Senha)
-          .Params('datahoraemissao' , FUsuario.DataHoraEmissao)
-          .Params('ativo'           , FUsuario.Ativo)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idempresa'       , FUsuario.IdEmpresa)
+        .Params('nomeusuario'     , FUsuario.NomeUsuario)
+        .Params('email'           , FUsuario.EMail)
+        .Params('senha'           , FUsuario.Senha)
+        .Params('datahoraemissao' , FUsuario.DataHoraEmissao)
+        .Params('ativo'           , FUsuario.Ativo)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOUsuario.Post - ao tentar incluir usuario: ' + E.Message);
+      Abort;
     end;
-  finally
+  end;
     FConexao.Commit;
     FDataSet := FQuery
                     .SQL('select LAST_INSERT_ID () as id')
                     .Open
                     .DataSet;
     FUsuario.Id(FDataSet.FieldByName('id').AsInteger);
-  end;
 end;
 
 function TDAOUsuario.Put: iDAOUsuario;
@@ -237,30 +238,27 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'              , FUsuario.Id)
-          .Params('idempresa'       , FUsuario.IdEmpresa)
-          .Params('nomeusuario'     , FUsuario.NomeUsuario)
-          .Params('email'           , FUsuario.EMail)
-          .Params('senha'           , FUsuario.Senha)
-          .Params('datahoraemissao' , FUsuario.DataHoraEmissao)
-          .Params('ativo'           , FUsuario.Ativo)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'              , FUsuario.Id)
+        .Params('idempresa'       , FUsuario.IdEmpresa)
+        .Params('nomeusuario'     , FUsuario.NomeUsuario)
+        .Params('email'           , FUsuario.EMail)
+        .Params('senha'           , FUsuario.Senha)
+        .Params('datahoraemissao' , FUsuario.DataHoraEmissao)
+        .Params('ativo'           , FUsuario.Ativo)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOUsuario.Put - ao tentar alterar usuario: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOUsuario.Delete: iDAOUsuario;
@@ -270,20 +268,18 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-               .Params('id', FUsuario.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+    FQuery.SQL(LSQL)
+                 .Params('id', FUsuario.Id)
+               .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOUsuario.Delete - ao tentar excluír usuario: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOUsuario.LoopRegistro(Value : Integer): Integer;

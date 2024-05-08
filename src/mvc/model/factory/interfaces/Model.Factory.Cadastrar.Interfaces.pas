@@ -29,7 +29,7 @@ uses
 
 type
   iFactoryCadastrar = Interface
-    ['{AA0EA18A-6CC0-442C-8F61-D8B8740A66CB}']
+    ['{0B168459-6789-4612-A4D8-3227E93A49F8}']
     function CadastrarEmpresa  : iCadastrarEmpresa;
     function CadastrarUsuario  : iCadastrarUsuario;
     function CadastrarEndereco : iCadastrarEndereco;

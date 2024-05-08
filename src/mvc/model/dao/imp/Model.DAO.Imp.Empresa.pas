@@ -64,8 +64,8 @@ type
       function Post                              : iDAOEmpresa;
       function Put                               : iDAOEmpresa;
       function Delete                            : iDAOEmpresa;
-      function QuantidadeRegistro                : Integer;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeEmpresa<iDAOEmpresa>;
   end;
 
@@ -116,48 +116,50 @@ function TDAOEmpresa.GetAll: iDAOEmpresa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('order by e.id asc')
                     .Open
                   .DataSet;
-    except
-      on E:Exception do
-     raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FEmpresa.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEmpresa.GetbyAll - ao tentar encontrar empresa por Id: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FEmpresa.Id(0);
 end;
 
 function TDAOEmpresa.GetbyId(Id: Variant): iDAOEmpresa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where e.id=:id')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E:Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEmpresa.GetbyAll - ao tentar encontrar empresa por Id: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FEmpresa.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FEmpresa.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FEmpresa.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FEmpresa.Id(0);
 end;
 
 function TDAOEmpresa.GetbyCNPJ(CNPJ: String): iDAOEmpresa;
@@ -165,55 +167,51 @@ begin
   Result := Self;
   FUteis.ValidaCnpjCeiCpf(CNPJ, True);
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where e.cnpj=:cnpj')
                     .Params('cnpj', CNPJ)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      begin
-        WriteLn('Erro ao tentar filtrar tabela empresa pelo cnpj: ' + E.Message);
-        raise Exception.Create(FMSG.MSGerroGet+E.Message);
-      end;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEmpresa.GetbyCNPJ - ao tentar encontrar empresa por CNPJ: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FEmpresa.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FEmpresa.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FEmpresa.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FEmpresa.Id(0);
 end;
 
 function TDAOEmpresa.GetbyParams: iDAOEmpresa;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL+' where ' + FUteis.Pesquisar('e.nomeempresarial', ';' + FEmpresa.NomeEmpresarial))
-                   .Open
-                 .DataSet;
+    FDataSet := FQuery
+                  .SQL(FSQL+' where ' + FUteis.Pesquisar('e.nomeempresarial', ';' + FEmpresa.NomeEmpresarial))
+                  .Open
+                  .DataSet;
 
 
-   except
-     on E:Exception do
-     begin
-       WriteLn('Erro ao tentar filtrar tabela empresa pelo nomeempresa: ' + E.Message);
-       raise exception.Create(FMSG.MSGerroGet+E.Message);
-     end;
-   end;
-  finally
-   if not FDataSet.IsEmpty then
-   begin
-     FEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
-     QuantidadeRegistro;
-   end
-   else
-     FEmpresa.Id(0);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEmpresa.GetbyParams - ao tentar encontrar empresa por nomeempresarial: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+   FEmpresa.Id(0);
 end;
 
 function TDAOEmpresa.Post: iDAOEmpresa;
@@ -244,33 +242,31 @@ begin
   Result := Self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('cnpj'                 , FEmpresa.CNPJ)
-          .Params('inscricaoestadual'    , Fempresa.InscricaoEstadual)
-          .Params('nomeempresarial'      , FEmpresa.NomeEmpresarial)
-          .Params('nomefantasia'         , FEmpresa.NomeFantasia)
-          .Params('idnaturezajuridica'   , FEmpresa.IdNaturezaJuridica)
-          .Params('datahoraemissao'      , FEmpresa.DataHoraEmissao)
-          .Params('datasituacaocadastral', FEmpresa.DataSituacaoCadastral)
-          .Params('ativo'                , FEmpresa.Ativo)
-          .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('cnpj'                 , FEmpresa.CNPJ)
+        .Params('inscricaoestadual'    , Fempresa.InscricaoEstadual)
+        .Params('nomeempresarial'      , FEmpresa.NomeEmpresarial)
+        .Params('nomefantasia'         , FEmpresa.NomeFantasia)
+        .Params('idnaturezajuridica'   , FEmpresa.IdNaturezaJuridica)
+        .Params('datahoraemissao'      , FEmpresa.DataHoraEmissao)
+        .Params('datasituacaocadastral', FEmpresa.DataSituacaoCadastral)
+        .Params('ativo'                , FEmpresa.Ativo)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEmpresa.Post - ao tentar incluir empresa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id ')
-                    .Open
-                    .DataSet;
-    FEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id ')
+                  .Open
+                .DataSet;
+  FEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAOEmpresa.Put: iDAOEmpresa;
@@ -291,29 +287,27 @@ begin
 
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'                    , FEmpresa.Id)
-          .Params('cnpj'                  , FEmpresa.CNPJ)
-          .Params('inscricaoestadual'     , FEmpresa.InscricaoEstadual)
-          .Params('nomeempresarial'       , FEmpresa.NomeEmpresarial)
-          .Params('nomefantasia'          , FEmpresa.NomeFantasia)
-          .Params('idnaturezajuridica'    , FEmpresa.IdNaturezaJuridica)
-          .Params('datahoraemissao'       , FEmpresa.DataHoraEmissao)
-          .Params('datasituacaocadastral' , FEmpresa.DataSituacaoCadastral)
-          .Params('ativo'                 , FEmpresa.Ativo)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'                    , FEmpresa.Id)
+        .Params('cnpj'                  , FEmpresa.CNPJ)
+        .Params('inscricaoestadual'     , FEmpresa.InscricaoEstadual)
+        .Params('nomeempresarial'       , FEmpresa.NomeEmpresarial)
+        .Params('nomefantasia'          , FEmpresa.NomeFantasia)
+        .Params('idnaturezajuridica'    , FEmpresa.IdNaturezaJuridica)
+        .Params('datahoraemissao'       , FEmpresa.DataHoraEmissao)
+        .Params('datasituacaocadastral' , FEmpresa.DataSituacaoCadastral)
+        .Params('ativo'                 , FEmpresa.Ativo)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEmpresa.Put - ao tentar alterar empresa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOEmpresa.Delete: iDAOEmpresa;
@@ -323,20 +317,18 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-               .Params('id', FEmpresa.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+    FQuery.SQL(LSQL)
+                .Params('id', FEmpresa.Id)
+              .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEmpresa.Delete - ao tentar excluír empresa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOEmpresa.LoopRegistro(Value : Integer): Integer;

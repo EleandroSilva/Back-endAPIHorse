@@ -11,6 +11,9 @@ unit Model.Entidade.Condicao.Pagamento.Interfaces;
 
 interface
 
+uses
+  Model.Entidade.Condicao.Pagamento.Item.Interfaces;
+
 type
   iEntidadeCondicaoPagamento<T> = interface
     ['{45D63033-35E5-4FF1-8216-555B92137C8F}']

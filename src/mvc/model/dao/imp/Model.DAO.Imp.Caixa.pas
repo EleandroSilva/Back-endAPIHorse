@@ -57,13 +57,13 @@ type
       function GetAll                                : iDAOCaixa;
       function GetbyId    (Id : Variant)             : iDAOCaixa;
       function GetbyParams                           : iDAOCaixa; overload;
-      function GetbyParams(aIdUsuario : Variant)     : iDAOCaixa; overload;
-      function GetbyParams(aNomeUsuario : String)    : iDAOCaixa; overload;
+      function GetbyParams(IdUsuario : Variant)      : iDAOCaixa; overload;
+      function GetbyParams(NomeUsuario : String)     : iDAOCaixa; overload;
       function Post                                  : iDAOCaixa;
       function Put                                   : iDAOCaixa;
       function Delete                                : iDAOCaixa;
-      function QuantidadeRegistro                    : Integer;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeCaixa<iDAOCaixa>;
   end;
 
@@ -114,122 +114,127 @@ function TDAOCaixa.GetAll: iDAOCaixa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FCaixa.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FCaixa.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro  no TDAOCaixa.GetAll -ao tentar encontrar todos os caixa(s): ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FCaixa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FCaixa.Id(0);
 end;
 
 function TDAOCaixa.GetbyId(Id: Variant): iDAOCaixa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL+' where cd.Id=:Id')
+    FDataSet := FQuery
+                  .SQL(FSQL+' where cd.Id=:Id')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
     except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro  no TDAOCaixa.GetId -ao tentar encontrar todos os caixa(s): ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FCaixa.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FCaixa.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FCaixa.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FCaixa.Id(0);
 end;
 
 function TDAOCaixa.GetbyParams: iDAOCaixa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where u.nomeusuario=:nomeusuario')
                     .Params('nomeusuario', FCaixa.Usuario.NomeUsuario)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FCaixa.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FCaixa.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro  no TDAOCaixa.GetParams -ao tentar encontrar caixa(s) por nomeusuario: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FCaixa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FCaixa.Id(0);
 end;
 
-function TDAOCaixa.GetbyParams(aIdUsuario: Variant): iDAOCaixa;
+function TDAOCaixa.GetbyParams(IdUsuario: Variant): iDAOCaixa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where cx.idusuario=:idusuario')
-                    .Params('idusuario', FCaixa.IdUsuario)
-                    .Open
+                    .Params('idusuario', IdUsuario)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FCaixa.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FCaixa.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro  no TDAOCaixa.GetParams -ao tentar encontrar caixa(s) aIdUsuario: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FCaixa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FCaixa.Id(0);
 end;
 
-function TDAOCaixa.GetbyParams(aNomeUsuario: String): iDAOCaixa;
+function TDAOCaixa.GetbyParams(NomeUsuario: String): iDAOCaixa;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL+' where ' + FUteis.Pesquisar('u.nomeusuario', ';' + aNomeUsuario))
-                   .Open
-                 .DataSet;
-   except
-     on E: Exception do
-     raise exception.Create(FMSG.MSGerroGet+E.Message);
-   end;
-  finally
-    if not FDataSet.IsEmpty then
+    FDataSet := FQuery
+                  .SQL(FSQL+' where ' + FUteis.Pesquisar('u.nomeusuario', ';' + NomeUsuario))
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
     begin
-      FCaixa.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FCaixa.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro  no TDAOCaixa.GetAll -ao tentar encontrar caixa(s) NomeUsuario: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FCaixa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FCaixa.Id(0);
 end;
 
 function TDAOCaixa.Post: iDAOCaixa;
@@ -254,30 +259,28 @@ begin
   Result := Self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('idempresa'       , FCaixa.IdEmpresa)
-          .Params('idusuario'       , FCaixa.IdUsuario)
-          .Params('valorinicial'    , FCaixa.ValorInicial)
-          .Params('datahoraemissao' , FCaixa.DataHoraEmissao)
-          .Params('status'          , FCaixa.Status)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idempresa'       , FCaixa.IdEmpresa)
+        .Params('idusuario'       , FCaixa.IdUsuario)
+        .Params('valorinicial'    , FCaixa.ValorInicial)
+        .Params('datahoraemissao' , FCaixa.DataHoraEmissao)
+        .Params('status'          , FCaixa.Status)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro  no TDAOCaixa.Post -ao tentar insert into caixa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
+  end;
+  FConexao.Commit;
+  FDataSet := FQuery
                     .SQL('select LAST_INSERT_ID () as id')
                     .Open
                     .DataSet;
-    FCaixa.Id(FDataSet.FieldByName('id').AsInteger);
-  end;
+  FCaixa.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAOCaixa.Put: iDAOCaixa;
@@ -289,26 +292,23 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'           , FCaixa.Id)
-          .Params('idempresa'    , FCaixa.IdEmpresa)
-          .Params('valorinicial' , FCaixa.ValorInicial)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'           , FCaixa.Id)
+        .Params('idempresa'    , FCaixa.IdEmpresa)
+        .Params('valorinicial' , FCaixa.ValorInicial)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro  no TDAOCaixa.Put -ao tentar update caixa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOCaixa.Delete: iDAOCaixa;
@@ -318,20 +318,18 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-              .Params('id', FCaixa.Id)
-            .ExecSQL;
+    FQuery.SQL(LSQL)
+                .Params('id', FCaixa.Id)
+              .ExecSQL;
     except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro  no TDAOCaixa.Delete -ao tentar delete caixa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOCaixa.LoopRegistro(Value: Integer): Integer;

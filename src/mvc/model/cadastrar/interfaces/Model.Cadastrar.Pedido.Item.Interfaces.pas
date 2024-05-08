@@ -12,19 +12,21 @@ unit Model.Cadastrar.Pedido.Item.Interfaces;
 interface
 
 uses
+  Data.DB,
   System.JSON,
   Model.Entidade.Pedido.Item.Interfaces;
 
 type
   iCadastrarPedidoItem = Interface
-    ['{0C89BB3C-025A-4B58-B6DC-3F8B78EE8E35}']
-    function JSONObjectPai(Value : TJSONObject) : iCadastrarPedidoItem; overload;
-    function JSONObjectPai                      : TJSONObject;          overload;
+    ['{0EEAD4D9-411A-4A37-A000-EAFEE466C315}']
+    function JSONObjectPai(Value : TJSONObject)   : iCadastrarPedidoItem; overload;
+    function JSONObjectPai                        : TJSONObject;          overload;
+    function DataSet(DataSource : TDataSource)    : iCadastrarPedidoItem; overload;
+    function DataSet                              : TDataSet;             overload;
     function Post   : iCadastrarPedidoItem;
     function Error  : Boolean;
     //injeção de dependência
-    function PedidoItem : iEntidadePedidoItem<iCadastrarPedidoItem>;
-    function &End       : iCadastrarPedidoItem;
+    function This : iEntidadePedidoItem<iCadastrarPedidoItem>;
   End;
 
 implementation

@@ -109,8 +109,6 @@ type
       function DAOPedidoPagamento   : iDAOPedidoPagamento;
       function DAOMovimentoPedido   : iDAOMovimentoPedido;
       function DAOCaixaPedido       : iDAOCaixaPedido;
-
-
       function DAOCondicaoPagamento     : iDAOCondicaoPagamento;
       function DAOCondicaoPagamentoItem : iDAOCondicaoPagamentoItem;
   end;

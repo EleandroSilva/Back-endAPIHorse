@@ -58,8 +58,8 @@ type
       function Post                              : iDAOEstado;
       function Put                               : iDAOEstado;
       function Delete                            : iDAOEstado;
-      function QuantidadeRegistro                : Integer;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeEstado<iDAOEstado>;
   end;
 
@@ -107,73 +107,76 @@ function TDAOEstado.GetAll: iDAOEstado;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEstado.GetAll - ao tentar encontrar estado todos: ' + E.Message);
+      Abort;
     end;
-  finally
-   if not FDataSet.IsEmpty then
-   begin
-     FEstado.Id(FDataSet.FieldByName('id').AsInteger);
-     QuantidadeRegistro;
-   end
-   else
-     FEstado.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FEstado.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FEstado.Id(0);
 end;
 
 function TDAOEstado.GetbyId(Id: Variant): iDAOEstado;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where e.Id=:Id')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEstado.GetbyId - ao tentar encontrar estado por Id: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FEstado.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FEstado.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FEstado.Id(FDataSet.FieldByName('id').AsInteger)
+  else
+    FEstado.Id(0);
 end;
 
 function TDAOEstado.GetbyParams: iDAOEstado;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL)
-                   .Add('where e.uf=:uf')
-                   .Params('uf', FEstado.UF)
-                   .Open
-                 .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                    .Add('where e.uf=:uf')
+                    .Params('uf', FEstado.UF)
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
     begin
-      FEstado.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FEstado.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEstado.GetbyParams - ao tentar encontrar estado por uf: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FEstado.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FEstado.Id(0);
 end;
 
 function TDAOEstado.Post: iDAOEstado;
@@ -194,32 +197,29 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('idestado' , FEstado.IdEstado)
-          .Params('idregiao' , FEstado.IdRegiao)
-          .Params('estado'   , FEstado.Estado)
-          .Params('uf'       , FEstado.UF)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idestado' , FEstado.IdEstado)
+        .Params('idregiao' , FEstado.IdRegiao)
+        .Params('estado'   , FEstado.Estado)
+        .Params('uf'       , FEstado.UF)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEstado.Post - ao tentar incluír estado: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FEstado.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                .Open
+                .DataSet;
+  FEstado.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAOEstado.Put: iDAOEstado;
@@ -233,28 +233,25 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'       , FEstado.Id)
-          .Params('idestado' , FEstado.IdEstado)
-          .Params('idregiao' , FEstado.IdRegiao)
-          .Params('estado'   , FEstado.Estado)
-          .Params('uf'       , FEstado.UF)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'       , FEstado.Id)
+        .Params('idestado' , FEstado.IdEstado)
+        .Params('idregiao' , FEstado.IdRegiao)
+        .Params('estado'   , FEstado.Estado)
+        .Params('uf'       , FEstado.UF)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEstado.Post - ao tentar incluír estado: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOEstado.Delete: iDAOEstado;
@@ -264,20 +261,18 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-               .Params('id', FEstado.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+    FQuery.SQL(LSQL)
+                .Params('id', FEstado.Id)
+              .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEstado.Delete - ao tentar excluír estado: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOEstado.LoopRegistro(Value : Integer): Integer;

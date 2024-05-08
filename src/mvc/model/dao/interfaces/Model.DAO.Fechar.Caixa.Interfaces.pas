@@ -24,14 +24,14 @@ type
     function GetAll                                : iDAOFecharCaixa;
     function GetbyId    (Id : Variant)             : iDAOFecharCaixa;
     function GetbyParams                           : iDAOFecharCaixa; overload;
-    function GetbyParams(aIdUsuario : Variant)     : iDAOFecharCaixa; overload;
-    function GetbyParams(aNomeUsuario : String)    : iDAOFecharCaixa; overload;
-    function GetbyParams(aIdPedido : Integer)      : iDAOFecharCaixa; overload;
+    function GetbyParams(IdUsuario : Variant)      : iDAOFecharCaixa; overload;
+    function GetbyParams(NomeUsuario : String)     : iDAOFecharCaixa; overload;
+    function GetbyParams(IdPedido : Integer)       : iDAOFecharCaixa; overload;
     function Post                                  : iDAOFecharCaixa;
     function Put                                   : iDAOFecharCaixa;
     function Delete                                : iDAOFecharCaixa;
-    function QuantidadeRegistro                    : Integer;
 
+    function QuantidadeRegistro : Integer;
     function This : iEntidadeFecharCaixa<iDAOFecharCaixa>;
   end;
 

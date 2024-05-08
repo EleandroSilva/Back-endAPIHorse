@@ -61,8 +61,8 @@ type
       function Post                              : iDAOMunicipio;
       function Put                               : iDAOMunicipio;
       function Delete                            : iDAOMunicipio;
-      function QuantidadeRegistro                : Integer;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeMunicipio<iDAOMunicipio>;
   end;
 
@@ -111,71 +111,74 @@ function TDAOMunicipio.GetAll: iDAOMunicipio;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-       FMunicipio.Id(FDataSet.FieldByName('id').AsInteger);
-       QuantidadeRegistro;
-    end
-    else
-       FMunicipio.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOMunicipio.GetAll - ao tentar encontrar Municipio: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+     FMunicipio.Id(FDataSet.FieldByName('id').AsInteger);
+     QuantidadeRegistro;
+  end
+  else
+     FMunicipio.Id(0);
 end;
 
 function TDAOMunicipio.GetbyId(Id: Variant): iDAOMunicipio;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where m.Id=:Id')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOMunicipio.GetbyId - ao tentar encontrar Municipio por Id: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FMunicipio.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FMunicipio.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FMunicipio.Id(FDataSet.FieldByName('id').AsInteger)
+  else
+    FMunicipio.Id(0);
 end;
 
 function TDAOMunicipio.GetbyParams: iDAOMunicipio;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL+' where ' + FUteis.Pesquisar('m.municipio', ';' + FMunicipio.Municipio))
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL+' where ' + FUteis.Pesquisar('m.municipio', ';' + FMunicipio.Municipio))
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FMunicipio.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FMunicipio.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOMunicipio.GetbyParams - ao tentar encontrar Municipio por municipio: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FMunicipio.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FMunicipio.Id(0);
 end;
 
 function TDAOMunicipio.Post: iDAOMunicipio;
@@ -196,32 +199,29 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('ibge'      , FMunicipio.IBGE)
-          .Params('idestado'  , FMunicipio.IdEstado)
-          .Params('municipio' , FMunicipio.Municipio)
-          .Params('uf'        , FMunicipio.UF)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('ibge'      , FMunicipio.IBGE)
+        .Params('idestado'  , FMunicipio.IdEstado)
+        .Params('municipio' , FMunicipio.Municipio)
+        .Params('uf'        , FMunicipio.UF)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOMunicipio.Post - ao tentar incluir novo Municipio: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FMunicipio.Id(FDataSet.FieldByName('m.id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                .Open
+                .DataSet;
+  FMunicipio.Id(FDataSet.FieldByName('m.id').AsInteger);
 end;
 
 function TDAOMunicipio.Put: iDAOMunicipio;
@@ -235,28 +235,25 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'        , FMunicipio.Id)
-          .Params('ibge'      , FMunicipio.IBGE)
-          .Params('idestado'  , FMunicipio.IdEstado)
-          .Params('municipio' , FMunicipio.Municipio)
-          .Params('uf'        , FMunicipio.UF)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'        , FMunicipio.Id)
+        .Params('ibge'      , FMunicipio.IBGE)
+        .Params('idestado'  , FMunicipio.IdEstado)
+        .Params('municipio' , FMunicipio.Municipio)
+        .Params('uf'        , FMunicipio.UF)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOMunicipio.Put - ao tentar alterar Municipio: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOMunicipio.Delete: iDAOMunicipio;
@@ -266,20 +263,18 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-               .Params('id', FMunicipio.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+    FQuery.SQL(LSQL)
+                 .Params('id', FMunicipio.Id)
+               .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOMunicipio.Delete - ao tentar excluír Municipio: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOMunicipio.LoopRegistro(Value : Integer): Integer;

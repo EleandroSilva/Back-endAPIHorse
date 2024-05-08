@@ -26,12 +26,15 @@ type
     private
       FController      : iController;
       FPedidoPagamento : iEntidadePedidoPagamento<iCadastrarPedidoPagamento>;
-      FDSPedidoPagamento : TDataSource;
+      FDataSet : TDataSource;
+      FDataSetSomar : TDataSource;
 
       FJSONObjectPai : TJSONObject;
       FJSONArray     : TJSONArray;
       FJSONObject    : TJSONObject;
       FError : Boolean;
+
+      procedure SomarTabelaPedidoItem;
     public
       constructor Create;
       destructor Destroy; override;
@@ -42,8 +45,7 @@ type
       function Post   : iCadastrarPedidoPagamento;
       function Error  : Boolean;
       //injeção de dependência
-      function PedidoPagamento : iEntidadePedidoPagamento<iCadastrarPedidoPagamento>;
-      function &End : iCadastrarPedidoPagamento;
+      function This : iEntidadePedidoPagamento<iCadastrarPedidoPagamento>;
   end;
 
 implementation
@@ -56,9 +58,11 @@ uses
 
 constructor TCadastrarPedidoPagamento.Create;
 begin
-  FController        := TController.New;;
-  FPedidoPagamento   := TEntidadePedidoPagamento<iCadastrarPedidoPagamento>.New(Self);
-  FDSPedidoPagamento := TDataSource.Create(nil);
+  FController      := TController.New;;
+  FPedidoPagamento := TEntidadePedidoPagamento<iCadastrarPedidoPagamento>.New(Self);
+  FDataSet      := TDataSource.Create(nil);
+  FDataSetSomar := TDataSource.Create(nil);
+  FError := False;
 end;
 
 destructor TCadastrarPedidoPagamento.Destroy;
@@ -66,6 +70,10 @@ begin
   inherited;
 end;
 
+class function TCadastrarPedidoPagamento.New: iCadastrarPedidoPagamento;
+begin
+  Result := Self.Create;
+end;
 
 function TCadastrarPedidoPagamento.JSONObjectPai(Value: TJSONObject): iCadastrarPedidoPagamento;
 begin
@@ -78,32 +86,42 @@ begin
   Result := FJSONObjectPai;
 end;
 
-class function TCadastrarPedidoPagamento.New: iCadastrarPedidoPagamento;
-begin
-  Result := Self.Create;
-end;
-
 function TCadastrarPedidoPagamento.Post: iCadastrarPedidoPagamento;
 Var
-  I : Integer;
+  I, lQtde : Integer;
+  lValorParcela : Currency;
 begin
+  Result := Self;
   //Obtém os dados JSON do corpo da requisição da tabela('pedidopagamento')
   FJSONArray := FJSONObjectPai.GetValue('pedidopagamento') as TJSONArray;
-  // Loop inserindo pedidopagamento(ns)
-  for I := 0 to FJSONArray.Count - 1 do
+  SomarTabelaPedidoItem;
+  FController
+    .FactoryDAO
+      .DAOPedidoPagamento
+        .This
+          .IdPedido           (FPedidoPagamento.IdPedido)
+          .IdCondicaoPagamento(FJSONObjectPai.GetValue<Integer>('idcondicaopagamento'))
+        .&End
+          .ValorReceber(FDataSetSomar.DataSet.FieldByName('valorreceber').AsCurrency)
+          .CalcularVencimentoValorParcela
+        .DataSet(FDataSet);
+  lQtde := FDataSet.DataSet.FieldByName('quantidadepagamento').AsInteger;
+  for I := 0 to lQtde - 1 do
   begin
-    //Extraindo os dados do pagamento do pedido e salvando os dados na tabela
-    FJSONObject := FJSONArray.Items[I] as TJSONObject;
+    lValorParcela :=0;
     try
-      FController
-        .FactoryDAO
-          .DAOPedidoPagamento
-            .This
-              .IdPedido      (FPedidoPagamento.IdPedido)
-              .DataVencimento(FJSONObject.GetValue<TDateTime>('datavencimento'))
-              .ValorParcela  (FJSONObject.GetValue<Currency> ('valorparcela'))
-            .&End
-          .Post;
+      lValorParcela := FDataSetSomar.DataSet.FieldByName('valorreceber').AsCurrency/ lQtde;
+        FController
+          .FactoryDAO
+            .DAOPedidoPagamento
+              .This
+                .IdPedido           (FPedidoPagamento.IdPedido)
+                .IdCondicaoPagamento(FJSONObjectPai.GetValue<Integer>('idcondicaopagamento'))
+                .DataVencimento     (FDataSet.DataSet.FieldByName('datavencimento').AsDateTime)
+                .ValorParcela       (lValorParcela)
+                .ValorReceber       (FDataSetSomar.DataSet.FieldByName('valorreceber').AsCurrency)
+              .&End
+            .Post;
     except
       on E: Exception do
       begin
@@ -123,20 +141,26 @@ begin
   end;
 end;
 
+procedure TCadastrarPedidoPagamento.SomarTabelaPedidoItem;
+begin
+  FController
+    .FactoryDAO
+      .DAOPedidoItem
+        .This
+          .IdPedido(FPedidoPagamento.IdPedido)
+        .&End
+      .SomarPedidoItem
+      .DataSet(FDataSetSomar);
+end;
+
 function TCadastrarPedidoPagamento.Error: Boolean;
 begin
   Result := FError;
 end;
 
-//Injeção de dependência
-function TCadastrarPedidoPagamento.PedidoPagamento: iEntidadePedidoPagamento<iCadastrarPedidoPagamento>;
+function TCadastrarPedidoPagamento.This: iEntidadePedidoPagamento<iCadastrarPedidoPagamento>;
 begin
   Result := FPedidoPagamento;
-end;
-
-function TCadastrarPedidoPagamento.&End: iCadastrarPedidoPagamento;
-begin
-  Result := Self;
 end;
 
 end.

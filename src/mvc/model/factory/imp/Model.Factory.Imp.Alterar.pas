@@ -21,7 +21,10 @@ uses
   Model.Alterar.Usuario.Interfaces,
   Model.Alterar.Pessoa.Interfaces,
   Model.Alterar.Email.Pessoa.Interfaces,
-  Model.Alterar.Telefone.Pessoa.Interfaces;
+  Model.Alterar.Telefone.Pessoa.Interfaces,
+  Model.Alterar.Pedido.Interfaces,
+  Model.Alterar.Pedido.Item.Interfaces,
+  Model.Alterar.Pedido.Pagamento.Interfaces;
 
 type
   TFactoryAlterar = class(TInterfacedObject, iFactoryAlterar)
@@ -35,6 +38,9 @@ type
       FAlterarPessoa          : iAlterarPessoa;
       FAlterarEmailPessoa     : iAlterarEmailPessoa;
       FAlterarTelefonePessoa  : iAlterarTelefonePessoa;
+      FAlterarPedido          : iAlterarPedido;
+      FAlterarPedidoItem      : iAlterarPedidoItem;
+      FAlterarPedidoPagamento : iAlterarPedidoPagamento;
     public
       constructor Create;
       destructor Destroy; override;
@@ -49,6 +55,9 @@ type
       function AlterarPessoa          : iAlterarPessoa;
       function AlterarEmailPessoa     : iAlterarEmailPessoa;
       function AlterarTelefonePessoa  : iAlterarTelefonePessoa;
+      function AlterarPedido          : iAlterarPedido;
+      function AlterarPedidoItem      : iAlterarPedidoItem;
+      function AlterarPedidoPagamento : iAlterarPedidoPagamento;
   end;
 
 implementation
@@ -60,8 +69,12 @@ uses
   Model.Imp.Alterar.Endereco,
   Model.Imp.Alterar.Numero,
   Model.Imp.Alterar.Usuario,
-  Model.Imp.Alterar.Email.Pessoa, Model.Imp.Alterar.Pessoa,
-  Model.Imp.Alterar.Telefone.Pessoa;
+  Model.Imp.Alterar.Email.Pessoa,
+  Model.Imp.Alterar.Pessoa,
+  Model.Imp.Alterar.Telefone.Pessoa,
+  Model.Imp.Alterar.Pedido,
+  Model.Imp.Alterar.Pedido.Item,
+  Model.Imp.Alterar.Pedido.Pagamento;
 
 { TFactoryAlterar }
 
@@ -152,6 +165,30 @@ begin
     FAlterarEmailPessoa := TAlterarEmailPessoa.New;
 
   Result := FAlterarEmailPessoa;
+end;
+
+function TFactoryAlterar.AlterarPedido: iAlterarPedido;
+begin
+  if not Assigned(FAlterarPedido) then
+    FAlterarPedido := TAlterarPedido.New;
+
+  Result := FAlterarPedido;
+end;
+
+function TFactoryAlterar.AlterarPedidoItem: iAlterarPedidoItem;
+begin
+  if not Assigned(FAlterarPedidoItem) then
+    FAlterarPedidoItem := TAlterarPedidoItem.New;
+
+  Result := FAlterarPedidoItem;
+end;
+
+function TFactoryAlterar.AlterarPedidoPagamento: iAlterarPedidoPagamento;
+begin
+  if not Assigned(FAlterarPedidoPagamento) then
+    FAlterarPedidoPagamento := TAlterarPedidoPagamento.New;
+
+  Result := FAlterarPedidoPagamento;
 end;
 
 end.

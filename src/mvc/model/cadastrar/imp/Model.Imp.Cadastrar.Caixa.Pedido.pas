@@ -26,7 +26,6 @@ type
     private
       FController    : iController;
       FCaixaPedido   : iEntidadeCaixaPedido<iCadastrarCaixaPedido>;
-      FDSCaixaPedido : TDataSource;
 
       FError : Boolean;
 
@@ -43,8 +42,7 @@ type
       function Post   : iCadastrarCaixaPedido;
       function Error  : Boolean;
       //injeção de dependência
-      function CaixaPedido : iEntidadeCaixaPedido<iCadastrarCaixaPedido>;
-      function &End : iCadastrarCaixaPedido;
+      function This : iEntidadeCaixaPedido<iCadastrarCaixaPedido>;
   end;
 
 implementation
@@ -59,7 +57,7 @@ constructor TCadastrarCaixaPedido.Create;
 begin
   FController    := TController.New;
   FCaixaPedido   := TEntidadeCaixaPedido<iCadastrarCaixaPedido>.New(Self);
-  FDSCaixaPedido := TDataSource.Create(nil);
+  FError := False;
 end;
 
 destructor TCadastrarCaixaPedido.Destroy;
@@ -120,15 +118,9 @@ begin
   Result := FError;
 end;
 
-//Injeção de dependência
-function TCadastrarCaixaPedido.CaixaPedido: iEntidadeCaixaPedido<iCadastrarCaixaPedido>;
+function TCadastrarCaixaPedido.This: iEntidadeCaixaPedido<iCadastrarCaixaPedido>;
 begin
-  result := FCaixaPedido;
-end;
-
-function TCadastrarCaixaPedido.&End: iCadastrarCaixaPedido;
-begin
-  Result := Self;
+  Result := FCaixaPedido;
 end;
 
 end.

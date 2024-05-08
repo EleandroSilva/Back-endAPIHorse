@@ -27,8 +27,13 @@ Type
     function Post                                  : iDAOPedidoPagamento;
     function Put                                   : iDAOPedidoPagamento;
     function Delete                                : iDAOPedidoPagamento;
-    function QuantidadeRegistro                    : Integer;
+    function CalcularVencimentoValorParcela        : iDAOPedidoPagamento;
+    function ValorReceber(Value : Currency)        : iDAOPedidoPagamento; overload;
+    function ValorReceber                          : Currency;            overload;
+    function ValorParcela(Value : Currency)        : iDAOPedidoPagamento; overload;
+    function ValorParcela                          : Currency;            overload;
 
+    function QuantidadeRegistro : Integer;
     function This : iEntidadePedidoPagamento<iDAOPedidoPagamento>;
   End;
 

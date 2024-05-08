@@ -24,13 +24,13 @@ type
     function GetAll                            : iDAOPessoa;
     function GetbyId(Id : Variant)             : iDAOPessoa;
     function GetbyParams                       : iDAOPessoa; overload;
-    function GetbyParams(aCPFCNPJ : String)    : iDAOPessoa; overload;
+    function GetbyParams(CPFCNPJ : String)     : iDAOPessoa; overload;
     function GetbyParams(Key: Integer; Value : String) : iDAOPessoa; overload;
     function Post                              : iDAOPessoa;
     function Put                               : iDAOPessoa;
     function Delete                            : iDAOPessoa;
-    function QuantidadeRegistro                : Integer;
 
+    function QuantidadeRegistro : Integer;
     function This : iEntidadePessoa<iDAOPessoa>;
   end;
 

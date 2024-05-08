@@ -86,8 +86,47 @@ begin
 end;
 
 function TAlterarPedidoItem.Put: iAlterarPedidoItem;
+Var
+  I : Integer;
 begin
-//
+  //Obtém os dados JSON do corpo da requisição da tabela('pedidoitem')
+  FJSONArray := FJSONObject.GetValue('pedidoitem') as TJSONArray;
+  // Loop inserindo pedidoitem(ns)
+  for I := 0 to FJSONArray.Count - 1 do
+  begin
+    //Extraindo os dados do pedidoitem e salvando na tabela
+    FJSONObject := FJSONArray.Items[I] as TJSONObject;
+    try
+      FController
+        .FactoryDAO
+          .DAOPedidoItem
+            .This
+              .IdPedido         (FPedidoItem.IdPedido)
+              .IdProduto        (FJSONObject.GetValue<Integer> ('idproduto'))
+              .Quantidade       (FJSONObject.GetValue<Currency>('quantidade'))
+              .ValorUnitario    (FJSONObject.GetValue<Currency>('valorunitario'))
+              .ValorProduto     (FJSONObject.GetValue<Currency>('valorproduto'))
+              .ValorDescontoItem(FJSONObject.GetValue<Currency>('valordescontoitem'))
+              .ValorReceber     (FJSONObject.GetValue<Currency>('valorreceber'))
+            .&End
+          .Put;
+    except
+      on E: Exception do
+      begin
+        WriteLn('Erro ao tentar incluir itens do pedido: ' + E.Message);
+        //caso ocorrer algum erro no lançamento do item, excluo o pedido lançado
+        FController
+          .FactoryDAO
+            .DAOPessoa
+              .This
+                .Id(FPedidoItem.IdPedido)
+              .&End
+            .Delete;
+            Exit;
+        FError := True;
+      end;
+    end;
+  end;
 end;
 
 function TAlterarPedidoItem.Found: Boolean;

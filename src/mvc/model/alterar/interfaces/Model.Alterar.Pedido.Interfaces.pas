@@ -19,13 +19,13 @@ type
     ['{D2E96E66-52D4-4303-B951-0849E0CA3A85}']
     function JSONObject(Value : TJSONObject) : iAlterarPedido; overload;
     function JSONObject                      : TJSONObject;    overload;
-    function Put    : iAlterarPedido;
+    function Put                             : iAlterarPedido; overload;
     function Found  : Boolean;
     function Error  : Boolean;
 
     //injeção de dependência
-    function Pedido : iEntidadePedido <iAlterarPedido>;
-    function &End   : iAlterarPedido;
+    function This : iEntidadePedido<iAlterarPedido>;
+    function &End : iAlterarPedido;
   End;
 
 implementation

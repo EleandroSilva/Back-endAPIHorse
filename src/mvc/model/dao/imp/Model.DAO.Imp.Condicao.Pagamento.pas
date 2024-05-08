@@ -28,9 +28,10 @@ type
       FCondicaoPagamento : iEntidadeCondicaoPagamento<iDAOCondicaoPagamento>;
       FConexao : iConexao;
       FQuery   : iQuery;
+      FDataSet : TDataSet;
       FUteis   : iUteis;
       FMSG     : TMensagens;
-      FDataSet : TDataSet;
+
 
       const
         FSQL= ('select '+
@@ -59,8 +60,8 @@ type
       function Put                                   : iDAOCondicaoPagamento; overload;
       function Put(const iDAOCondicaoPagamento)      : iDAOCondicaoPagamento; overload;
       function Delete                                : iDAOCondicaoPagamento;
-      function QuantidadeRegistro                    : Integer;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeCondicaoPagamento<iDAOCondicaoPagamento>;
   end;
 
@@ -110,71 +111,74 @@ function TDAOCondicaoPagamento.GetAll: iDAOCondicaoPagamento;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOCondicaoPagamento.GetAll -ao tentar encontrar condicaopagamento todos: ' + E.Message);
+      Abort;
     end;
-  finally
-   if not FDataSet.IsEmpty then
-   begin
-     FCondicaoPagamento.Id(FDataSet.FieldByName('id').AsInteger);
-     QuantidadeRegistro;
-   end
-   else
-     FCondicaoPagamento.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FCondicaoPagamento.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FCondicaoPagamento.Id(0);
 end;
 
 function TDAOCondicaoPagamento.GetbyId(Id: Variant): iDAOCondicaoPagamento;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where cp.Id=:Id')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOCondicaoPagamento.GetId -ao tentar encontrar condicaopagamento por Id: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FCondicaoPagamento.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FCondicaoPagamento.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FCondicaoPagamento.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FCondicaoPagamento.Id(0);
 end;
 
 function TDAOCondicaoPagamento.GetbyParams: iDAOCondicaoPagamento;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL+' where ' + FUteis.Pesquisar('nomecondicaopagamento', ';' + FCondicaoPagamento.NomeCondicaoPagamento))
-                   .Open
-                 .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+    FDataSet := FQuery
+                  .SQL(FSQL+' where ' + FUteis.Pesquisar('nomecondicaopagamento', ';' + FCondicaoPagamento.NomeCondicaoPagamento))
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
     begin
-      FCondicaoPagamento.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FCondicaoPagamento.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOCondicaoPagamento.GetParams -ao tentar encontrar condicaopagamento por nomecondicaopagamento: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FCondicaoPagamento.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FCondicaoPagamento.Id(0);
 end;
 
 function TDAOCondicaoPagamento.Post: iDAOCondicaoPagamento;
@@ -201,35 +205,32 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('idempresa'             , FCondicaoPagamento.IdEmpresa)
-          .Params('idusuario'             , FCondicaoPagamento.IdUsuario)
-          .Params('nomecondicaopagamento' , FCondicaoPagamento.NomeCondicaoPagamento)
-          .Params('quantidadepagamento'   , FCondicaoPagamento.QuantidadePagamento)
-          .Params('totaldias'             , FCondicaoPagamento.TotalDias)
-          .Params('prazomedio'            , FCondicaoPagamento.PrazoMedio)
-          .Params('datahoraemissao'       , FCondicaoPagamento.DataHoraEmissao)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idempresa'             , FCondicaoPagamento.IdEmpresa)
+        .Params('idusuario'             , FCondicaoPagamento.IdUsuario)
+        .Params('nomecondicaopagamento' , FCondicaoPagamento.NomeCondicaoPagamento)
+        .Params('quantidadepagamento'   , FCondicaoPagamento.QuantidadePagamento)
+        .Params('totaldias'             , FCondicaoPagamento.TotalDias)
+        .Params('prazomedio'            , FCondicaoPagamento.PrazoMedio)
+        .Params('datahoraemissao'       , FCondicaoPagamento.DataHoraEmissao)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOCondicaoPagamento.Post -ao tentar incluir condicaopagamento: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FCondicaoPagamento.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                  .Open
+                .DataSet;
+  FCondicaoPagamento.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 //Put para fazer atualização nas colunas totaldias; prazomedio da tabela condicaopagamento
@@ -255,24 +256,27 @@ const
 begin
   Result := Self;
   try
-      FDataSet := FQuery
-                    .SQL(lSQL)
+    FDataSet := FQuery
+                  .SQL(lSQL)
                     .Add('where cpi.Id=:Id')
                     .Params('Id', FCondicaoPagamento.Id)
                     .Params('group by',' 1,2,3')
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOCondicaoPagamento.Put - const iDAOCondicaoPagamento ao tentar alterar condicaopagamento: ' + E.Message);
+      Abort;
     end;
+  end;
   if not FDataSet.IsEmpty then
   begin
     FCondicaoPagamento.TotalDias (FDataSet.FieldByName('totaldias').AsInteger);
     FCondicaoPagamento.PrazoMedio(FDataSet.FieldByName('prazomedio').AsInteger);
   end;
 end;
-
 
 begin
   Result := Self;
@@ -281,23 +285,21 @@ begin
   SomarTotalDiasPrazoMedio;
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'         , FCondicaoPagamento.Id)
-          .Params('totaldias'  , FCondicaoPagamento.TotalDias)
-          .Params('prazomedio' , FCondicaoPagamento.PrazoMedio)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'         , FCondicaoPagamento.Id)
+        .Params('totaldias'  , FCondicaoPagamento.TotalDias)
+        .Params('prazomedio' , FCondicaoPagamento.PrazoMedio)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOCondicaoPagamento.Put - const iDAOCondicaoPagamento ao tentar alterar condicaopagamento: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 //Alteração padrão
@@ -314,30 +316,27 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'                    , FCondicaoPagamento.Id)
-          .Params('idempresa'             , FCondicaoPagamento.IdEmpresa)
-          .Params('idusuario'             , FCondicaoPagamento.IdUsuario)
-          .Params('nomecondicaopagamento' , FCondicaoPagamento.NomeCondicaoPagamento)
-          .Params('quantidadepagamento'   , FCondicaoPagamento.QuantidadePagamento)
-          .Params('totaldias'             , FCondicaoPagamento.TotalDias)
-          .Params('prazomedio'            , FCondicaoPagamento.PrazoMedio)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'                    , FCondicaoPagamento.Id)
+        .Params('idempresa'             , FCondicaoPagamento.IdEmpresa)
+        .Params('idusuario'             , FCondicaoPagamento.IdUsuario)
+        .Params('nomecondicaopagamento' , FCondicaoPagamento.NomeCondicaoPagamento)
+        .Params('quantidadepagamento'   , FCondicaoPagamento.QuantidadePagamento)
+        .Params('totaldias'             , FCondicaoPagamento.TotalDias)
+        .Params('prazomedio'            , FCondicaoPagamento.PrazoMedio)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOCondicaoPagamento.Put - padrão ao tentar alterar condicaopagamento: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOCondicaoPagamento.Delete: iDAOCondicaoPagamento;
@@ -347,20 +346,18 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-               .Params('id', FCondicaoPagamento.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+    FQuery.SQL(LSQL)
+                .Params('id', FCondicaoPagamento.Id)
+              .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOCondicaoPagamento.Delete - ao tentar excluír condicaopagamento: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOCondicaoPagamento.LoopRegistro(Value : Integer): Integer;

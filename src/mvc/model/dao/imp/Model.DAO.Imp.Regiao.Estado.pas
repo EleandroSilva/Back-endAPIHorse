@@ -59,8 +59,8 @@ type
       function Post                              : iDAORegiaoEstado;
       function Put                               : iDAORegiaoEstado;
       function Delete                            : iDAORegiaoEstado;
-      function QuantidadeRegistro                : Integer;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeRegiaoEstado<iDAORegiaoEstado>;
   end;
 
@@ -109,71 +109,74 @@ function TDAORegiaoEstado.GetAll: iDAORegiaoEstado;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-     raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAORegiaoEstado.GetAll - ao tentar encontrar regiaoestado todas: ' + E.Message);
+      Abort;
     end;
-  finally
-   if not FDataSet.IsEmpty then
-   begin
-     FRegiaoEstado.Id(FDataSet.FieldByName('id').AsInteger);
-     QuantidadeRegistro;
-   end
-   else
-     FRegiaoEstado.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FRegiaoEstado.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FRegiaoEstado.Id(0);
 end;
 
 function TDAORegiaoEstado.GetbyId(Id: Variant): iDAORegiaoEstado;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where Id=:Id')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAORegiaoEstado.GetbyId - ao tentar encontrar regiaoestado por Id: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FRegiaoEstado.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FRegiaoEstado.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FRegiaoEstado.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FRegiaoEstado.Id(0);
 end;
 
 function TDAORegiaoEstado.GetbyParams: iDAORegiaoEstado;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL+' where ' + FUteis.Pesquisar('re.regiao', ';' + FRegiaoEstado.Regiao))
-                   .Open
-                 .DataSet;
-   except
-     on E: Exception do
-     raise exception.Create(FMSG.MSGerroGet+E.Message);
-   end;
-  finally
-   if not FDataSet.IsEmpty then
-   begin
-     FRegiaoEstado.Id(FDataSet.FieldByName('id').AsInteger);
-     QuantidadeRegistro;
-   end
-   else
-     FRegiaoEstado.Id(0);
+    FDataSet := FQuery
+                  .SQL(FSQL+' where ' + FUteis.Pesquisar('re.regiao', ';' + FRegiaoEstado.Regiao))
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAORegiaoEstado.GetbyParams - ao tentar encontrar regiaoestado regiao: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FRegiaoEstado.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FRegiaoEstado.Id(0);
 end;
 
 function TDAORegiaoEstado.Post: iDAORegiaoEstado;
@@ -188,29 +191,26 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('regiao' , FRegiaoEstado.Regiao)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('regiao' , FRegiaoEstado.Regiao)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAORegiaoEstado.Post - ao tentar incluir regiaoestado todas: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FRegiaoEstado.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                .Open
+                .DataSet;
+  FRegiaoEstado.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAORegiaoEstado.Put: iDAORegiaoEstado;
@@ -221,25 +221,22 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'     , FRegiaoEstado.Id)
-          .Params('regiao' , FRegiaoEstado.Regiao)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'     , FRegiaoEstado.Id)
+        .Params('regiao' , FRegiaoEstado.Regiao)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAORegiaoEstado.Put - ao tentar alterar regiaoestado: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAORegiaoEstado.Delete: iDAORegiaoEstado;
@@ -249,20 +246,18 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-               .Params('id', FRegiaoEstado.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+    FQuery.SQL(LSQL)
+                 .Params('id', FRegiaoEstado.Id)
+               .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAORegiaoEstado.Put - ao tentar excluír regiaoestado: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAORegiaoEstado.LoopRegistro(Value : Integer): Integer;

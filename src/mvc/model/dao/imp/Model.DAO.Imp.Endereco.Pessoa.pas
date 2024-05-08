@@ -57,18 +57,18 @@ type
       destructor Destroy; override;
       class function New : iDAOEnderecoPessoa;
 
-      function DataSet(DataSource : TDataSource)            : iDAOEnderecoPessoa; overload;
-      function DataSet                                      : TDataSet;           overload;
-      function GetAll                                       : iDAOEnderecoPessoa;
-      function GetbyId(Id : Variant)                        : iDAOEnderecoPessoa; overload;
-      function GetbyId(IdPessoa : Integer)                  : iDAOEnderecoPessoa; overload;
-      function GetbyParams                                  : iDAOEnderecoPessoa; overload;
-      function GetbyParams(aIdEmpresa, aIdEndereco, aIdPessoa : Integer): iDAOEnderecoPessoa; overload;
-      function Post                                         : iDAOEnderecoPessoa;
-      function Put                                          : iDAOEnderecoPessoa;
-      function Delete                                       : iDAOEnderecoPessoa;
-      function QuantidadeRegistro                           : Integer;
+      function DataSet(DataSource : TDataSource) : iDAOEnderecoPessoa; overload;
+      function DataSet                           : TDataSet;           overload;
+      function GetAll                            : iDAOEnderecoPessoa;
+      function GetbyId(Id : Variant)             : iDAOEnderecoPessoa; overload;
+      function GetbyId(IdPessoa : Integer)       : iDAOEnderecoPessoa; overload;
+      function GetbyParams                       : iDAOEnderecoPessoa; overload;
+      function GetbyParams(IdEmpresa, IdEndereco, IdPessoa : Integer): iDAOEnderecoPessoa; overload;
+      function Post                              : iDAOEnderecoPessoa;
+      function Put                               : iDAOEnderecoPessoa;
+      function Delete                            : iDAOEnderecoPessoa;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeEnderecoPessoa<iDAOEnderecoPessoa>;
   end;
 
@@ -118,126 +118,131 @@ function TDAOEnderecoPessoa.GetAll: iDAOEnderecoPessoa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Open
                   .DataSet;
-    except
-      on E: Exception do
-     raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEnderecoPessoa.GetAll - ao tentar encontrar enderecopessoa todos: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FEnderecoPessoa.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FEnderecoPessoa.Id(0);
 end;
 
 function TDAOEnderecoPessoa.GetbyId(Id: Variant): iDAOEnderecoPessoa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where ep.id=:id')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FEnderecoPessoa.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEnderecoPessoa.GetId - ao tentar encontrar enderecopessoa por Id: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FEnderecoPessoa.Id(0);
 end;
 
 function TDAOEnderecoPessoa.GetbyId(IdPessoa: Integer): iDAOEnderecoPessoa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
-                      .Add('where ep.idpessoa=:idpessoa')
-                      .Params('idpessoa' , IdPessoa)
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                    .Add('where ep.idpessoa=:idpessoa')
+                    .Params('idpessoa' , IdPessoa)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEnderecoPessoa.GetId - ao tentar encontrar enderecopessoa por Idpessoa: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FEnderecoPessoa.Id(0);
-  end
+  end;
+  if not FDataSet.IsEmpty then
+    FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger)
+  else
+    FEnderecoPessoa.Id(0);
 end;
 
-function TDAOEnderecoPessoa.GetbyParams(aIdEmpresa, aIdEndereco, aIdPessoa : Integer): iDAOEnderecoPessoa;
+function TDAOEnderecoPessoa.GetbyParams(IdEmpresa, IdEndereco, IdPessoa : Integer): iDAOEnderecoPessoa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
-                      .Add('where ep.idempresa =:idempresa')
-                      .Add('and   ep.idendereco=:idendereco')
-                      .Add('and   ep.idpessoa  =:idpessoa')
-                      .Params('idempresa'  , aIdEmpresa)
-                      .Params('idendereco' , aIdEndereco)
-                      .Params('idpessoa'   , aIdPessoa)
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                    .Add('where ep.idempresa =:idempresa')
+                    .Add('and   ep.idendereco=:idendereco')
+                    .Add('and   ep.idpessoa  =:idpessoa')
+                    .Params('idempresa'  , IdEmpresa)
+                    .Params('idendereco' , IdEndereco)
+                    .Params('idpessoa'   , IdPessoa)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEnderecoPessoa.GetParams - ao tentar encontrar enderecopessoa por idempresa+idendereco+idpessoa: ' + E.Message);
+      Abort;
     end;
-  finally
+  end;
     if not FDataSet.IsEmpty then
       FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger)
     else
       FEnderecoPessoa.Id(0);
-  end;
 end;
 
 function TDAOEnderecoPessoa.GetbyParams: iDAOEnderecoPessoa;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL)
-                     .Add('where ep.idpessoa =:idpessoa')
-                     .Add('and   ep.idempresa=ep.idempresa')
-                     .Params('idpessoa'  , FEnderecoPessoa.Idpessoa)
-                     .Add('order by ep.idpessoa asc')
-                     .Add(', ep.idendereco asc')
-                   .Open
-                 .DataSet;
-   except
-     on E: Exception do
-     raise exception.Create(FMSG.MSGerroGet+E.Message);
-   end;
-  finally
-    if not FDataSet.IsEmpty then
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                    .Add('where ep.idpessoa =:idpessoa')
+                    .Add('and   ep.idempresa=ep.idempresa')
+                    .Params('idpessoa'  , FEnderecoPessoa.Idpessoa)
+                    .Add('order by ep.idpessoa asc')
+                    .Add(', ep.idendereco asc')
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
     begin
-      FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FEnderecoPessoa.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEnderecoPessoa.GetId - ao tentar encontrar enderecopessoa por Idpessoa: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FEnderecoPessoa.Id(0);
 end;
 
 function TDAOEnderecoPessoa.Post: iDAOEnderecoPessoa;
@@ -258,28 +263,26 @@ begin
   Result := Self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('idempresa'  , FEnderecoPessoa.IdEmpresa)
-          .Params('idendereco' , FEnderecoPessoa.IdEndereco)
-          .Params('idpessoa'   , FEnderecoPessoa.IdPessoa)
-          .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idempresa'  , FEnderecoPessoa.IdEmpresa)
+        .Params('idendereco' , FEnderecoPessoa.IdEndereco)
+        .Params('idpessoa'   , FEnderecoPessoa.IdPessoa)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEnderecoPessoa.Post - ao tentar incluir enderecopessoa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                .Open
+                .DataSet;
+  FEnderecoPessoa.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAOEnderecoPessoa.Put: iDAOEnderecoPessoa;
@@ -292,27 +295,24 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'         , FEnderecoPessoa.Id)
-          .Params('idempresa'  , FEnderecoPessoa.IdEmpresa)
-          .Params('idendereco' , FEnderecoPessoa.IdEndereco)
-          .Params('idpessoa'   , FEnderecoPessoa.IdPessoa)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'         , FEnderecoPessoa.Id)
+        .Params('idempresa'  , FEnderecoPessoa.IdEmpresa)
+        .Params('idendereco' , FEnderecoPessoa.IdEndereco)
+        .Params('idpessoa'   , FEnderecoPessoa.IdPessoa)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEnderecoPessoa.Put - ao tentar alterar enderecopessoa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOEnderecoPessoa.Delete: iDAOEnderecoPessoa;
@@ -322,20 +322,18 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-               .Params('id', FEnderecoPessoa.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+    FQuery.SQL(LSQL)
+                 .Params('id', FEnderecoPessoa.Id)
+               .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEnderecoPessoa.Delete - ao tentar excluír enderecopessoa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOEnderecoPessoa.LoopRegistro(Value : Integer): Integer;

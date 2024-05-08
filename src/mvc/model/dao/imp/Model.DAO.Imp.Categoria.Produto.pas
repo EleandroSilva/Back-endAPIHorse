@@ -56,7 +56,8 @@ type
       function Post                              : iDAOCategoriaProduto;
       function Put                               : iDAOCategoriaProduto;
       function Delete                            : iDAOCategoriaProduto;
-      function QuantidadeRegistro                : Integer;
+
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeCategoriaProduto<iDAOCategoriaProduto>;
   end;
 
@@ -106,74 +107,77 @@ function TDAOCategoriaProduto.GetAll: iDAOCategoriaProduto;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where cp.idempresa=cp.idempresa')
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-       raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FCategoriaProduto.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FCategoriaProduto.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOCategoriaProduto.GetAll -ao tentar encontrar categoria de produto(s): ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FCategoriaProduto.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FCategoriaProduto.Id(0);
 end;
 
 function TDAOCategoriaProduto.GetbyId(Id: Variant): iDAOCategoriaProduto;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where cp.id=:id')
                     .Add('and cp.idempresa=cp.idempresa')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-        raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOCategoriaProduto.GetId -ao tentar encontrar categoria de produto(s): ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FCategoriaProduto.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FCategoriaProduto.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FCategoriaProduto.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FCategoriaProduto.Id(0);
 end;
 
 function TDAOCategoriaProduto.GetbyParams: iDAOCategoriaProduto;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL+' where ' + FUteis.Pesquisar('cp.nomecategoria', ';' + FCategoriaProduto.NomeCategoria))
-                   .Add('and cp.idempresa=idempresa ')
-                   .Open
-                 .DataSet;
+    FDataSet := FQuery
+                  .SQL(FSQL+' where ' + FUteis.Pesquisar('cp.nomecategoria', ';' + FCategoriaProduto.NomeCategoria))
+                    .Add('and cp.idempresa=idempresa ')
+                  .Open
+                  .DataSet;
    except
-     on E: Exception do
-       raise exception.Create(FMSG.MSGerroGet+E.Message);
-   end;
-  finally
-    if not FDataSet.IsEmpty then
+    on E: Exception do
     begin
-      FCategoriaProduto.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FCategoriaProduto.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOCategoriaProduto.GetParams -ao tentar encontrar categoria de produto(s): ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FCategoriaProduto.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FCategoriaProduto.Id(0);
 end;
 
 function TDAOCategoriaProduto.Post: iDAOCategoriaProduto;
@@ -196,33 +200,30 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('idempresa'       , FCategoriaProduto.IdEmpresa)
-          .Params('idusuario'       , FCategoriaProduto.IdUsuario)
-          .Params('nomecategoria'   , FCategoriaProduto.NomeCategoria)
-          .params('datahoraemissao' , FCategoriaProduto.DataHoraEmissao)
-          .Params('ativo'           , FCategoriaProduto.Ativo)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idempresa'       , FCategoriaProduto.IdEmpresa)
+        .Params('idusuario'       , FCategoriaProduto.IdUsuario)
+        .Params('nomecategoria'   , FCategoriaProduto.NomeCategoria)
+        .params('datahoraemissao' , FCategoriaProduto.DataHoraEmissao)
+        .Params('ativo'           , FCategoriaProduto.Ativo)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOCategoriaProduto.Post -ao tentar incluir categoria de produto(s): ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FCategoriaProduto.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                  .Open
+                .DataSet;
+  FCategoriaProduto.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAOCategoriaProduto.Put: iDAOCategoriaProduto;
@@ -237,29 +238,26 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'              , FCategoriaProduto.Id)
-          .Params('idempresa'       , FCategoriaProduto.IdEmpresa)
-          .Params('idusuario'       , FCategoriaProduto.IdUsuario)
-          .Params('nomecategoria'   , FCategoriaProduto.NomeCategoria)
-          .Params('datahoraemissao' , FCategoriaProduto.DataHoraEmissao)
-          .Params('ativo'           , FCategoriaProduto.Ativo)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'              , FCategoriaProduto.Id)
+        .Params('idempresa'       , FCategoriaProduto.IdEmpresa)
+        .Params('idusuario'       , FCategoriaProduto.IdUsuario)
+        .Params('nomecategoria'   , FCategoriaProduto.NomeCategoria)
+        .Params('datahoraemissao' , FCategoriaProduto.DataHoraEmissao)
+        .Params('ativo'           , FCategoriaProduto.Ativo)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOCategoriaProduto.Put -ao tentar alterar categoria de produto(s): ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOCategoriaProduto.Delete: iDAOCategoriaProduto;
@@ -269,20 +267,18 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-               .Params('id', FCategoriaProduto.Id)
-            .ExecSQL;
-    except
-      on E:Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+    FQuery.SQL(LSQL)
+                .Params('id', FCategoriaProduto.Id)
+              .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOCategoriaProduto.Delete -ao tentar excluír categoria de produto(s): ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOCategoriaProduto.LoopRegistro(Value: Integer): Integer;

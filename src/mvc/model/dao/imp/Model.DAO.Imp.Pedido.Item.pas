@@ -43,11 +43,17 @@ type
             'pi.quantidade, '+
             'pi.valorunitario, '+
             'pi.valordescontoitem, '+
-            'pi.valorfinalitem '+
+            'pi.valorreceber '+
             'from pedidoitem pi '+
             'inner join produto pro on pro.id = pi.idproduto '
             );
-      function LoopRegistro(Value : Integer): Integer;
+      FSum=('select '+
+            'coalesce(cast(sum(valorproduto) as decimal(10,3)),0)      as valorproduto, '+
+            'coalesce(cast(sum(valordescontoitem) as decimal(10,3)),0) as valordescontoitem, '+
+            'coalesce(cast(sum(valorreceber) as decimal(10,3)),0)      as valorreceber '+
+            'from pedidoitem ');
+
+      function LoopRegistro(Value : Variant): Integer;
     public
       constructor Create;
       destructor Destroy; override;
@@ -59,13 +65,14 @@ type
       function GetbyId    (Id : Variant)             : iDAOPedidoItem; overload;
       function GetbyId    (IdParent : Integer)       : iDAOPedidoItem; overload;
       function GetbyParams                           : iDAOPedidoItem; overload;
-      function GetbyParams(aIdProduto : Variant)     : iDAOPedidoItem; overload;
-      function GetbyParams(aNomeProduto : String)    : iDAOPedidoItem; overload;
+      function GetbyParams(IdProduto : Variant)      : iDAOPedidoItem; overload;
+      function GetbyParams(NomeProduto : String)     : iDAOPedidoItem; overload;
       function Post                                  : iDAOPedidoItem;
       function Put                                   : iDAOPedidoItem;
       function Delete                                : iDAOPedidoItem;
-      function QuantidadeRegistro                    : Integer;
+      function SomarPedidoItem                       : iDAOPedidoItem;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadePedidoItem<iDAOPedidoItem>;
   end;
 
@@ -116,69 +123,72 @@ function TDAOPedidoItem.GetAll: iDAOPedidoItem;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FPedidoItem.Id(FDataSet.FieldByName('idpedido').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FPedidoItem.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPedidoItem.GetAll - ao tentar encontrar pedidoitem todas: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FPedidoItem.Id(FDataSet.FieldByName('idpedido').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FPedidoItem.Id(0);
 end;
 
 function TDAOPedidoItem.GetbyId(Id: Variant): iDAOPedidoItem;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL+' where pi.Id=:Id')
+    FDataSet := FQuery
+                  .SQL(FSQL+' where pi.Id=:Id')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPedidoItem.GetbyId - ao tentar encontrar pedidoitem por Id: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FPedidoItem.Id(FDataSet.FieldByName('idpedido').AsInteger)
-    else
-      FPedidoItem.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FPedidoItem.Id(FDataSet.FieldByName('idpedido').AsInteger)
+  else
+    FPedidoItem.Id(0);
 end;
 
 function TDAOPedidoItem.GetbyId(IdParent: Integer): iDAOPedidoItem;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where pi.idpedido=:idpedido')
                     .Params('idpedido', IdParent)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPedidoItem.GetbyId - ao tentar encontrar pedidoitem por Idpedido: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FPedidoItem.Id(FDataSet.FieldByName('idpedido').AsInteger)
-    else
-      FPedidoItem.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FPedidoItem.Id(FDataSet.FieldByName('idpedido').AsInteger)
+  else
+    FPedidoItem.Id(0);
 end;
 
 function TDAOPedidoItem.GetbyParams: iDAOPedidoItem;
@@ -206,51 +216,53 @@ begin
   }
 end;
 
-function TDAOPedidoItem.GetbyParams(aIdProduto: Variant): iDAOPedidoItem;
+function TDAOPedidoItem.GetbyParams(IdProduto: Variant): iDAOPedidoItem;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where pi.idproduto=:idproduto')
-                    .Params('idproduto', aIdProduto)
-                    .Open
+                    .Params('idproduto', IdProduto)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FPedidoItem.Id(FDataSet.FieldByName('idpedido').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FPedidoItem.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPedidoItem.GetbyParams - ao tentar encontrar pedidoitem por Idproduto: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FPedidoItem.Id(FDataSet.FieldByName('idpedido').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FPedidoItem.Id(0);
 end;
 
-function TDAOPedidoItem.GetbyParams(aNomeProduto: String): iDAOPedidoItem;
+function TDAOPedidoItem.GetbyParams(NomeProduto: String): iDAOPedidoItem;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL+' where ' + FUteis.Pesquisar('pro.nomeproduto', ';' + aNomeProduto))
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL+' where ' + FUteis.Pesquisar('pro.nomeproduto', ';' + NomeProduto))
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPedidoItem.GetbyParams - ao tentar encontrar pedidoitem por nomeproduto: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FPedidoItem.Id(FDataSet.FieldByName('idpedido').AsInteger)
-    else
-      FPedidoItem.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FPedidoItem.Id(FDataSet.FieldByName('idpedido').AsInteger)
+  else
+    FPedidoItem.Id(0);
 end;
 
 function TDAOPedidoItem.Post: iDAOPedidoItem;
@@ -262,7 +274,7 @@ const
                              'valorunitario, '+
                              'valorproduto, '+
                              'valordescontoitem, '+
-                             'valorfinalitem '+
+                             'valorreceber '+
                            ')'+
                              ' values '+
                            '('+
@@ -272,39 +284,38 @@ const
                              ':valorunitario, '+
                              ':valorproduto, '+
                              ':valordescontoitem, '+
-                             ':valorfinalitem '+
+                             ':valorreceber '+
                             ')'
        );
 begin
   Result := Self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('idpedido'          , FPedidoItem.IdPedido)
-          .Params('idproduto'         , FPedidoItem.IdProduto)
-          .Params('quantidade'        , FPedidoItem.Quantidade)
-          .Params('valorunitario'     , FPedidoItem.ValorUnitario)
-          .Params('valorproduto'      , FPedidoItem.ValorProduto)
-          .Params('valordescontoitem' , FPedidoItem.ValorDescontoItem)
-          .Params('valorfinalitem'    , FPedidoItem.ValorFinalItem)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idpedido'          , FPedidoItem.IdPedido)
+        .Params('idproduto'         , FPedidoItem.IdProduto)
+        .Params('quantidade'        , FPedidoItem.Quantidade)
+        .Params('valorunitario'     , FPedidoItem.ValorUnitario)
+        .Params('valorproduto'      , FPedidoItem.ValorProduto)
+        .Params('valordescontoitem' , FPedidoItem.ValorDescontoItem)
+        .Params('valorreceber'      , FPedidoItem.ValorReceber)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPedidoItem.Post - ao tentar incluir pedidoitem: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FPedidoItem.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                .Open
+                .DataSet;
+  FPedidoItem.Id(FDataSet.FieldByName('id').AsInteger);
+  SomarPedidoItem;
 end;
 
 function TDAOPedidoItem.Put: iDAOPedidoItem;
@@ -316,40 +327,39 @@ const
                        'valorunitario     =:valorunitario, '+
                        'valorproduto      =:valorproduto, '+
                        'valordescontoitem =:valordescontoitem, '+
-                       'valorfinalitem    =:valorfinalitem '+
-                       'where id          =:id '
+                       'valorreceber      =:valorreceber '+
+                       'where idpedido    =:idpedido '
        );
 begin
   Result := Self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'                , FPedidoItem.Id)
-          .Params('idpedido'          , FPedidoItem.IdPedido)
-          .Params('idproduto'         , FPedidoItem.IdProduto)
-          .Params('quantidade'        , FPedidoItem.Quantidade)
-          .Params('valorunitario'     , FPedidoItem.ValorUnitario)
-          .Params('valorproduto'      , FPedidoItem.ValorProduto)
-          .Params('valordescontoitem' , FPedidoItem.ValorDescontoItem)
-          .Params('valorfinalitem'    , FPedidoItem.ValorFinalItem)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idpedido'          , FPedidoItem.IdPedido)
+        .Params('idpedido'          , FPedidoItem.IdPedido)
+        .Params('idproduto'         , FPedidoItem.IdProduto)
+        .Params('quantidade'        , FPedidoItem.Quantidade)
+        .Params('valorunitario'     , FPedidoItem.ValorUnitario)
+        .Params('valorproduto'      , FPedidoItem.ValorProduto)
+        .Params('valordescontoitem' , FPedidoItem.ValorDescontoItem)
+        .Params('valorreceber'      , FPedidoItem.ValorReceber)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPedidoItem.Put - ao tentar alterar pedidoitem: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FPedidoItem.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                .Open
+                .DataSet;
+  FPedidoItem.Id(FDataSet.FieldByName('id').AsInteger);
+  SomarPedidoItem;
 end;
 
 function TDAOPedidoItem.Delete: iDAOPedidoItem;
@@ -359,23 +369,21 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-              .Params('id', FPedidoItem.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+    FQuery.SQL(LSQL)
+                 .Params('id', FPedidoItem.Id)
+               .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPedidoItem.Delete - ao tentar excluír pedidoitem: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
-function TDAOPedidoItem.LoopRegistro(Value: Integer): Integer;
+function TDAOPedidoItem.LoopRegistro(Value: Variant): Integer;
 begin
   FDataSet.First;
   try
@@ -392,6 +400,17 @@ end;
 function TDAOPedidoItem.QuantidadeRegistro: Integer;
 begin
   Result := LoopRegistro(0);
+end;
+
+function TDAOPedidoItem.SomarPedidoItem: iDAOPedidoItem;
+begin
+  Result := Self;
+  FDataSet := FQuery
+                .SQL(FSum)
+                  .Add('where idpedido=:id')
+                  .Params('id',FPedidoItem.IdPedido)
+                .Open
+                .DataSet;
 end;
 
 function TDAOPedidoItem.This: iEntidadePedidoItem<iDAOPedidoItem>;

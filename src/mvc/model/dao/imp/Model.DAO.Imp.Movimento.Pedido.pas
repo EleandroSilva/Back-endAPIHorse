@@ -71,8 +71,8 @@ type
       function Post                              : iDAOMovimentoPedido;
       function Put                               : iDAOMovimentoPedido;
       function Delete                            : iDAOMovimentoPedido;
-      function QuantidadeRegistro                : Integer;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeMovimentoPedido<iDAOMovimentoPedido>;
   end;
 
@@ -122,95 +122,99 @@ function TDAOMovimentoPedido.GetAll: iDAOMovimentoPedido;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOMovimentoPedido.GetAll - ao tentar encontrar movimentopedido: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FMovimentoPedido.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FMovimentoPedido.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FMovimentoPedido.Id(FDataSet.FieldByName('id').AsInteger)
+  else
+    FMovimentoPedido.Id(0);
 end;
 
 function TDAOMovimentoPedido.GetbyId(Id: Variant): iDAOMovimentoPedido;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where u.Id=:Id ')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOMovimentoPedido.GetbyId - ao tentar encontrar movimentopedido por Id: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FMovimentoPedido.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FMovimentoPedido.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FMovimentoPedido.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FMovimentoPedido.Id(0);
 end;
 
 function TDAOMovimentoPedido.GetbyId(IdPedido: Integer): iDAOMovimentoPedido;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where mp.idpedido=:idpedido')
                     .Params('idpedido', IdPedido)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FMovimentoPedido.Id(FDataSet.FieldByName('idpedido').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FMovimentoPedido.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOMovimentoPedido.GetbyId - ao tentar encontrar movimentopedido por Idpedido: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FMovimentoPedido.Id(FDataSet.FieldByName('idpedido').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FMovimentoPedido.Id(0);
 end;
 
 function TDAOMovimentoPedido.GetbyParams: iDAOMovimentoPedido;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL+' where ((lower(p1.nomepessoa) like lower(:nomepessoa)) ')
-                   .Params('nomepessoa', FMovimentoPedido.Pessoa.NomePessoa)
-                   .Open
-                 .DataSet;
-   except
-     on E: Exception do
-     raise exception.Create(FMSG.MSGerroGet+E.Message);
-   end;
-  finally
-    if not FDataSet.IsEmpty then
+    FDataSet := FQuery
+                  .SQL(FSQL+' where ((lower(p1.nomepessoa) like lower(:nomepessoa)) ')
+                    .Params('nomepessoa', FMovimentoPedido.Pessoa.NomePessoa)
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
     begin
-      FMovimentoPedido.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FMovimentoPedido.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOMovimentoPedido.GetbyParams - ao tentar encontrar movimentopedido por nomepessoa: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FMovimentoPedido.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FMovimentoPedido.Id(0);
 end;
 
 function TDAOMovimentoPedido.Post: iDAOMovimentoPedido;
@@ -235,30 +239,28 @@ begin
   Result := Self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('idempresa'       , FMovimentoPedido.IdEmpresa)
-          .Params('idpedido'        , FMovimentoPedido.IdPedido)
-          .Params('idusuario'       , FMovimentoPedido.IdUsuario)
-          .Params('datahoraemissao' , FMovimentoPedido.DataHoraEmissao)
-          .Params('status'          , FMovimentoPedido.Status)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idempresa'       , FMovimentoPedido.IdEmpresa)
+        .Params('idpedido'        , FMovimentoPedido.IdPedido)
+        .Params('idusuario'       , FMovimentoPedido.IdUsuario)
+        .Params('datahoraemissao' , FMovimentoPedido.DataHoraEmissao)
+        .Params('status'          , FMovimentoPedido.Status)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOMovimentoPedido.Post - ao tentar incluir novo movimentopedido: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FMovimentoPedido.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                .Open
+                .DataSet;
+  FMovimentoPedido.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAOMovimentoPedido.Put: iDAOMovimentoPedido;

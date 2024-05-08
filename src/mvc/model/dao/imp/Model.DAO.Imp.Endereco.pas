@@ -65,8 +65,8 @@ type
       function Post                              : iDAOEndereco;
       function Put                               : iDAOEndereco;
       function Delete                            : iDAOEndereco;
-      function QuantidadeRegistro                : Integer;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeEndereco<iDAOEndereco>;
   end;
 
@@ -134,83 +134,76 @@ function TDAOEndereco.GetAll: iDAOEndereco;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Open
                   .DataSet;
-
-    except
-      on E: Exception do
-      begin
-        raise Exception.Create(FMSG.MSGerroGet+E.Message);
-        Exit;
-      end;
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FEndereco.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FEndereco.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEndereco.GetAll - ao tentar encontrar endereco todos: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FEndereco.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FEndereco.Id(0);
 end;
 
 function TDAOEndereco.GetbyId(Id: Variant): iDAOEndereco;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where ed.id=:id')
                     .Params('id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      begin
-        raise Exception.Create(FMSG.MSGerroGet+E.Message);
-        Exit;
-      end;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEndereco.GetId - ao tentar encontrar endereco por Id: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FEndereco.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FEndereco.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FEndereco.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FEndereco.Id(0);
 end;
 
 function TDAOEndereco.GetbyParams(Cep: String): iDAOEndereco;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL)
-                   .Add('where ed.cep=:cep')
-                   .Params('cep', Cep)
-                   .Open
-                 .DataSet;
-   except
-      on E: Exception do
-      begin
-        raise Exception.Create(FMSG.MSGerroGet+E.Message);
-        Exit;
-      end;
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                    .Add('where ed.cep=:cep')
+                    .Params('cep', Cep)
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
     begin
-      FEndereco.Id(FDataSet.FieldByName('id').AsInteger);
-      //QuantidadeRegistro;
-    end
-    else
-      FEndereco.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEndereco.GetParams - ao tentar encontrar endereco por cep: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FEndereco.Id(FDataSet.FieldByName('id').AsInteger);
+    //QuantidadeRegistro;
+  end
+  else
+    FEndereco.Id(0);
 end;
 
 function TDAOEndereco.GetbyParams: iDAOEndereco;
@@ -218,27 +211,25 @@ begin
   Result := Self;
   FiltroKey;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL+' where ' + FUteis.Pesquisar(FKey, ';' + FValue))
-                   .Open
-                 .DataSet;
-   except
-      on E: Exception do
-      begin
-        raise Exception.Create(FMSG.MSGerroGet+E.Message);
-        Exit;
-      end;
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+    FDataSet := FQuery
+                  .SQL(FSQL+' where ' + FUteis.Pesquisar(FKey, ';' + FValue))
+                    .Open
+                  .DataSet;
+  except
+    on E: Exception do
     begin
-      FEndereco.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FEndereco.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEndereco.GetParams - ao tentar encontrar endereco FKey+FValu: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FEndereco.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FEndereco.Id(0);
 end;
 
 function TDAOEndereco.Post: iDAOEndereco;
@@ -270,34 +261,32 @@ begin
 
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('cep'            , FEndereco.Cep)
-          .Params('tipologradouro' , FEndereco.TipoLogradouro)
-          .Params('logradouro'     , FEndereco.Logradouro)
-          .Params('bairro'         , FEndereco.Bairro)
-          .Params('ibge'           , FEndereco.IBGE)
-          .Params('uf'             , FEndereco.UF)
-          .Params('gia'            , FEndereco.GIA)
-          .Params('ddd'            , FEndereco.DDD)
-        .ExecSQL;
+    FQuery
+      .SQL(LSQL)
+        .Params('cep'            , FEndereco.Cep)
+        .Params('tipologradouro' , FEndereco.TipoLogradouro)
+        .Params('logradouro'     , FEndereco.Logradouro)
+        .Params('bairro'         , FEndereco.Bairro)
+        .Params('ibge'           , FEndereco.IBGE)
+        .Params('uf'             , FEndereco.UF)
+        .Params('gia'            , FEndereco.GIA)
+        .Params('ddd'            , FEndereco.DDD)
+      .ExecSQL;
 
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEndereco.Post - ao tentar incluir endereco: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id ')
-                    .Open
-                    .DataSet;
-    FEndereco.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id ')
+                .Open
+                .DataSet;
+  FEndereco.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAOEndereco.Put: iDAOEndereco;
@@ -318,32 +307,29 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'             , FEndereco.Id)
-          .Params('cep'            , FEndereco.Cep)
-          .Params('tipologradouro' , FEndereco.TipoLogradouro)
-          .Params('logradouro'     , FEndereco.Logradouro)
-          .Params('bairro'         , FEndereco.Bairro)
-          .Params('ibge'           , FEndereco.IBGE)
-          .Params('uf'             , FEndereco.UF)
-          .Params('gia'            , FEndereco.GIA)
-          .Params('ddd'            , FEndereco.DDD)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'             , FEndereco.Id)
+        .Params('cep'            , FEndereco.Cep)
+        .Params('tipologradouro' , FEndereco.TipoLogradouro)
+        .Params('logradouro'     , FEndereco.Logradouro)
+        .Params('bairro'         , FEndereco.Bairro)
+        .Params('ibge'           , FEndereco.IBGE)
+        .Params('uf'             , FEndereco.UF)
+        .Params('gia'            , FEndereco.GIA)
+        .Params('ddd'            , FEndereco.DDD)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEndereco.Put - ao tentar alterar endereco: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOEndereco.Delete: iDAOEndereco;
@@ -353,20 +339,18 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-               .Params('id', FEndereco.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+    FQuery.SQL(LSQL)
+                 .Params('id', FEndereco.Id)
+               .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEndereco.Delete - ao tentar excluír endereco: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOEndereco.LoopRegistro(Value : Integer): Integer;

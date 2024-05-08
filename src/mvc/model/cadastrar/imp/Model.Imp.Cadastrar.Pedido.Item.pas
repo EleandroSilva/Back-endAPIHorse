@@ -26,7 +26,7 @@ type
     private
       FController   : iController;
       FPedidoItem   : iEntidadePedidoItem<iCadastrarPedidoItem>;
-      FDSPedidoItem : TDataSource;
+      FDataSet      : TDataSource;
       FError : Boolean;
       FJSONObjectPai : TJSONObject;
       FJSONArray     : TJSONArray;
@@ -35,13 +35,14 @@ type
       constructor Create;
       destructor Destroy; override;
       class function New : iCadastrarPedidoItem;
-      function JSONObjectPai(Value : TJSONObject) : iCadastrarPedidoItem; overload;
-      function JSONObjectPai                      : TJSONObject;          overload;
+      function JSONObjectPai(Value : TJSONObject)   : iCadastrarPedidoItem; overload;
+      function JSONObjectPai                        : TJSONObject;          overload;
+      function DataSet(DataSource : TDataSource)    : iCadastrarPedidoItem; overload;
+      function DataSet                              : TDataSet;             overload;
       function Post   : iCadastrarPedidoItem;
       function Error  : Boolean;
       //injeção de dependência
-      function PedidoItem : iEntidadePedidoItem<iCadastrarPedidoItem>;
-      function &End       : iCadastrarPedidoItem;
+      function This : iEntidadePedidoItem<iCadastrarPedidoItem>;
   end;
 
 implementation
@@ -56,7 +57,7 @@ constructor TCadastrarPedidoItem.Create;
 begin
   FController   := TController.New;
   FPedidoItem   := TEntidadePedidoItem<iCadastrarPedidoItem>.New(Self);
-  FDSPedidoItem := TDataSource.Create(nil);
+  FDataSet      := TDataSource.Create(nil);
   FError := False;
 end;
 
@@ -81,10 +82,25 @@ begin
   Result := FJSONObjectPai;
 end;
 
+function TCadastrarPedidoItem.DataSet(DataSource: TDataSource): iCadastrarPedidoItem;
+begin
+  Result := Self;
+ // if not Assigned(FDataset) then
+ //   DataSource.DataSet := FDataSet
+ // else
+    DataSource.DataSet := FDataSet.DataSet;
+end;
+
+function TCadastrarPedidoItem.DataSet: TDataSet;
+begin
+  Result := FDataSet.DataSet;
+end;
+
 function TCadastrarPedidoItem.Post: iCadastrarPedidoItem;
 Var
   I : Integer;
 begin
+  Result := Self;
   //Obtém os dados JSON do corpo da requisição da tabela('pedidoitem')
   FJSONArray := FJSONObjectPai.GetValue('pedidoitem') as TJSONArray;
   // Loop inserindo pedidoitem(ns)
@@ -103,9 +119,10 @@ begin
               .ValorUnitario    (FJSONObject.GetValue<Currency>('valorunitario'))
               .ValorProduto     (FJSONObject.GetValue<Currency>('valorproduto'))
               .ValorDescontoItem(FJSONObject.GetValue<Currency>('valordescontoitem'))
-              .ValorFinalItem   (FJSONObject.GetValue<Currency>('valorfinalitem'))
+              .ValorReceber     (FJSONObject.GetValue<Currency>('valorreceber'))
             .&End
-          .Post;
+          .Post
+          .DataSet(FDataSet);
     except
       on E: Exception do
       begin
@@ -130,15 +147,9 @@ begin
   Result := FError;
 end;
 
-//Injeção de dependência
-function TCadastrarPedidoItem.PedidoItem: iEntidadePedidoItem<iCadastrarPedidoItem>;
+function TCadastrarPedidoItem.This: iEntidadePedidoItem<iCadastrarPedidoItem>;
 begin
   Result := FPedidoItem;
-end;
-
-function TCadastrarPedidoItem.&End: iCadastrarPedidoItem;
-begin
-  Result := Self;
 end;
 
 end.

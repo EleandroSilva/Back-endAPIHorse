@@ -58,8 +58,8 @@ type
       function Post                              : iDAOMarcaProduto;
       function Put                               : iDAOMarcaProduto;
       function Delete                            : iDAOMarcaProduto;
-      function QuantidadeRegistro                : Integer;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeMarcaProduto<iDAOMarcaProduto>;
   end;
 
@@ -108,71 +108,74 @@ function TDAOMarcaProduto.GetAll: iDAOMarcaProduto;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOMarcaProduto.GetAll - ao tentar encontrar marcaproduto todos: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FMarcaProduto.Id(FDataSet.FieldByName('id').AsInteger)
-      else
-      FMarcaProduto.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FMarcaProduto.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FMarcaProduto.Id(0);
 end;
 
 function TDAOMarcaProduto.GetbyId(Id: Variant): iDAOMarcaProduto;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where mp.id=:id')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FMarcaProduto.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FMarcaProduto.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOMarcaProduto.GetbyId - ao tentar encontrar marcaproduto por Id: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FMarcaProduto.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FMarcaProduto.Id(0);
 end;
 
 function TDAOMarcaProduto.GetbyParams: iDAOMarcaProduto;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL+' where ' + FUteis.Pesquisar('mp.nomemarca', ';' + FMarcaProduto.NomeMarca))
-                   .Open
-                 .DataSet;
-   except
-     on E: Exception do
-     raise exception.Create(FMSG.MSGerroGet+E.Message);
-   end;
-  finally
-    if not FDataSet.IsEmpty then
+    FDataSet := FQuery
+                  .SQL(FSQL+' where ' + FUteis.Pesquisar('mp.nomemarca', ';' + FMarcaProduto.NomeMarca))
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
     begin
-      FMarcaProduto.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FMarcaProduto.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOMarcaProduto.GetbyParams - ao tentar encontrar marcaproduto por nomemarca: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FMarcaProduto.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FMarcaProduto.Id(0);
 end;
 
 function TDAOMarcaProduto.Post: iDAOMarcaProduto;
@@ -195,33 +198,30 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('idempresa'       , FMarcaProduto.IdEmpresa)
-          .Params('idusuario'       , FMarcaProduto.IdUsuario)
-          .Params('nomemarca'       , FMarcaProduto.NomeMarca)
-          .Params('datahoraemissao' , FMarcaProduto.DataHoraEmissao)
-          .Params('ativo'           , FMarcaProduto.Ativo)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idempresa'       , FMarcaProduto.IdEmpresa)
+        .Params('idusuario'       , FMarcaProduto.IdUsuario)
+        .Params('nomemarca'       , FMarcaProduto.NomeMarca)
+        .Params('datahoraemissao' , FMarcaProduto.DataHoraEmissao)
+        .Params('ativo'           , FMarcaProduto.Ativo)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOMarcaProduto.Post - ao tentar incluir nova marcaproduto: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FMarcaProduto.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                .Open
+                .DataSet;
+  FMarcaProduto.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAOMarcaProduto.Put: iDAOMarcaProduto;
@@ -236,29 +236,26 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'              , FMarcaProduto.Id)
-          .Params('idusuario'       , FMarcaProduto.IdUsuario)
-          .Params('idempresa'       , FMarcaProduto.IdEmpresa)
-          .Params('nomemarca'       , FMarcaProduto.NomeMarca)
-          .Params('datahoraemissao' , FMarcaProduto.DataHoraEmissao)
-          .Params('ativo'           , FMarcaProduto.Ativo)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'              , FMarcaProduto.Id)
+        .Params('idusuario'       , FMarcaProduto.IdUsuario)
+        .Params('idempresa'       , FMarcaProduto.IdEmpresa)
+        .Params('nomemarca'       , FMarcaProduto.NomeMarca)
+        .Params('datahoraemissao' , FMarcaProduto.DataHoraEmissao)
+        .Params('ativo'           , FMarcaProduto.Ativo)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOMarcaProduto.Put - ao tentar alterar marcaproduto: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOMarcaProduto.Delete: iDAOMarcaProduto;
@@ -268,20 +265,18 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-               .Params('id', FMarcaProduto.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+    FQuery.SQL(LSQL)
+                 .Params('id', FMarcaProduto.Id)
+               .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOMarcaProduto.Delete - ao tentar excluír marcaproduto: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOMarcaProduto.LoopRegistro(Value : Integer): Integer;

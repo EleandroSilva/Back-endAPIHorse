@@ -52,7 +52,8 @@ type
       function Post                              : iDAONumero;
       function Put                               : iDAONumero;
       function Delete                            : iDAONumero;
-      function QuantidadeRegistro                : Integer;
+
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeNumero<iDAONumero>;
   end;
 
@@ -102,75 +103,78 @@ function TDAONumero.GetAll: iDAONumero;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-     raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FNumero.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FNumero.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAONumero.GetAll - ao tentar encontrar numero todos: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FNumero.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FNumero.Id(0);
 end;
 
 function TDAONumero.GetbyId(Id: Variant): iDAONumero;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where e.id=:id')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAONumero.GetbyId - ao tentar encontrar numero por Id: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FNumero.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FNumero.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FNumero.Id(FDataSet.FieldByName('id').AsInteger)
+  else
+    FNumero.Id(0);
 end;
 
 function TDAONumero.GetbyParams: iDAONumero;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL)
-                   .Add('where n.idendereco    =:idendereco')
-                   .Add('and   n.numeroendereco=:numeroendereco')
-                   .Params('idendereco'     , FNumero.IdEndereco)
-                   .Params('numeroendereco' , FNumero.NumeroEndereco)
-                   .Open
-                 .DataSet;
-   except
-     on E: Exception do
-     raise exception.Create(FMSG.MSGerroGet+E.Message);
-   end;
-  finally
-   if not FDataSet.IsEmpty then
-   begin
-     FNumero.Id(FDataSet.FieldByName('id').AsInteger);
-     QuantidadeRegistro;
-   end
-   else
-     FNumero.Id(0);
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                    .Add('where n.idendereco    =:idendereco')
+                    .Add('and   n.numeroendereco=:numeroendereco')
+                    .Params('idendereco'     , FNumero.IdEndereco)
+                    .Params('numeroendereco' , FNumero.NumeroEndereco)
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAONumero.GetbyParams - ao tentar encontrar numero por Idendereco+numeroendereco: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FNumero.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FNumero.Id(0);
 end;
 
 function TDAONumero.Post: iDAONumero;
@@ -189,31 +193,28 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('idendereco'          , FNumero.IdEndereco)
-          .Params('numeroendereco'      , FNumero.NumeroEndereco)
-          .Params('complementoendereco' , FNumero.ComplementoEndereco)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idendereco'          , FNumero.IdEndereco)
+        .Params('numeroendereco'      , FNumero.NumeroEndereco)
+        .Params('complementoendereco' , FNumero.ComplementoEndereco)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAONumero.Post - ao tentar incluir novo numero: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id ')
-                    .Open
-                    .DataSet;
-    FNumero.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id ')
+                .Open
+                .DataSet;
+  FNumero.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAONumero.Put: iDAONumero;
@@ -226,27 +227,24 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'                  , FNumero.Id)
-          .Params('idendereco'          , FNumero.IdEndereco)
-          .Params('numeroendereco'      , FNumero.NumeroEndereco)
-          .Params('complementoendereco' , FNumero.ComplementoEndereco)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'                  , FNumero.Id)
+        .Params('idendereco'          , FNumero.IdEndereco)
+        .Params('numeroendereco'      , FNumero.NumeroEndereco)
+        .Params('complementoendereco' , FNumero.ComplementoEndereco)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAONumero.Put - ao tentar alterar numero: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAONumero.Delete: iDAONumero;
@@ -256,20 +254,18 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-               .Params('id', FNumero.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+    FQuery.SQL(LSQL)
+                 .Params('id', FNumero.Id)
+               .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAONumero.Delete - ao tentar excluír numero: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAONumero.LoopRegistro(Value : Integer): Integer;

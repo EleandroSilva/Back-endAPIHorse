@@ -29,6 +29,7 @@ type
       FValorProduto        : Currency;
       FValorDesconto       : Currency;
       FValorReceber        : Currency;
+      FValorDescontoItem   : Currency;
       FDataHoraEmissao     : TDateTime;
       FStatus              : Integer;
       FExcluido            : Integer;
@@ -57,6 +58,8 @@ type
       function ValorDesconto                          : Currency;           overload;
       function ValorReceber       (Value : Currency)  : iEntidadePedido<T>; overload;
       function ValorReceber                           : Currency;           overload;
+      function ValorDescontoItem  (Value : Currency)  : iEntidadePedido<T>; overload;
+      function ValorDescontoItem                      : Currency;           overload;
       function DataHoraEmissao    (Value : TDateTime) : iEntidadePedido<T>; overload;
       function DataHoraEmissao                        : TDateTime;          overload;
       function Status             (Value : Integer)   : iEntidadePedido<T>; overload;
@@ -184,6 +187,17 @@ end;
 function TEntidadePedido<T>.ValorDesconto: Currency;
 begin
   Result := FValorDesconto;
+end;
+
+function TEntidadePedido<T>.ValorDescontoItem(Value: Currency): iEntidadePedido<T>;
+begin
+  Result := Self;
+  FValorDescontoItem := Value;
+end;
+
+function TEntidadePedido<T>.ValorDescontoItem: Currency;
+begin
+  Result := FValorDescontoItem;
 end;
 
 function TEntidadePedido<T>.ValorReceber(Value: Currency): iEntidadePedido<T>;

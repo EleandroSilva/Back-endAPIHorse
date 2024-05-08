@@ -24,12 +24,13 @@ type
     function GetbyId    (Id : Variant)             : iDAOPedidoItem; overload;
     function GetbyId    (IdParent : Integer)       : iDAOPedidoItem; overload;
     function GetbyParams                           : iDAOPedidoItem; overload;
-    function GetbyParams(aIdProduto : Variant)     : iDAOPedidoItem; overload;
-    function GetbyParams(aNomeProduto : String)    : iDAOPedidoItem; overload;
+    function GetbyParams(IdProduto : Variant)      : iDAOPedidoItem; overload;
+    function GetbyParams(NomeProduto : String)     : iDAOPedidoItem; overload;
     function Post                                  : iDAOPedidoItem;
     function Put                                   : iDAOPedidoItem;
     function Delete                                : iDAOPedidoItem;
     function QuantidadeRegistro                    : Integer;
+    function SomarPedidoItem                       : iDAOPedidoItem;
 
     function This : iEntidadePedidoItem<iDAOPedidoItem>;
   End;

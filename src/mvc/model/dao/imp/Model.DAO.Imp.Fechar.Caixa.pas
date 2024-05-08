@@ -48,14 +48,14 @@ type
       function GetAll                                : iDAOFecharCaixa;
       function GetbyId    (Id : Variant)             : iDAOFecharCaixa;
       function GetbyParams                           : iDAOFecharCaixa; overload;
-      function GetbyParams(aIdUsuario : Variant)     : iDAOFecharCaixa; overload;
-      function GetbyParams(aNomeUsuario : String)    : iDAOFecharCaixa; overload;
-      function GetbyParams(aIdPedido : Integer)      : iDAOFecharCaixa; overload;
+      function GetbyParams(IdUsuario : Variant)      : iDAOFecharCaixa; overload;
+      function GetbyParams(NomeUsuario : String)     : iDAOFecharCaixa; overload;
+      function GetbyParams(IdPedido : Integer)       : iDAOFecharCaixa; overload;
       function Post                                  : iDAOFecharCaixa;
       function Put                                   : iDAOFecharCaixa;
       function Delete                                : iDAOFecharCaixa;
-      function QuantidadeRegistro                    : Integer;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeFecharCaixa<iDAOFecharCaixa>;
   end;
 
@@ -104,144 +104,150 @@ function TDAOFecharCaixa.GetAll: iDAOFecharCaixa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
+    FDataSet := FQuery
                     .SQL(FSQL)
                     .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FFecharCaixa.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FFecharCaixa.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOFecharCaixa.GetAll - ao tentar encontrar fecharcaixa todos: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FFecharCaixa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FFecharCaixa.Id(0);
 end;
 
 function TDAOFecharCaixa.GetbyId(Id: Variant): iDAOFecharCaixa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL+' where cde.Id=:Id')
+    FDataSet := FQuery
+                  .SQL(FSQL+' where cde.Id=:Id')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOFecharCaixa.GetbyId - ao tentar encontrar fecharcaixa por Id: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FFecharCaixa.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FFecharCaixa.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FFecharCaixa.Id(FDataSet.FieldByName('id').AsInteger)
+  else
+    FFecharCaixa.Id(0);
 end;
 
-function TDAOFecharCaixa.GetbyParams(aIdPedido: Integer): iDAOFecharCaixa;
+function TDAOFecharCaixa.GetbyParams(IdPedido: Integer): iDAOFecharCaixa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL+' where cde.idpedido=:Idpedido')
-                    .Params('Idpedido', aIdPedido)
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL+' where cde.idpedido=:Idpedido')
+                    .Params('Idpedido', IdPedido)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOFecharCaixa.GetbyParams - ao tentar encontrar fecharcaixa por Idpedido: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FFecharCaixa.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FFecharCaixa.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FFecharCaixa.Id(FDataSet.FieldByName('id').AsInteger)
+  else
+    FFecharCaixa.Id(0);
 end;
 
 function TDAOFecharCaixa.GetbyParams: iDAOFecharCaixa;
 begin
-   Result := Self;
+  Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where u.nomeusuario=:nomeusuario')
                     .Params('nomeusuario', FFecharCaixa.Usuario.NomeUsuario)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FFecharCaixa.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FFecharCaixa.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOFecharCaixa.GetbyParams - ao tentar encontrar fecharcaixa por nomeusuario: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FFecharCaixa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FFecharCaixa.Id(0);
 end;
 
-function TDAOFecharCaixa.GetbyParams(aIdUsuario: Variant): iDAOFecharCaixa;
+function TDAOFecharCaixa.GetbyParams(IdUsuario: Variant): iDAOFecharCaixa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where cde.idusuario=:idusuario')
-                    .Params('idusuario', FFecharCaixa.IdUsuario)
-                    .Open
+                    .Params('idusuario', IdUsuario)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FFecharCaixa.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FFecharCaixa.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOFecharCaixa.GetbyParams - ao tentar encontrar fecharcaixa por idusuario: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FFecharCaixa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FFecharCaixa.Id(0);
 end;
 
-function TDAOFecharCaixa.GetbyParams(aNomeUsuario: String): iDAOFecharCaixa;
+function TDAOFecharCaixa.GetbyParams(NomeUsuario: String): iDAOFecharCaixa;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL+' where ' + FUteis.Pesquisar('u.nomeusuario', ';' + aNomeUsuario))
-                   .Open
-                 .DataSet;
-   except
-     on E: Exception do
-     raise exception.Create(FMSG.MSGerroGet+E.Message);
-   end;
-  finally
-    if not FDataSet.IsEmpty then
+    FDataSet := FQuery
+                  .SQL(FSQL+' where ' + FUteis.Pesquisar('u.nomeusuario', ';' + NomeUsuario))
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
     begin
-      FFecharCaixa.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FFecharCaixa.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOFecharCaixa.GetbyParams - ao tentar encontrar fecharcaixa por nomeusuario: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FFecharCaixa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FFecharCaixa.Id(0);
 end;
 
 function TDAOFecharCaixa.Post: iDAOFecharCaixa;
@@ -266,30 +272,28 @@ begin
   Result := Self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('idcaixa'         , FFecharCaixa.IdCaixa)
-          .Params('idusuario'       , FFecharCaixa.IdUsuario)
-          .Params('valorlancado'    , FFecharCaixa.ValorLancado)
-          .Params('datahoraemissao' , FFecharCaixa.DataHoraEmissao)
-          .Params('observacao'      , FFecharCaixa.Observacao)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idcaixa'         , FFecharCaixa.IdCaixa)
+        .Params('idusuario'       , FFecharCaixa.IdUsuario)
+        .Params('valorlancado'    , FFecharCaixa.ValorLancado)
+        .Params('datahoraemissao' , FFecharCaixa.DataHoraEmissao)
+        .Params('observacao'      , FFecharCaixa.Observacao)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOFecharCaixa.Post - ao tentar incluir fecharcaixa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FFecharCaixa.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                .Open
+                .DataSet;
+  FFecharCaixa.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAOFecharCaixa.Put: iDAOFecharCaixa;
@@ -303,51 +307,46 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'           , FFecharCaixa.Id)
-          .Params('idcaixa'      , FFecharCaixa.IdCaixa)
-          .Params('idusuario'    , FFecharCaixa.IdUsuario)
-          .Params('valorlancado' , FFecharCaixa.ValorLancado)
-          .Params('observacao'   , FFecharCaixa.Observacao)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'           , FFecharCaixa.Id)
+        .Params('idcaixa'      , FFecharCaixa.IdCaixa)
+        .Params('idusuario'    , FFecharCaixa.IdUsuario)
+        .Params('valorlancado' , FFecharCaixa.ValorLancado)
+        .Params('observacao'   , FFecharCaixa.Observacao)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOFecharCaixa.Put - ao tentar alterar fecharcaixa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOFecharCaixa.Delete: iDAOFecharCaixa;
 const
   LSQL=('delete from fecharcaixa where id=:id ');
 begin
-   Result := self;
+  Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-              .Params('id', FFecharCaixa.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+    FQuery.SQL(LSQL)
+                .Params('id', FFecharCaixa.Id)
+               .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOFecharCaixa.Delete - ao tentar excluír fecharcaixa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOFecharCaixa.LoopRegistro(Value: Integer): Integer;

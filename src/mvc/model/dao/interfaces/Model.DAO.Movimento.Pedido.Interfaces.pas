@@ -28,8 +28,8 @@ type
     function Post                              : iDAOMovimentoPedido;
     function Put                               : iDAOMovimentoPedido;
     function Delete                            : iDAOMovimentoPedido;
-    function QuantidadeRegistro                : Integer;
 
+    function QuantidadeRegistro : Integer;
     function This : iEntidadeMovimentoPedido<iDAOMovimentoPedido>;
   end;
 

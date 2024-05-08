@@ -18,13 +18,12 @@ uses
 type
   iCadastrarPedido = Interface
     ['{A901D5A6-47CF-4BC7-A0AA-9F5C4D27F57C}']
-    function JSONObjectPai(Value : TJSONObject) : iCadastrarPedido; overload;
-    function JSONObjectPai                      : TJSONObject;      overload;
+    function JSONObject(Value : TJSONObject) : iCadastrarPedido; overload;
+    function JSONObject                      : TJSONObject;      overload;
     function Post   : iCadastrarPedido;
     function Error  : Boolean;
     //injeção de dependência
-    function Pedido : iEntidadePedido<iCadastrarPedido>;
-    function &End   : iCadastrarPedido;
+    function This : iEntidadePedido<iCadastrarPedido>;
   End;
 
 implementation

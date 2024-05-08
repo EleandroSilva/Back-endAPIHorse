@@ -43,8 +43,8 @@ type
       function Post                              : iDAOUnidadeProduto;
       function Put                               : iDAOUnidadeProduto;
       function Delete                            : iDAOUnidadeProduto;
-      function QuantidadeRegistro                : Integer;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeUnidadeProduto<iDAOUnidadeProduto>;
   end;
 
@@ -95,64 +95,68 @@ function TDAOUnidadeProduto.GetAll: iDAOUnidadeProduto;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FUnidadeProduto.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FUnidadeProduto.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOUnidadeProduto.GetAll - ao tentar encontrar Unidadeproduto todas: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FUnidadeProduto.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FUnidadeProduto.Id(0);
 end;
 
 function TDAOUnidadeProduto.GetbyId(Id: Variant): iDAOUnidadeProduto;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL+' where up.Id=:Id')
+    FDataSet := FQuery
+                  .SQL(FSQL+' where up.Id=:Id')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOUnidadeProduto.GetbyId - ao tentar encontrar Unidadeproduto por Id: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FUnidadeProduto.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FUnidadeProduto.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FUnidadeProduto.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FUnidadeProduto.Id(0);
 end;
 
 function TDAOUnidadeProduto.GetbyParams: iDAOUnidadeProduto;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where up.unidade=:unidade')
                     .Params('unidade', FUnidadeProduto.Unidade)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOUnidadeProduto.GetbyParams - ao tentar encontrar Unidadeproduto por unidade: ' + E.Message);
+      Abort;
     end;
-  finally
+  end;
     if not FDataSet.IsEmpty then
     begin
       FUnidadeProduto.Id(FDataSet.FieldByName('id').AsInteger);
@@ -160,7 +164,6 @@ begin
     end
     else
       FUnidadeProduto.Id(0);
-  end;
 end;
 
 function TDAOUnidadeProduto.Post: iDAOUnidadeProduto;
@@ -179,31 +182,28 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('unidade'     , FUnidadeProduto.Unidade)
-          .Params('nomeunidade' , FUnidadeProduto.NomeUnidade)
-          .Params('ativo'       , FUnidadeProduto.Ativo)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('unidade'     , FUnidadeProduto.Unidade)
+        .Params('nomeunidade' , FUnidadeProduto.NomeUnidade)
+        .Params('ativo'       , FUnidadeProduto.Ativo)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOUnidadeProduto.Post - ao tentar incluir Unidadeproduto: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FUnidadeProduto.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                .Open
+                .DataSet;
+  FUnidadeProduto.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAOUnidadeProduto.Put: iDAOUnidadeProduto;
@@ -215,27 +215,24 @@ const
                               'where id   =:id ');
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'          , FUnidadeProduto.Id)
-          .Params('unidade'     , FUnidadeProduto.Unidade)
-          .Params('nomeunidade' , FUnidadeProduto.NomeUnidade)
-          .Params('ativo'       , FUnidadeProduto.Ativo)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'          , FUnidadeProduto.Id)
+        .Params('unidade'     , FUnidadeProduto.Unidade)
+        .Params('nomeunidade' , FUnidadeProduto.NomeUnidade)
+        .Params('ativo'       , FUnidadeProduto.Ativo)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOUnidadeProduto.Put - ao tentar alterar Unidadeproduto: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOUnidadeProduto.Delete: iDAOUnidadeProduto;
@@ -245,20 +242,18 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-              .Params('id', FUnidadeProduto.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+    FQuery.SQL(LSQL)
+                .Params('id', FUnidadeProduto.Id)
+               .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOUnidadeProduto.Delete - ao tentar excluír Unidadeproduto: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOUnidadeProduto.LoopRegistro(Value : Integer): Integer;

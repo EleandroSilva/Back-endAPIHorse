@@ -48,6 +48,7 @@ type
             'p.valorproduto, '+
             'p.valordesconto, '+
             'p.valorreceber, '+
+            'p.valordescontoitem, '+
             'p.datahoraemissao, '+
             'p.status, '+
             'p.excluido '+
@@ -71,10 +72,11 @@ type
       function GetbyParams(aIdPessoa : Integer)      : iDAOPedido; overload;
       function GetbyParams(aNomePessoa : String)     : iDAOPedido; overload;
       function Post                                  : iDAOPedido;
-      function Put                                   : iDAOPedido;
+      function Put                                   : iDAOPedido; overload;
+      function Put(Id : Variant)                     : iDAOPedido; overload;
       function Delete                                : iDAOPedido;
-      function QuantidadeRegistro                    : Integer;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadePedido<iDAOPedido>;
   end;
 
@@ -124,154 +126,160 @@ function TDAOPedido.GetAll: iDAOPedido;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FPedido.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FPedido.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPedido.GetAll - ao tentar encontrar pedidos todas: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FPedido.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FPedido.Id(0);
 end;
 
 function TDAOPedido.GetbyId(Id: Variant): iDAOPedido;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where p.Id=:Id')
                     .Add('and p.excluido=:excluido')
                     .Params('Id', Id)
                     .params('excluido', FPedido.Excluido)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPedido.GetbyId - ao tentar encontrar pedido por Id: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FPedido.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FPedido.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FPedido.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FPedido.Id(0);
 end;
 
 function TDAOPedido.GetbyParams(aIdPessoa: Integer): iDAOPedido;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where p.Idpessoa=:Idpessoa')
                     .Add('and p.excluido=:excluido')
                     .Params('Idpessoa', aIdPessoa)
                     .params('excluido', FPedido.Excluido)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPedido.GetbyParams - ao tentar encontrar pedido por Idpessoa: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FPedido.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FPedido.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FPedido.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FPedido.Id(0);
 end;
 
 function TDAOPedido.GetbyParams: iDAOPedido;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where pp.cpfcnpj=:cpfcnpj')
                     .Add('and p.excluido=:excluido')
                     .Params('cpfcnpj', FPedido.Pessoa.CPFCNPJ)
                     .params('excluido', FPedido.Excluido)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FPedido.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FPedido.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPedido.GetbyParams - ao tentar encontrar pedido por cpfcnpj: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FPedido.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FPedido.Id(0);
 end;
 
 function TDAOPedido.GetbyParams(aIdUsuario: Variant): iDAOPedido;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where p.idusuario=:idusuario')
                     .Add('and p.excluido=:excluido')
                     .Params('idusuario', FPedido.IdUsuario)
                     .params('excluido',  FPedido.Excluido)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FPedido.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FPedido.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPedido.GetbyParams - ao tentar encontrar pedido por idusuario: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FPedido.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FPedido.Id(0);
 end;
 
 function TDAOPedido.GetbyParams(aNomePessoa: String): iDAOPedido;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL+' where ' + FUteis.Pesquisar('pp.nomepessoa', ';' + aNomePessoa))
-                   .Open
-                 .DataSet;
-   except
-     on E: Exception do
-     raise exception.Create(FMSG.MSGerroGet+E.Message);
-   end;
-  finally
-    if not FDataSet.IsEmpty then
+    FDataSet := FQuery
+                  .SQL(FSQL+' where ' + FUteis.Pesquisar('pp.nomepessoa', ';' + aNomePessoa))
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
     begin
-      FPedido.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FPedido.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPedido.GetbyParams - ao tentar encontrar pedido por nomepessoa: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FPedido.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FPedido.Id(0);
 end;
 
 function TDAOPedido.Post: iDAOPedido;
@@ -285,6 +293,7 @@ const
                              'valorproduto, '+
                              'valordesconto, '+
                              'valorreceber, '+
+                             'valordescontoitem, '+
                              'datahoraemissao, '+
                              'status, '+
                              'excluido '+
@@ -299,6 +308,7 @@ const
                              ':valorproduto, '+
                              ':valordesconto, '+
                              ':valorreceber, '+
+                             ':valordescontoitem, '+
                              ':datahoraemissao, '+
                              ':status, '+
                              ':excluido '+
@@ -308,36 +318,67 @@ begin
   Result := Self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('idempresa'           , FPedido.IdEmpresa)
-          .Params('idcaixa'             , FPedido.IdCaixa)
-          .Params('idpessoa'            , FPedido.IdPessoa)
-          .Params('idcondicaopagamento' , FPedido.IdCondicaoPagamento)
-          .Params('idusuario'           , FPedido.IdUsuario)
-          .Params('valorproduto'        , FPedido.ValorProduto)
-          .Params('valordesconto'       , FPedido.ValorDesconto)
-          .Params('valorreceber'        , FPedido.ValorReceber)
-          .Params('datahoraemissao'     , FPedido.DataHoraEmissao)
-          .Params('status'              , FPedido.Status)
-          .Params('excluido'            , FPedido.Excluido)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idempresa'           , FPedido.IdEmpresa)
+        .Params('idcaixa'             , FPedido.IdCaixa)
+        .Params('idpessoa'            , FPedido.IdPessoa)
+        .Params('idcondicaopagamento' , FPedido.IdCondicaoPagamento)
+        .Params('idusuario'           , FPedido.IdUsuario)
+        .Params('valorproduto'        , FPedido.ValorProduto)
+        .Params('valordesconto'       , FPedido.ValorDesconto)
+        .Params('valorreceber'        , FPedido.ValorReceber)
+        .Params('valordescontoitem'   , FPedido.ValorDescontoItem)
+        .Params('datahoraemissao'     , FPedido.DataHoraEmissao)
+        .Params('status'              , FPedido.Status)
+        .Params('excluido'            , FPedido.Excluido)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPedido.Post - ao tentar incluir novo pedido: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FPedido.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                .Open
+                .DataSet;
+  FPedido.Id(FDataSet.FieldByName('id').AsInteger);
+end;
+
+
+//Put para atualizar valor pedido
+function TDAOPedido.Put(Id: Variant): iDAOPedido;
+const
+  lSQL=('update pedido set '+
+                       'valorproduto     =:valorproduto, '+
+                       'valordescontoitem=:valordescontoitem, '+
+                       'valorreceber     =:valorreceber '+
+                       'where      id    =:id '
+       );
+begin
+  Result := Self;
+  FConexao.StartTransaction;
+  try
+    FQuery
+      .SQL(lSQL)
+        .Params('id'                , Id)
+        .Params('valorproduto'      , FPedido.ValorProduto)
+        .Params('valordescontoitem' , FPedido.ValorDescontoItem)
+        .Params('valorreceber'      , FPedido.ValorReceber)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPedido.Put - ao tentar alterar apenas valores do pedido: ' + E.Message);
+      Abort;
+    end;
+  end;
+    FConexao.Commit;
 end;
 
 function TDAOPedido.Put: iDAOPedido;
@@ -351,6 +392,7 @@ const
                        'valorproduto       =:valorproduto, '+
                        'valordesconto      =:valordesconto, '+
                        'valorreceber       =:valorreceber, '+
+                       'valordescontoitem  =:valordescontoitem, '+
                        'datahoraemissao    =:datahoraemissao, '+
                        'status             =:status, '+
                        'excluido           =:excluido '+
@@ -358,35 +400,33 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'                  , FPedido.Id)
-          .Params('idempresa'           , FPedido.IdEmpresa)
-          .Params('idcaixa'             , FPedido.IdCaixa)
-          .Params('idpessoa'            , FPedido.IdPessoa)
-          .Params('idcondicaopagamento' , FPedido.IdCondicaoPagamento)
-          .Params('idusuario'           , FPedido.IdUsuario)
-          .Params('valorproduto'        , FPedido.ValorProduto)
-          .Params('valordesconto'       , FPedido.ValorDesconto)
-          .Params('valorreceber'        , FPedido.ValorReceber)
-          .Params('datahoraemissao'     , FPedido.DataHoraEmissao)
-          .Params('status'              , FPedido.Status)
-          .Params('excluido'            , FPedido.Excluido)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise  Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'                  , FPedido.Id)
+        .Params('idempresa'           , FPedido.IdEmpresa)
+        .Params('idcaixa'             , FPedido.IdCaixa)
+        .Params('idpessoa'            , FPedido.IdPessoa)
+        .Params('idcondicaopagamento' , FPedido.IdCondicaoPagamento)
+        .Params('idusuario'           , FPedido.IdUsuario)
+        .Params('valorproduto'        , FPedido.ValorProduto)
+        .Params('valordesconto'       , FPedido.ValorDesconto)
+        .Params('valorreceber'        , FPedido.ValorReceber)
+        .Params('valordescontoitem'   , FPedido.ValorDescontoItem)
+        .Params('datahoraemissao'     , FPedido.DataHoraEmissao)
+        .Params('status'              , FPedido.Status)
+        .Params('excluido'            , FPedido.Excluido)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPedido.Put - ao tentar alterar pedido: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 
@@ -397,16 +437,17 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-      FQuery.SQL(LSQL)
+    FQuery.SQL(LSQL)
                .Add('id=:id')
-               .Params('id', FPedido.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+                 .Params('id', FPedido.Id)
+               .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPedido.Delete - ao tentar excluír pedido: ' + E.Message);
+      Abort;
+    end;
   end;
     FConexao.Commit;
 end;

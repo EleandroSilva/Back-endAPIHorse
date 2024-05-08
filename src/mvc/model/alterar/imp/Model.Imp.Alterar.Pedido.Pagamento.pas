@@ -86,8 +86,43 @@ begin
 end;
 
 function TAlterarPedidoPagamento.Put: iAlterarPedidoPagamento;
+Var
+  I : Integer;
 begin
-//
+//Obtém os dados JSON do corpo da requisição da tabela('pedidopagamento')
+  FJSONArray := FJSONObject.GetValue('pedidopagamento') as TJSONArray;
+  // Loop inserindo pedidopagamento(ns)
+  for I := 0 to FJSONArray.Count - 1 do
+  begin
+    //Extraindo os dados do pagamento do pedido e salvando os dados na tabela
+    FJSONObject := FJSONArray.Items[I] as TJSONObject;
+    try
+      FController
+        .FactoryDAO
+          .DAOPedidoPagamento
+            .This
+              .IdPedido      (FPedidoPagamento.IdPedido)
+              .DataVencimento(FJSONObject.GetValue<TDateTime>('datavencimento'))
+              .ValorParcela  (FJSONObject.GetValue<Currency> ('valorparcela'))
+            .&End
+          .Post;
+    except
+      on E: Exception do
+      begin
+        WriteLn('Erro ao tentar incluir itens do pedido: ' + E.Message);
+        //caso ocorrer algum erro no lançamento do item, excluo o pedido lançado
+        FController
+          .FactoryDAO
+            .DAOPessoa
+              .This
+                .Id(FPedidoPagamento.IdPedido)
+              .&End
+            .Delete;
+            Exit;
+        FError := True;
+      end;
+    end;
+  end;
 end;
 
 function TAlterarPedidoPagamento.Found: Boolean;

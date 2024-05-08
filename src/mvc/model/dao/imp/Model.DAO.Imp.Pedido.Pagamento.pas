@@ -21,28 +21,33 @@ uses
   Model.DAO.Pedido.Pagamento.Interfaces,
   Model.Entidade.Pedido.Pagamento.Interfaces,
   Model.Conexao.Firedac.Interfaces,
-  Model.Conexao.Query.Interfaces;
+  Model.Conexao.Query.Interfaces,
+  Controller.Interfaces;
 
 Type
   TDAOPedidoPagamento = class(TInterfacedObject, iDAOPedidoPagamento)
     private
+      FController : iController;
       FPedidoPagamento : iEntidadePedidoPagamento<iDAOPedidoPagamento>;
       FConexao     : iConexao;
       FDataSet     : TDataSet;
       FQuery       : iQuery;
+      FQuery1      : iQuery;
       FUteis       : iUteis;
       FMSG         : TMensagens;
-
+      FValorReceber : Currency;
+      FValorParcela : Currency;
     const
       FSQL=('select '+
             'pp.id, '+
             'pp.idpedido, '+
+            'pp.idcondicaopagamento, '+
             'pp.datavencimento, '+
-            'pp.valorparcela '+
+            'pp.valorparcela, '+
+            'pp.valorreceber '+
             'from pedidopagamento pp '
             );
       function LoopRegistro(Value : Integer): Integer;
-
     public
       constructor Create;
       destructor Destroy; override;
@@ -57,8 +62,13 @@ Type
       function Post                                  : iDAOPedidoPagamento;
       function Put                                   : iDAOPedidoPagamento;
       function Delete                                : iDAOPedidoPagamento;
-      function QuantidadeRegistro                    : Integer;
+      function CalcularVencimentoValorParcela        : iDAOPedidoPagamento;
+      function ValorReceber(Value : Currency)        : iDAOPedidoPagamento; overload;
+      function ValorReceber                          : Currency;            overload;
+      function ValorParcela(Value : Currency)        : iDAOPedidoPagamento; overload;
+      function ValorParcela                          : Currency;            overload;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadePedidoPagamento<iDAOPedidoPagamento>;
   end;
 
@@ -68,15 +78,18 @@ uses
   Uteis,
   Model.Entidade.Imp.Pedido.Pagamento,
   Model.Conexao.Firedac.MySQL.Imp,
-  Model.Conexao.Query.Imp;
+  Model.Conexao.Query.Imp,
+  Imp.Controller;
 
 { TDAOPedidoPagamento }
 
 constructor TDAOPedidoPagamento.Create;
 begin
+  FController := TController.New;
   FPedidoPagamento  := TEntidadePedidoPagamento<iDAOPedidoPagamento>.New(Self);
   FConexao := TModelConexaoFiredacMySQL.New;
   FQuery   := TQuery.New;
+  FQuery1  := TQuery.New;
   FUteis   := TUteis.New;
   FMSG     := TMensagens.Create;
 end;
@@ -110,69 +123,70 @@ function TDAOPedidoPagamento.GetAll: iDAOPedidoPagamento;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FPedidoPagamento.Id(FDataSet.FieldByName('idpedido').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FPedidoPagamento.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPedidoPagamento.GetAll - ao tentar encontrar pedidopagamento todas: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FPedidoPagamento.Id(FDataSet.FieldByName('idpedido').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FPedidoPagamento.Id(0);
 end;
 
 function TDAOPedidoPagamento.GetbyId(Id: Variant): iDAOPedidoPagamento;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL+' where pp.Id=:Id')
+    FDataSet := FQuery
+                  .SQL(FSQL+' where pp.Id=:Id')
                     .Params('Id', Id)
                     .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      WriteLn('Erro no TDAOPedidoPagamento.GetbyId - ao tentar encontrar pagamento pedido por Id: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FPedidoPagamento.Id(FDataSet.FieldByName('idpedido').AsInteger)
-    else
-      FPedidoPagamento.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FPedidoPagamento.Id(FDataSet.FieldByName('idpedido').AsInteger)
+    else
+    FPedidoPagamento.Id(0);
 end;
 
 function TDAOPedidoPagamento.GetbyId(IdParent: Integer): iDAOPedidoPagamento;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where pp.Idpedido=:Idpedido')
                     .Params('Idpedido', IdParent)
                     .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      WriteLn('Erro TDAOPedidoPagamento.GetbyId - ao tentar encontrar pagamento pedido por IdParent: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FPedidoPagamento.Id(FDataSet.FieldByName('idpedido').AsInteger)
-    else
-      FPedidoPagamento.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FPedidoPagamento.Id(FDataSet.FieldByName('idpedido').AsInteger)
+    else
+    FPedidoPagamento.Id(0);
 end;
 
 function TDAOPedidoPagamento.GetbyParams: iDAOPedidoPagamento;
@@ -201,81 +215,87 @@ end;
 
 function TDAOPedidoPagamento.Post: iDAOPedidoPagamento;
 const
-  LSQL=('insert into pedidoitem( '+
-                             'idpedido, '+
-                             'datavencimento, '+
-                             'valorparcela '+
-                           ')'+
-                             ' values '+
-                           '('+
-                             ':idpedido, '+
-                             ':datavencimento, '+
-                             ':valorparcela '+
-                            ')'
+  LSQL=('insert into pedidopagamento( '+
+                                      'idpedido, '+
+                                      'idcondicaopagamento, '+
+                                      'datavencimento, '+
+                                      'valorparcela, '+
+                                      'valorreceber '+
+                                    ')'+
+                                      ' values '+
+                                    '('+
+                                      ':idpedido, '+
+                                      ':idcondicaopagamento, '+
+                                      ':datavencimento, '+
+                                      ':valorparcela, '+
+                                      ':valorreceber '+
+                                     ')'
        );
 begin
   Result := Self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('idpedido'       , FPedidoPagamento.IdPedido)
-          .Params('datavencimento' , FPedidoPagamento.DataVencimento)
-          .Params('valorparcela'   , FPedidoPagamento.ValorParcela)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idpedido'            , FPedidoPagamento.IdPedido)
+        .Params('idcondicaopagamento' , FPedidoPagamento.IdCondicaoPagamento)
+        .Params('datavencimento'      , FPedidoPagamento.DataVencimento)
+        .Params('valorparcela'        , FPedidoPagamento.ValorParcela)
+        .Params('valorreceber'        , FPedidoPagamento.valorreceber)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro TDAOPedidoPagamento.Post - ao tentar incluir pagamento do pedido: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FPedidoPagamento.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                  .Open
+                .DataSet;
+  FPedidoPagamento.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAOPedidoPagamento.Put: iDAOPedidoPagamento;
 const
-  LSQL=('update pedidoitem set '+
-                       'idpedido      =:idpedido, '+
-                       'datavencimento=:datavencimento, '+
-                       'valorparcela  =:valorparcela '+
-                       'where id      =:id '
+  LSQL=('update pedidopagamento set '+
+                       'idpedido           =:idpedido, '+
+                       'idcondicaopagamento=:idcondicaopagamento, '+
+                       'datavencimento     =:datavencimento, '+
+                       'valorparcela       =:valorparcela, '+
+                       'valorreceber       =:valorreceber '+
+                       'where      idpedido=:idpedido '
        );
 begin
   Result := Self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'             , FPedidoPagamento.Id)
-          .Params('idpedido'       , FPedidoPagamento.IdPedido)
-          .Params('datavencimento' , FPedidoPagamento.DataVencimento)
-          .Params('valorparcela'   , FPedidoPagamento.ValorParcela)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idpedido'            , FPedidoPagamento.IdPedido)
+        .Params('idpedido'            , FPedidoPagamento.IdPedido)
+        .Params('idcondicaopagamento' , FPedidoPagamento.IdCondicaoPagamento)
+        .Params('datavencimento'      , FPedidoPagamento.DataVencimento)
+        .Params('valorparcela'        , FPedidoPagamento.ValorParcela)
+        .Params('valorreceber'        , FPedidoPagamento.valorreceber)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro TDAOPedidoPagamento.Put - ao tentar alterar pagamento do pedido: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FPedidoPagamento.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                  .Open
+                .DataSet;
+  FPedidoPagamento.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAOPedidoPagamento.Delete: iDAOPedidoPagamento;
@@ -285,20 +305,70 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-              .Params('id', FPedidoPagamento.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+    FQuery.SQL(LSQL)
+             .Params('id', FPedidoPagamento.Id)
+          .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro TDAOPedidoPagamento.Delete - ao tentar excluír pagamento do pedido: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
+end;
+
+function TDAOPedidoPagamento.CalcularVencimentoValorParcela: iDAOPedidoPagamento;
+const
+   lSQL=('select '+
+         'cp.id, '+
+         'cp.quantidadepagamento, '+
+         'cp1.numeropagamento, '+
+         'cp1.quantidadedias, '+
+         'date_add(curdate(), interval cp1.quantidadedias day) as datavencimento '+
+         'from condicaopagamento cp '+
+         'inner join condicaopagamentoitem cp1 on cp.id = cp1.idcondicaopagamento '
+        );
+begin
+  Result := Self;
+  try
+    FDataSet := FQuery1
+                  .SQL(lSQL)
+                    .Add('where cp.id=:id')
+                    .Params('Id', FPedidoPagamento.IdCondicaoPagamento)
+                    .Add('order by cp.id asc, cp1.quantidadedias asc')
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
+    begin
+      WriteLn('Erro ao tentar incluir itens do pedido: ' + E.Message);
+      Abort;
+    end;
+  end;
+end;
+
+function TDAOPedidoPagamento.ValorReceber(Value: Currency): iDAOPedidoPagamento;
+begin
+  Result := Self;
+  FValorReceber := Value;
+end;
+
+function TDAOPedidoPagamento.ValorReceber: Currency;
+begin
+  Result := FValorReceber;
+end;
+
+function TDAOPedidoPagamento.ValorParcela(Value: Currency): iDAOPedidoPagamento;
+begin
+  Result := Self;
+  FValorParcela := Value;
+end;
+
+function TDAOPedidoPagamento.ValorParcela: Currency;
+begin
+  Result := FValorParcela;
 end;
 
 function TDAOPedidoPagamento.LoopRegistro(Value: Integer): Integer;

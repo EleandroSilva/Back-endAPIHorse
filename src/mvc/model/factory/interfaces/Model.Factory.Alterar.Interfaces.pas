@@ -20,7 +20,10 @@ uses
   Model.Alterar.Usuario.Interfaces,
   Model.Alterar.Pessoa.Interfaces,
   Model.Alterar.Email.Pessoa.Interfaces,
-  Model.Alterar.Telefone.Pessoa.Interfaces;
+  Model.Alterar.Telefone.Pessoa.Interfaces,
+  Model.Alterar.Pedido.Interfaces,
+  Model.Alterar.Pedido.Item.Interfaces,
+  Model.Alterar.Pedido.Pagamento.Interfaces;
 
 type
   iFactoryAlterar = Interface
@@ -34,6 +37,9 @@ type
     function AlterarPessoa          : iAlterarPessoa;
     function AlterarEmailPessoa     : iAlterarEmailPessoa;
     function AlterarTelefonePessoa  : iAlterarTelefonePessoa;
+    function AlterarPedido          : iAlterarPedido;
+    function AlterarPedidoItem      : iAlterarPedidoItem;
+    function AlterarPedidoPagamento : iAlterarPedidoPagamento;
   End;
 
 implementation

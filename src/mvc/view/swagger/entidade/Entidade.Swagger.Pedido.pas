@@ -29,9 +29,10 @@ type
       FValorProduto    : Currency;
       FValorDesconto   : Currency;
       FValorReceber    : Currency;
+      FValorDescontoItem : Currency;
       FDataHoraEmissao : TDateTime;
       FStatus          : Integer;
-
+      FExcluido        : Boolean;
       FPedidoItem      : TObjectList<TPedidoItem>;
       FPedidoPagamento : TObjectList<TPedidoPagamento>;
     public
@@ -55,11 +56,14 @@ type
       property valordesconto   : Currency  read FValorProduto    write FValorProduto;
       [SwagProp('Soma valorproduto-valordesconto=valorreceber - API Calcula 0,01)', True)]
       property valorreceber    : Currency  read FValorProduto    write FValorProduto;
+      [SwagProp('Soma valordescontoitem - API Calcula 0,01)', True)]
+      property valordescontoitem : Currency  read FValorDescontoItem write FValorDescontoItem;
       [SwagProp('YYYY-MM-DD hh:mm:ss ', True)]
       property datahoraemissao : TDateTime read FDataHoraEmissao write FDataHoraEmissao;
-      [SwagProp('0-Pedido como orçamento;1-Pedido faturado;3-Pedido Cancelado; 4-Pedido Excluído ', True)]
+      [SwagProp('0-Pedido como orçamento;1-Pedido faturado;3-Pedido Cancelado ', True)]
       property status          : Integer   read FStatus          write FStatus;
-
+      [SwagProp('true = excluido; false= não excluido ', True)]
+      property excluido        : Boolean   read FExcluido          write FExcluido;
       //Injeção de dependência
       property pedidoitem      : TObjectList<TPedidoItem>      read FPedidoItem      write FPedidoItem;
       property pedidopagamento : TObjectList<TPedidoPagamento> read FPedidoPagamento write FPedidoPagamento;

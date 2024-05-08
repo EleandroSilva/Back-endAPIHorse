@@ -34,12 +34,13 @@ type
       FDSPedido   : TDataSource;
       FIdPedido   : Integer;
       FQuantidadeRegistro  : Integer;
-
+      FError : Boolean;
       //Loop que monta o JSON
       procedure LoopPedido;
       function  LoopPedidoItem      : TJSONValue;
       function  LoopPedidoPagamento : TJSONValue;
       function  CadastrarPedido(Value : TJSONObject) : Boolean;
+      function  AlterarPedido  (Value : TJSONObject) : Boolean;
       //Horse
       procedure GetAll (Req: THorseRequest; Res: THorseResponse; Next : TProc);
       procedure GetbyId(Req: THorseRequest; Res: THorseResponse; Next : TProc);
@@ -70,15 +71,37 @@ begin
   inherited;
 end;
 
+//Incluir novo pedido
 function TViewControllerPedido.CadastrarPedido(Value: TJSONObject): Boolean;
 begin
   Result := False;
   Result :=FController
              .FactoryCadastrar
                .CadastrarPedido
-                 .JSONObjectPai(Value)
+                 .JSONObject(Value)
                  .Post
                  .Error;
+end;
+
+//Alterar um pedido existente
+function TViewControllerPedido.AlterarPedido(Value: TJSONObject): Boolean;
+begin
+  Result := False;
+  //Obtém os dados JSON do corpo da requisição da tabela('pedido')
+  Result := FController
+              .FactoryAlterar
+                .AlterarPedido
+                  .This
+                    .Id(FIdPedido)
+                  .&End
+                .JSONObject(Value)
+                .Put
+                .Found;
+
+  FError := FController
+              .FactoryAlterar
+                .AlterarEmpresa
+                .Error;
 end;
 
 procedure TViewControllerPedido.LoopPedido;
@@ -109,11 +132,11 @@ begin
     end;
 
     try
-      FJSONObject.AddPair('pedidoitem' , LoopPedidoPagamento);
+      FJSONObject.AddPair('pedidopagamento' , LoopPedidoPagamento);
     except
       on E: Exception do
       begin
-        WriteLn('Erro durante o loop de pedidoitem, verificar as instruções SQL no DAOPedidoPagamento: ' + E.Message);
+        WriteLn('Erro durante o loop de pedidopagamento, verificar as instruções SQL no DAOPedidoPagamento: ' + E.Message);
         Break;
       end;
     end;
@@ -255,7 +278,21 @@ end;
 
 procedure TViewControllerPedido.Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 begin
-//
+  FJSONObject := Req.Body<TJSONObject>; //Tabela Pai Empresa
+  FIdPedido := Req.Params['id'].ToInt64;
+  if not AlterarPedido(FJSONObject) then
+  begin
+    Res.Status(204).Send('Registro não encontrado!');
+    Exit;
+  end
+  else
+    if FError then
+    begin
+      Res.Status(500).Send('Ocorreu um erro interno no servidor!');
+      Exit;
+    end
+    else
+      Res.Status(204).Send('Registro alterado com sucesso!');
 end;
 
 procedure TViewControllerPedido.Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);

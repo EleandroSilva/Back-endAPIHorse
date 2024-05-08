@@ -28,8 +28,8 @@ type
     function Post                              : iDAOTelefoneEmpresa;
     function Put                               : iDAOTelefoneEmpresa;
     function Delete                            : iDAOTelefoneEmpresa;
-    function QuantidadeRegistro                : Integer;
 
+    function QuantidadeRegistro : Integer;
     function This : iEntidadeTelefoneEmpresa<iDAOTelefoneEmpresa>;
   end;
 

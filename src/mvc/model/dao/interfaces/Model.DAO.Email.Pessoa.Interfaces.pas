@@ -29,8 +29,8 @@ type
     function Post                              : iDAOEmailPessoa;
     function Put                               : iDAOEmailPessoa;
     function Delete                            : iDAOEmailPessoa;
-    function QuantidadeRegistro                : Integer;
 
+    function QuantidadeRegistro : Integer;
     function This : iEntidadeEmailPessoa<iDAOEmailPessoa>;
   end;
 

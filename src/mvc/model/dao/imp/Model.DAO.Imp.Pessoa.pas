@@ -64,17 +64,18 @@ type
       constructor Create;
       destructor Destroy; override;
       class function New : iDAOPessoa;
-      function DataSet(DataSource : TDataSource)          : iDAOPessoa; overload;
-      function DataSet                                    : TDataSet;   overload;
-      function GetAll                                     : iDAOPessoa;
-      function GetbyId(Id : Variant)                      : iDAOPessoa;
-      function GetbyParams                                : iDAOPessoa; overload;
-      function GetbyParams(aCPFCNPJ : String)             : iDAOPessoa; overload;
-      function GetbyParams(Key: Integer; Value : String)  : iDAOPessoa; overload;
-      function Post                                       : iDAOPessoa;
-      function Put                                        : iDAOPessoa;
-      function Delete                                     : iDAOPessoa;
-      function QuantidadeRegistro                         : Integer;
+      function DataSet(DataSource : TDataSource)         : iDAOPessoa; overload;
+      function DataSet                                   : TDataSet;   overload;
+      function GetAll                                    : iDAOPessoa;
+      function GetbyId(Id : Variant)                     : iDAOPessoa;
+      function GetbyParams                               : iDAOPessoa; overload;
+      function GetbyParams(CPFCNPJ : String)             : iDAOPessoa; overload;
+      function GetbyParams(Key: Integer; Value : String) : iDAOPessoa; overload;
+      function Post                                      : iDAOPessoa;
+      function Put                                       : iDAOPessoa;
+      function Delete                                    : iDAOPessoa;
+
+      function QuantidadeRegistro : Integer;
       function This : iEntidadePessoa<iDAOPessoa>;
   end;
 
@@ -126,19 +127,23 @@ function TDAOPessoa.GetAll: iDAOPessoa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('order by p.id asc')
-                    .Open
+                  .Open
                   .DataSet;
-    except
-     raise Exception.Create(FMSG.MSGerroGet);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPessoa.GetAll - ao tentar encontrar pessoa todas: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FPessoa.Id(FDataSet.FieldByName('id').AsInteger) else FPessoa.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FPessoa.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FPessoa.Id(0);
 end;
 
 function TDAOPessoa.GetbyId(Id: Variant): iDAOPessoa;
@@ -149,12 +154,16 @@ begin
                   .SQL(FSQL)
                     .Add('where p.id=:id')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPessoa.GetbyId - ao tentar encontrar pessoa por Id: ' + E.Message);
+      Abort;
     end;
+  end;
   if not FDataSet.IsEmpty then
   begin
     FPessoa.Id(FDataSet.FieldByName('id').AsInteger);
@@ -178,11 +187,14 @@ begin
                          .Open
                       .DataSet;
     end;
-    except
-      on E: Exception do
-      raise exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPessoa.GetbyParams - ao tentar encontrar pessoa Key+Value: ' + E.Message);
+      Abort;
+    end;
   end;
-
   if not FDataSet.IsEmpty then
   begin
     FPessoa.Id(FDataSet.FieldByName('id').AsInteger);
@@ -192,55 +204,54 @@ begin
     FPessoa.Id(0);
 end;
 
-function TDAOPessoa.GetbyParams(aCPFCNPJ: String): iDAOPessoa;
+function TDAOPessoa.GetbyParams(CPFCNPJ: String): iDAOPessoa;
 begin
   Result := Self;
-  FUteis.ValidaCnpjCeiCpf(aCPFCNPJ, True);
+  FUteis.ValidaCnpjCeiCpf(CPFCNPJ, True);
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where e.cpfcnpj=:cpfcnpj')
-                    .Params('cpfcnpj', aCPFCNPJ)
-                    .Open
+                    .Params('cpfcnpj', CPFCNPJ)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      begin
-        WriteLn('Erro ao tentar filtrar tabela pessoa pelo cpfcnpj: ' + E.Message);
-        raise Exception.Create(FMSG.MSGerroGet+E.Message);
-      end;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPessoa.GetbyParams - ao tentar encontrar pessoa CPFCNPJ: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FPessoa.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FPessoa.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FPessoa.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FPessoa.Id(0);
 end;
 
 function TDAOPessoa.GetbyParams: iDAOPessoa;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL+' where ' + FUteis.Pesquisar('p.nomepessoa', ';' + FPessoa.NomePessoa))
-                   .Open
-                 .DataSet;
-   except
-     on E: Exception do
-     raise exception.Create(FMSG.MSGerroGet+E.Message);
-   end;
-  finally
-    if not FDataSet.IsEmpty then
+    FDataSet := FQuery
+                  .SQL(FSQL+' where ' + FUteis.Pesquisar('p.nomepessoa', ';' + FPessoa.NomePessoa))
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
     begin
-      FPessoa.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FPessoa.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPessoa.GetbyParams - ao tentar encontrar pessoa nomepessoa: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FPessoa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FPessoa.Id(0);
 end;
 
 function TDAOPessoa.Post: iDAOPessoa;
@@ -278,37 +289,35 @@ begin
   Result := Self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('idempresa'       , FPessoa.IdEmpresa)
-          .Params('idusuario'       , FPessoa.IdUsuario)
-          .Params('cpfcnpj'         , FPessoa.CPFCNPJ)
-          .Params('rgie'            , FPessoa.RGIE)
-          .Params('nomepessoa'      , FPessoa.NomePessoa)
-          .Params('sobrenome'       , FPessoa.SobreNome)
-          .Params('fisicajuridica'  , FPessoa.FisicaJuridica)
-          .Params('sexo'            , FPessoa.Sexo)
-          .Params('tipopessoa'      , FPessoa.TipoPessoa)
-          .Params('datahoraemissao' , FPessoa.DataHoraEmissao)
-          .Params('datanascimento'  , FPessoa.DataNascimento)
-          .Params('ativo'           , FPessoa.Ativo)
-          .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idempresa'       , FPessoa.IdEmpresa)
+        .Params('idusuario'       , FPessoa.IdUsuario)
+        .Params('cpfcnpj'         , FPessoa.CPFCNPJ)
+        .Params('rgie'            , FPessoa.RGIE)
+        .Params('nomepessoa'      , FPessoa.NomePessoa)
+        .Params('sobrenome'       , FPessoa.SobreNome)
+        .Params('fisicajuridica'  , FPessoa.FisicaJuridica)
+        .Params('sexo'            , FPessoa.Sexo)
+        .Params('tipopessoa'      , FPessoa.TipoPessoa)
+        .Params('datahoraemissao' , FPessoa.DataHoraEmissao)
+        .Params('datanascimento'  , FPessoa.DataNascimento)
+        .Params('ativo'           , FPessoa.Ativo)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPessoa.Post - ao tentar incluir nova pessoa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FPessoa.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                .Open
+                .DataSet;
+  FPessoa.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAOPessoa.Put: iDAOPessoa;
@@ -329,37 +338,34 @@ const
                         'where id=:id '
        );
 begin
-Result := Self;
-
+  Result := Self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'              , FPessoa.Id)
-          .Params('idempresa'       , FPessoa.IdEmpresa)
-          .Params('idusuario'       , FPessoa.IdUsuario)
-          .Params('cpfcnpj'         , FPessoa.CPFCNPJ)
-          .Params('rgie'            , FPessoa.RGIE)
-          .Params('nomepessoa'      , FPessoa.NomePessoa)
-          .Params('sobrenome'       , FPessoa.SobreNome)
-          .Params('fisicajuridica'  , FPessoa.FisicaJuridica)
-          .Params('sexo'            , FPessoa.Sexo)
-          .Params('tipopessoa'      , FPessoa.TipoPessoa)
-          .Params('datahoraemissao' , FPessoa.DataHoraEmissao)
-          .Params('datanascimento'  , FPessoa.DataNascimento)
-          .Params('ativo'           , FPessoa.Ativo)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'              , FPessoa.Id)
+        .Params('idempresa'       , FPessoa.IdEmpresa)
+        .Params('idusuario'       , FPessoa.IdUsuario)
+        .Params('cpfcnpj'         , FPessoa.CPFCNPJ)
+        .Params('rgie'            , FPessoa.RGIE)
+        .Params('nomepessoa'      , FPessoa.NomePessoa)
+        .Params('sobrenome'       , FPessoa.SobreNome)
+        .Params('fisicajuridica'  , FPessoa.FisicaJuridica)
+        .Params('sexo'            , FPessoa.Sexo)
+        .Params('tipopessoa'      , FPessoa.TipoPessoa)
+        .Params('datahoraemissao' , FPessoa.DataHoraEmissao)
+        .Params('datanascimento'  , FPessoa.DataNascimento)
+        .Params('ativo'           , FPessoa.Ativo)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPessoa.Put - ao tentar alterar pessoa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOPessoa.Delete: iDAOPessoa;
@@ -369,20 +375,18 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-               .Params('id', FPessoa.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+    FQuery.SQL(LSQL)
+                 .Params('id', FPessoa.Id)
+               .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOPessoa.Delete - ao tentar excluír pessoa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOPessoa.LoopRegistro(Value : Integer): Integer;

@@ -36,6 +36,8 @@ type
     function ValorDesconto                          : Currency;           overload;
     function ValorReceber       (Value : Currency)  : iEntidadePedido<T>; overload;
     function ValorReceber                           : Currency;           overload;
+    function ValorDescontoItem  (Value : Currency)  : iEntidadePedido<T>; overload;
+    function ValorDescontoItem                      : Currency;           overload;
     function DataHoraEmissao    (Value : TDateTime) : iEntidadePedido<T>; overload;
     function DataHoraEmissao                        : TDateTime;          overload;
     function Status             (Value : Integer)   : iEntidadePedido<T>; overload;

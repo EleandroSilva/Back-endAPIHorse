@@ -26,7 +26,8 @@ type
     private
       FController : iController;
       FPedido     : iEntidadePedido<iCadastrarPedido>;
-      FDSPedido   : TDataSource;
+      FDSPedido     : TDataSource;
+      FDSPedidoItem : TDataSource;
       FIdPedido   : Integer;
       FIdEmpresa  : Integer;
       FIdCaixa    : Integer;
@@ -34,25 +35,24 @@ type
 
       FError : Boolean;
 
-      FJSONObjectPai : TJSONObject;
       FJSONArray     : TJSONArray;
       FJSONObject    : TJSONObject;
 
-      function CadastrarPedidoItem : Boolean;
+      procedure AlterarValoresPedido;
+      function CadastrarPedidoItem      : Boolean;
       function CadastrarPedidoPagamento : Boolean;
-      function CadastrarCaixaPedido : Boolean;
+      function CadastrarCaixaPedido     : Boolean;
     public
       constructor Create;
       destructor Destroy; override;
       class function New : iCadastrarPedido;
 
-      function JSONObjectPai(Value : TJSONObject) : iCadastrarPedido; overload;
-      function JSONObjectPai                      : TJSONObject;      overload;
+      function JSONObject(Value : TJSONObject) : iCadastrarPedido; overload;
+      function JSONObject                      : TJSONObject;      overload;
       function Post   : iCadastrarPedido;
       function Error  : Boolean;
-      //injeção de dependência
-      function Pedido : iEntidadePedido<iCadastrarPedido>;
-      function &End   : iCadastrarPedido;
+
+      function This : iEntidadePedido<iCadastrarPedido>;
   end;
 
 implementation
@@ -68,6 +68,7 @@ begin
   FController := TController.New;
   FPedido     := TEntidadePedido<iCadastrarPedido>.New(Self);
   FDSPedido   := TDataSource.Create(nil);
+  FDSPedidoItem := TDataSource.Create(nil);
 
   FError := False;
 end;
@@ -82,21 +83,21 @@ begin
   Result := Self.Create;
 end;
 
-function TCadastrarPedido.JSONObjectPai(Value: TJSONObject): iCadastrarPedido;
+function TCadastrarPedido.JSONObject(Value: TJSONObject): iCadastrarPedido;
 begin
   Result := Self;
-  FJSONObjectPai := Value;
+  FJSONObject := Value;
 end;
 
-function TCadastrarPedido.JSONObjectPai: TJSONObject;
+function TCadastrarPedido.JSONObject: TJSONObject;
 begin
   Result := FJSONObject;
 end;
 
 function TCadastrarPedido.Post: iCadastrarPedido;
 begin
+  Result := Self;
   //tabela pai(Pedido)
-  FJSONObject := FJSONObjectPai;
   try
     FController
       .FactoryDAO
@@ -110,6 +111,7 @@ begin
             .ValorProduto       (FJSONObject.GetValue<Currency> ('valorproduto'))
             .ValorDesconto      (FJSONObject.GetValue<Currency> ('valordesconto'))
             .ValorReceber       (FJSONObject.GetValue<Currency> ('valorreceber'))
+            .ValorDescontoItem  (FJSONObject.GetValue<Currency> ('valordescontoitem'))
             .DataHoraEmissao    (FJSONObject.GetValue<TDateTime>('datahoraemissao'))
             .Status(0) //(CRIAR PARAMENTO DA EMPRESA, INFORMAR SE NA DIGITAÇÃO TIPO DE INFORMAÇÃO)0-Pedido como orçamento 1-Pedido faturado 3-Pedido Cancelado
             .Excluido(0)//0-Pedido estado normal; 1-Pedido excluído
@@ -121,6 +123,10 @@ begin
     FIdEmpresa := FJSONObject.GetValue<Integer>('idempresa');
     FIdCaixa   := FJSONObject.GetValue<Integer>('idcaixa');
     FIdUsuario := FJSONObject.GetValue<Integer>('idusuario');
+    CadastrarPedidoItem;
+    AlterarValoresPedido;
+    CadastrarPedidoPagamento;
+    CadastrarCaixaPedido;
   except
     on E: Exception do
     begin
@@ -131,6 +137,20 @@ begin
 end;
 
 
+//pegando soma da tabela item e atualizado tabela pedido
+procedure TCadastrarPedido.AlterarValoresPedido;
+begin
+  FController
+    .FactoryDAO
+      .DAOPedido
+        .This
+          .ValorProduto     (FDSPedidoItem.DataSet.FieldByName('valorproduto').AsCurrency)
+          .ValorDescontoItem(FDSPedidoItem.DataSet.FieldByName('valordescontoitem').AsCurrency)
+          .ValorReceber     (FDSPedidoItem.DataSet.FieldByName('valorreceber').AsCurrency)
+        .&End
+      .Put(FIdPedido);
+end;
+
 //cadastrar itens do pedido
 function TCadastrarPedido.CadastrarPedidoItem: Boolean;
 begin
@@ -139,10 +159,11 @@ begin
               .FactoryCadastrar
                 .CadastrarPedidoItem
                   .JSONObjectPai(FJSONObject)
-                  .PedidoItem
+                  .This
                     .IdPedido(FIdPedido)
                   .&End
                 .Post
+                .DataSet(FDSPedidoItem)
                 .Error;
 end;
 
@@ -153,13 +174,15 @@ begin
   Result := FController
               .FactoryCadastrar
                 .CadastrarPedidoPagamento
-                  .JSONObjectPai(FJSONObject)
-                    .PedidoPagamento
-                      .IdPedido(FIdPedido)
+                  .JSONObjectPai   (FJSONObject)
+                    .This
+                      .IdPedido    (FIdPedido)
+                      .ValorReceber(FDSPedidoItem.DataSet.FieldByName('valorreceber').AsCurrency)
                     .&End
                 .Post
                 .Error;
 end;
+
 
 //cadastrar relacionamento caixa - pedido
 function TCadastrarPedido.CadastrarCaixaPedido: Boolean;
@@ -169,10 +192,10 @@ begin
               .FactoryCadastrar
                 .CadastrarCaixaPedido
                   .JSONObjectPai(FJSONObject)
-                    .CaixaPedido
+                    .This
                       .IdEmpresa(FIdEmpresa)
-                      .IdCaixa(FIdCaixa)
-                      .IdPedido(FIdPedido)
+                      .IdCaixa  (FIdCaixa)
+                      .IdPedido (FIdPedido)
                       .IdUsuario(FIdUsuario)
                     .&End
                   .Post
@@ -184,15 +207,9 @@ begin
   Result := FError;
 end;
 
-//Injeção de dependência
-function TCadastrarPedido.Pedido: iEntidadePedido<iCadastrarPedido>;
+function TCadastrarPedido.This: iEntidadePedido<iCadastrarPedido>;
 begin
   Result := FPedido;
-end;
-
-function TCadastrarPedido.&End: iCadastrarPedido;
-begin
-  Result := Self;
 end;
 
 end.

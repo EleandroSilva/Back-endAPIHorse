@@ -23,14 +23,15 @@ type
     function GetAll                                : iDAOPedido;
     function GetbyId    (Id : Variant)             : iDAOPedido;
     function GetbyParams                           : iDAOPedido; overload;
-    function GetbyParams(aIdUsuario : Variant)     : iDAOPedido; overload;
-    function GetbyParams(aIdPessoa : Integer)      : iDAOPedido; overload;
-    function GetbyParams(aNomePessoa : String)     : iDAOPedido; overload;
+    function GetbyParams(IdUsuario : Variant)      : iDAOPedido; overload;
+    function GetbyParams(IdPessoa : Integer)       : iDAOPedido; overload;
+    function GetbyParams(NomePessoa : String)      : iDAOPedido; overload;
     function Post                                  : iDAOPedido;
-    function Put                                   : iDAOPedido;
+    function Put                                   : iDAOPedido; overload;
+    function Put(Id : Variant)                     : iDAOPedido; overload;
     function Delete                                : iDAOPedido;
-    function QuantidadeRegistro                    : Integer;
 
+    function QuantidadeRegistro : Integer;
     function This : iEntidadePedido<iDAOPedido>;
   end;
 

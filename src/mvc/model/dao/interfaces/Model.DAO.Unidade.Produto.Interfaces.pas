@@ -26,8 +26,8 @@ type
     function Post                              : iDAOUnidadeProduto;
     function Put                               : iDAOUnidadeProduto;
     function Delete                            : iDAOUnidadeProduto;
-    function QuantidadeRegistro                : Integer;
 
+    function QuantidadeRegistro : Integer;
     function This : iEntidadeUnidadeProduto<iDAOUnidadeProduto>;
   end;
 

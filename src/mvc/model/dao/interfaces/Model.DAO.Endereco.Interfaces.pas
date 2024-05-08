@@ -19,8 +19,8 @@ type
     function Post                              : iDAOEndereco;
     function Put                               : iDAOEndereco;
     function Delete                            : iDAOEndereco;
-    function QuantidadeRegistro                : Integer;
 
+    function QuantidadeRegistro : Integer;
     function This : iEntidadeEndereco<iDAOEndereco>;
   end;
 

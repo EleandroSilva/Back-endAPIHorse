@@ -24,14 +24,14 @@ type
     function GetAll                                : iDAOMovimentoCaixa;
     function GetbyId    (Id : Variant)             : iDAOMovimentoCaixa;
     function GetbyParams                           : iDAOMovimentoCaixa; overload;
-    function GetbyParams(aIdUsuario : Variant)     : iDAOMovimentoCaixa; overload;
-    function GetbyParams(aNomeUsuario : String)    : iDAOMovimentoCaixa; overload;
-    function GetbyParams(aIdPedido : Integer)      : iDAOMovimentoCaixa; overload;
+    function GetbyParams(IdUsuario : Variant)      : iDAOMovimentoCaixa; overload;
+    function GetbyParams(NomeUsuario : String)     : iDAOMovimentoCaixa; overload;
+    function GetbyParams(IdPedido : Integer)       : iDAOMovimentoCaixa; overload;
     function Post                                  : iDAOMovimentoCaixa;
     function Put                                   : iDAOMovimentoCaixa;
     function Delete                                : iDAOMovimentoCaixa;
-    function QuantidadeRegistro                    : Integer;
 
+    function QuantidadeRegistro : Integer;
     function This : iEntidadeMovimentoCaixa<iDAOMovimentoCaixa>;
   end;
 

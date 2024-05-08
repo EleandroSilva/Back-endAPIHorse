@@ -23,13 +23,13 @@ type
     function GetAll                                : iDAOCaixa;
     function GetbyId    (Id : Variant)             : iDAOCaixa;
     function GetbyParams                           : iDAOCaixa; overload;
-    function GetbyParams(aIdUsuario : Variant)     : iDAOCaixa; overload;
-    function GetbyParams(aNomeUsuario : String)    : iDAOCaixa; overload;
+    function GetbyParams(IdUsuario : Variant)      : iDAOCaixa; overload;
+    function GetbyParams(NomeUsuario : String)     : iDAOCaixa; overload;
     function Post                                  : iDAOCaixa;
     function Put                                   : iDAOCaixa;
     function Delete                                : iDAOCaixa;
-    function QuantidadeRegistro                    : Integer;
 
+    function QuantidadeRegistro : Integer;
     function This : iEntidadeCaixa<iDAOCaixa>;
   end;
 

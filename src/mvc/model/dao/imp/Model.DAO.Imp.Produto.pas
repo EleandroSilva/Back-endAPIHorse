@@ -91,8 +91,8 @@ Type
       function Post                              : iDAOProduto;
       function Put                               : iDAOProduto;
       function Delete                            : iDAOProduto;
-      function QuantidadeRegistro                : Integer;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeProduto<iDAOProduto>;
   end;
 
@@ -162,47 +162,49 @@ function TDAOProduto.GetAll: iDAOProduto;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-     raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FProduto.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FProduto.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOProduto.GetAll - ao tentar encontrar produto todos: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FProduto.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FProduto.Id(0);
 end;
 
 function TDAOProduto.GetbyId(Id: Variant): iDAOProduto;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where pro.Id=:Id')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOProduto.GetbyId - ao tentar encontrar produto por Id: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FProduto.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FProduto.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FProduto.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FProduto.Id(0);
 end;
 
 function TDAOProduto.GetbyParams: iDAOProduto;
@@ -210,24 +212,25 @@ begin
   Result := Self;
   FiltroKey;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL +' where ' + FUteis.Pesquisar(FKey, ';' + FValue))
-                   .Open
-                 .DataSet;
-   except
-     on E: Exception do
-     raise exception.Create(FMSG.MSGerroGet+e.Message);
-   end;
-  finally
-   if not FDataSet.IsEmpty then
-   begin
-      FProduto.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-   end
-   else
-      FProduto.Id(0);
+    FDataSet := FQuery
+                  .SQL(FSQL +' where ' + FUteis.Pesquisar(FKey, ';' + FValue))
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOProduto.GetbyParams - ao tentar encontrar produto por FKey+FValue: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FProduto.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FProduto.Id(0);
 end;
 
 function TDAOProduto.Post: iDAOProduto;
@@ -291,54 +294,51 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('idempresa'             , FProduto.IdEmpresa)
-          .Params('idusuario'             , FProduto.IdUsuario)
-          .Params('idcategoria'           , FProduto.IdCategoria)
-          .Params('idunidade'             , FProduto.IdUnidade)
-          .Params('gtin'                  , FProduto.Gtin)
-          .Params('ceantrib'              , FProduto.cEanTrib)
-          .Params('cean'                  , FProduto.cEan)
-          .Params('nomeproduto'           , FProduto.NomeProduto)
-          .Params('ncm'                   , FProduto.NCM)
-          .Params('valorcusto'            , FProduto.ValorCusto)
-          .Params('aliquotalucro'         , FProduto.AliquotaLucro)
-          .Params('valorvendagelado'      , FProduto.ValorVendaGelado)
-          .Params('valorvendanatural'     , FProduto.ValorVendaNatural)
-          .Params('valorvendapromocional' , FProduto.ValorVendaPromocional)
-          .Params('estoqueanterior'       , FProduto.EstoqueAnterior)
-          .Params('estoquemaximo'         , FProduto.EstoqueMaximo)
-          .Params('estoqueminimo'         , FProduto.EstoqueMinimo)
-          .Params('estoqueatual'          , FProduto.EstoqueAtual)
-          .Params('origem'                , FProduto.Origem)
-          .Params('volume'                , FProduto.Volume)
-          .Params('quantidadeembalagem'   , FProduto.QuantidadeEmbalagem)
-          .Params('balanca'               , FProduto.Balanca)
-          .Params('pesoliquido'           , FProduto.PesoLiquido)
-          .Params('pesobruto'             , FProduto.PesoBruto)
-          .Params('datahoraemissao'       , FProduto.DataHoraEmissao)
-          .Params('ativo'                 , FProduto.Ativo)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idempresa'             , FProduto.IdEmpresa)
+        .Params('idusuario'             , FProduto.IdUsuario)
+        .Params('idcategoria'           , FProduto.IdCategoria)
+        .Params('idunidade'             , FProduto.IdUnidade)
+        .Params('gtin'                  , FProduto.Gtin)
+        .Params('ceantrib'              , FProduto.cEanTrib)
+        .Params('cean'                  , FProduto.cEan)
+        .Params('nomeproduto'           , FProduto.NomeProduto)
+        .Params('ncm'                   , FProduto.NCM)
+        .Params('valorcusto'            , FProduto.ValorCusto)
+        .Params('aliquotalucro'         , FProduto.AliquotaLucro)
+        .Params('valorvendagelado'      , FProduto.ValorVendaGelado)
+        .Params('valorvendanatural'     , FProduto.ValorVendaNatural)
+        .Params('valorvendapromocional' , FProduto.ValorVendaPromocional)
+        .Params('estoqueanterior'       , FProduto.EstoqueAnterior)
+        .Params('estoquemaximo'         , FProduto.EstoqueMaximo)
+        .Params('estoqueminimo'         , FProduto.EstoqueMinimo)
+        .Params('estoqueatual'          , FProduto.EstoqueAtual)
+        .Params('origem'                , FProduto.Origem)
+        .Params('volume'                , FProduto.Volume)
+        .Params('quantidadeembalagem'   , FProduto.QuantidadeEmbalagem)
+        .Params('balanca'               , FProduto.Balanca)
+        .Params('pesoliquido'           , FProduto.PesoLiquido)
+        .Params('pesobruto'             , FProduto.PesoBruto)
+        .Params('datahoraemissao'       , FProduto.DataHoraEmissao)
+        .Params('ativo'                 , FProduto.Ativo)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOProduto.Post - ao tentar incluir um novo produto: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FProduto.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                .Open
+                .DataSet;
+  FProduto.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAOProduto.Put: iDAOProduto;
@@ -374,50 +374,47 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'                    , FProduto.Id)
-          .Params('idempresa'             , FProduto.IdEmpresa)
-          .Params('idusuario'             , FProduto.IdUsuario)
-          .Params('idcategoria'           , FProduto.IdCategoria)
-          .Params('idunidade'             , FProduto.IdUnidade)
-          .Params('gtin'                  , FProduto.Gtin)
-          .Params('ceantrib'              , FProduto.cEanTrib)
-          .Params('cean'                  , FProduto.cEan)
-          .Params('nomeproduto'           , FProduto.NomeProduto)
-          .Params('ncm'                   , FProduto.NCM)
-          .Params('valorcusto'            , FProduto.ValorCusto)
-          .Params('aliquotalucro'         , FProduto.AliquotaLucro)
-          .Params('valorvendagelado'      , FProduto.ValorVendaGelado)
-          .Params('valorvendanatural'     , FProduto.ValorVendaNatural)
-          .Params('valorvendapromocional' , FProduto.ValorVendaPromocional)
-          .Params('estoqueanterior'       , FProduto.EstoqueAnterior)
-          .Params('estoquemaximo'         , FProduto.EstoqueMaximo)
-          .Params('estoqueminimo'         , FProduto.EstoqueMinimo)
-          .Params('estoqueatual'          , FProduto.EstoqueAtual)
-          .Params('origem'                , FProduto.Origem)
-          .Params('volume'                , FProduto.Volume)
-          .Params('quantidadeembalagem'   , FProduto.QuantidadeEmbalagem)
-          .Params('balanca'               , FProduto.Balanca)
-          .Params('pesoliquido'           , FProduto.PesoLiquido)
-          .Params('pesobruto'             , FProduto.PesoBruto)
-          .Params('datahoraemissao'       , FProduto.DataHoraEmissao)
-          .Params('ativo'                 , FProduto.Ativo)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'                    , FProduto.Id)
+        .Params('idempresa'             , FProduto.IdEmpresa)
+        .Params('idusuario'             , FProduto.IdUsuario)
+        .Params('idcategoria'           , FProduto.IdCategoria)
+        .Params('idunidade'             , FProduto.IdUnidade)
+        .Params('gtin'                  , FProduto.Gtin)
+        .Params('ceantrib'              , FProduto.cEanTrib)
+        .Params('cean'                  , FProduto.cEan)
+        .Params('nomeproduto'           , FProduto.NomeProduto)
+        .Params('ncm'                   , FProduto.NCM)
+        .Params('valorcusto'            , FProduto.ValorCusto)
+        .Params('aliquotalucro'         , FProduto.AliquotaLucro)
+        .Params('valorvendagelado'      , FProduto.ValorVendaGelado)
+        .Params('valorvendanatural'     , FProduto.ValorVendaNatural)
+        .Params('valorvendapromocional' , FProduto.ValorVendaPromocional)
+        .Params('estoqueanterior'       , FProduto.EstoqueAnterior)
+        .Params('estoquemaximo'         , FProduto.EstoqueMaximo)
+        .Params('estoqueminimo'         , FProduto.EstoqueMinimo)
+        .Params('estoqueatual'          , FProduto.EstoqueAtual)
+        .Params('origem'                , FProduto.Origem)
+        .Params('volume'                , FProduto.Volume)
+        .Params('quantidadeembalagem'   , FProduto.QuantidadeEmbalagem)
+        .Params('balanca'               , FProduto.Balanca)
+        .Params('pesoliquido'           , FProduto.PesoLiquido)
+        .Params('pesobruto'             , FProduto.PesoBruto)
+        .Params('datahoraemissao'       , FProduto.DataHoraEmissao)
+        .Params('ativo'                 , FProduto.Ativo)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOProduto.Put - ao tentar alterar o produto: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOProduto.Delete: iDAOProduto;
@@ -427,20 +424,18 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-               .Params('id', FProduto.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+    FQuery.SQL(LSQL)
+                 .Params('id', FProduto.Id)
+               .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOProduto.Delete - ao tentar excluír o produto: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOProduto.LoopRegistro(Value : Integer): Integer;

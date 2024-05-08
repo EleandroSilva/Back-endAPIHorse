@@ -26,8 +26,8 @@ type
     function Post                              : iDAONaturezaJuridica;
     function Put                               : iDAONaturezaJuridica;
     function Delete                            : iDAONaturezaJuridica;
-    function QuantidadeRegistro                : Integer;
 
+    function QuantidadeRegistro : Integer;
     function This : iEntidadeNaturezaJuridica<iDAONaturezaJuridica>;
   end;
 

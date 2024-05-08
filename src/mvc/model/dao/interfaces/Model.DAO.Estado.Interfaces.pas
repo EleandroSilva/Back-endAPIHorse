@@ -27,8 +27,8 @@ type
     function Post                              : iDAOEstado;
     function Put                               : iDAOEstado;
     function Delete                            : iDAOEstado;
-    function QuantidadeRegistro                : Integer;
 
+    function QuantidadeRegistro : Integer;
     function This : iEntidadeEstado<iDAOEstado>;
   end;
 

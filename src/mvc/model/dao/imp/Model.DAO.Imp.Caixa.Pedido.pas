@@ -55,8 +55,8 @@ type
       function Post                              : iDAOCaixaPedido;
       function Put                               : iDAOCaixaPedido;
       function Delete                            : iDAOCaixaPedido;
-      function QuantidadeRegistro                : Integer;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeCaixaPedido<iDAOCaixaPedido>;
   end;
 
@@ -71,10 +71,10 @@ uses
 
 constructor TDAOCaixaPedido.Create;
 begin
-  FCaixaPedido  := TEntidadeCaixaPedido<iDAOCaixaPedido>.New(Self);
-  FConexao := TModelConexaoFiredacMySQL.New;
-  FQuery   := TQuery.New;
-  FMSG     := TMensagens.Create;
+  FCaixaPedido := TEntidadeCaixaPedido<iDAOCaixaPedido>.New(Self);
+  FConexao     := TModelConexaoFiredacMySQL.New;
+  FQuery       := TQuery.New;
+  FMSG         := TMensagens.Create;
 end;
 
 destructor TDAOCaixaPedido.Destroy;
@@ -106,21 +106,23 @@ function TDAOCaixaPedido.GetAll: iDAOCaixaPedido;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('order by p.id asc')
                     .Open
                   .DataSet;
-    except
-     raise Exception.Create(FMSG.MSGerroGet);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro ao tentar encontrar todos caixa/pedido: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FCaixaPedido.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FCaixaPedido.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FCaixaPedido.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FCaixaPedido.Id(0);
 end;
 
 function TDAOCaixaPedido.GetbyId(Id: Variant): iDAOCaixaPedido;
@@ -131,11 +133,15 @@ begin
                   .SQL(FSQL)
                   .Add('cp.id=:id')
                   .Params('id', id)
-                    .Open
+                  .Open
                 .DataSet;
     except
-      on E: Exception do
-      raise exception.Create(FMSG.MSGerroGet+E.Message);
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro ao tentar encontrar caixa/pedido por Id: ' + E.Message);
+      Abort;
+    end;
   end;
 
   if not FDataSet.IsEmpty then
@@ -155,8 +161,7 @@ end;
 function TDAOCaixaPedido.Post: iDAOCaixaPedido;
 const
   LSQL=('insert into caixapedido('+
-                                 'id, '+
-                                 'idempresa, '+
+                                        'idempresa, '+
                                  'idcaixa, '+
                                  'idpedido, '+
                                  'idusuario, '+
@@ -164,7 +169,6 @@ const
                                  ')'+
                                  ' values '+
                                  '( '+
-                                 ':id, '+
                                  ':idempresa, '+
                                  ':idcaixa, '+
                                  ':idpedido, '+
@@ -176,30 +180,28 @@ begin
   Result := Self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('idempresa'       , FCaixaPedido.IdEmpresa)
-          .Params('idcaixa'         , FCaixaPedido.IdCaixa)
-          .Params('idpedido'        , FCaixaPedido.IdPedido)
-          .Params('idusuario'       , FCaixaPedido.IdUsuario)
-          .Params('datahoraemissao' , FCaixaPedido.DataHoraEmissao)
-          .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idempresa'       , FCaixaPedido.IdEmpresa)
+        .Params('idcaixa'         , FCaixaPedido.IdCaixa)
+        .Params('idpedido'        , FCaixaPedido.IdPedido)
+        .Params('idusuario'       , FCaixaPedido.IdUsuario)
+        .Params('datahoraemissao' , FCaixaPedido.DataHoraEmissao)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro ao tentar incluir caixa/pedido: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FCaixaPedido.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                  .Open
+                .DataSet;
+  FCaixaPedido.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAOCaixaPedido.Put: iDAOCaixaPedido;
@@ -214,18 +216,19 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-      FQuery.SQL(LSQL)
-              .Add('where id=:id')
-              .Params('id', FCaixaPedido.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+E.Message);
-      end;
+    FQuery.SQL(LSQL)
+             .Add('where id=:id')
+             .Params('id', FCaixaPedido.Id)
+          .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro ao tentar excluír caixa/pedido: ' + E.Message);
+      Abort;
+    end;
   end;
-    FConexao.Commit;
+  FConexao.Commit;
 end;
 
 function TDAOCaixaPedido.LoopRegistro(Value: Integer): Integer;
@@ -251,7 +254,5 @@ function TDAOCaixaPedido.This: iEntidadeCaixaPedido<iDAOCaixaPedido>;
 begin
   Result := FCaixaPedido;
 end;
-
-
 
 end.

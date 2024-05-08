@@ -18,19 +18,18 @@ uses
 type
   iDAOEnderecoEmpresa = interface
     ['{5195D011-1B48-4BB1-A9DA-9DDA65EC38AC}']
-    function DataSet(DataSource : TDataSource)              : iDAOEnderecoEmpresa; overload;
-    function DataSet                                        : TDataSet;            overload;
-    function GetAll                                         : iDAOEnderecoEmpresa;
-    function GetbyId(Id : Variant)                          : iDAOEnderecoEmpresa;
-    function GetbyParams                                    : iDAOEnderecoEmpresa; overload;
-    function GetbyParams(const iDAOEnderecoEmpresa)         : iDAOEnderecoEmpresa; overload;
-    function GetbyParams(aIdEmpresa, aIdEndereco : Variant) : iDAOEnderecoEmpresa; overload;
-    function Post                                           : iDAOEnderecoEmpresa;
-    function Put                                            : iDAOEnderecoEmpresa;
-    function Delete                                         : iDAOEnderecoEmpresa;
+    function DataSet(DataSource : TDataSource)            : iDAOEnderecoEmpresa; overload;
+    function DataSet                                      : TDataSet;            overload;
+    function GetAll                                       : iDAOEnderecoEmpresa;
+    function GetbyId(Id : Variant)                        : iDAOEnderecoEmpresa;
+    function GetbyParams                                  : iDAOEnderecoEmpresa; overload;
+    function GetbyParams(const iDAOEnderecoEmpresa)       : iDAOEnderecoEmpresa; overload;
+    function GetbyParams(IdEmpresa, IdEndereco : Variant) : iDAOEnderecoEmpresa; overload;
+    function Post                                         : iDAOEnderecoEmpresa;
+    function Put                                          : iDAOEnderecoEmpresa;
+    function Delete                                       : iDAOEnderecoEmpresa;
 
-    function QuantidadeRegistro                             : Integer;
-
+    function QuantidadeRegistro : Integer;
     function This : iEntidadeEnderecoEmpresa<iDAOEnderecoEmpresa>;
   end;
 

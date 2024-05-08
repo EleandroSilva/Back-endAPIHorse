@@ -24,7 +24,7 @@ type
       FValorUnitario     : Currency;
       FValorProduto      : Currency;
       FValorDescontoItem : Currency;
-      FValorFinalItem    : Currency;
+      FValorReceber    : Currency;
     public
       [SwagIgnore]
       property id                : Integer  read FId                write FId;
@@ -41,7 +41,7 @@ type
       [SwagProp('quando houver obrigatório usuário informar', True)]
       property valordescontoitem : Currency read FValorDescontoItem write FValorDescontoItem;
       [SwagProp('Cálculo feito pela API', True)]
-      property valorfinalitem    : Currency read FValorFinalItem    write FValorFinalItem;
+      property valorreceber    : Currency read FValorReceber    write FValorReceber;
   end;
 
 implementation

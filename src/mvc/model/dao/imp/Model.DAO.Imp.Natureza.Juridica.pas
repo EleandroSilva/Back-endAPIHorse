@@ -53,8 +53,8 @@ type
       function Post                              : iDAONaturezaJuridica;
       function Put                               : iDAONaturezaJuridica;
       function Delete                            : iDAONaturezaJuridica;
-      function QuantidadeRegistro                : Integer;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeNaturezaJuridica<iDAONaturezaJuridica>;
   end;
 
@@ -104,63 +104,75 @@ function TDAONaturezaJuridica.GetAll: iDAONaturezaJuridica;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                  .Open
                   .DataSet;
-    except
-     raise Exception.Create(FMSG.MSGerroGet);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAONaturezaJuridica.GetAll - ao tentar encontrar naturezajuridica: ' + E.Message);
+      Abort;
     end;
-  finally
-   if not FDataSet.IsEmpty then
-   begin
-     FNaturezaJuridica.Id(FDataSet.FieldByName('id').AsInteger);
-     QuantidadeRegistro;
-   end else FNaturezaJuridica.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FNaturezaJuridica.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FNaturezaJuridica.Id(0);
 end;
 
 function TDAONaturezaJuridica.GetbyId(Id: Variant): iDAONaturezaJuridica;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where Id=:Id')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      raise Exception.Create(FMSG.MSGerroGet);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAONaturezaJuridica.GetbyId - ao tentar encontrar naturezajuridica por Id: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FNaturezaJuridica.Id(FDataSet.FieldByName('id').AsInteger) else FNaturezaJuridica.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FNaturezaJuridica.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FNaturezaJuridica.Id(0);
 end;
 
 function TDAONaturezaJuridica.GetbyParams: iDAONaturezaJuridica;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL+' where ((lower(nomenaturezajuridica) like lower(:nomenaturezajuridica)) ')
-                   .Params('nomenaturezajuridica', FNaturezaJuridica.NomeNaturezaJuridica)
-                   .Open
-                 .DataSet;
-   except
-     raise exception.Create(FMSG.MSGerroGet);
-   end;
-  finally
-   if not FDataSet.IsEmpty then
-   begin
-     FNaturezaJuridica.Id(FDataSet.FieldByName('id').AsInteger);
-     QuantidadeRegistro;
-   end else FNaturezaJuridica.Id(0);
+    FDataSet := FQuery
+                  .SQL(FSQL+' where ((lower(nomenaturezajuridica) like lower(:nomenaturezajuridica)) ')
+                    .Params('nomenaturezajuridica', FNaturezaJuridica.NomeNaturezaJuridica)
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAONaturezaJuridica.GetbyParams - ao tentar encontrar naturezajuridica por nomenatureza: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FNaturezaJuridica.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FNaturezaJuridica.Id(0);
 end;
 
 function TDAONaturezaJuridica.Post: iDAONaturezaJuridica;
@@ -175,26 +187,26 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('nomenaturezajuridica' , FNaturezaJuridica.NomeNaturezaJuridica)
-        .ExecSQL;
-    except
+    FQuery
+      .SQL(LSQL)
+        .Params('nomenaturezajuridica' , FNaturezaJuridica.NomeNaturezaJuridica)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
       FConexao.Rollback;
-      raise Exception.Create(FMSG.MSGerroPost);
+      WriteLn('Erro no TDAONaturezaJuridica.Post - ao tentar incluir naturezajuridica: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FNaturezaJuridica.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                .Open
+                .DataSet;
+  FNaturezaJuridica.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAONaturezaJuridica.Put: iDAONaturezaJuridica;
@@ -205,22 +217,22 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'                   , FNaturezaJuridica.Id)
-          .Params('nomenaturezajuridica' , FNaturezaJuridica.NomeNaturezaJuridica)
-        .ExecSQL;
-    except
+    FQuery
+      .SQL(LSQL)
+        .Params('id'                   , FNaturezaJuridica.Id)
+        .Params('nomenaturezajuridica' , FNaturezaJuridica.NomeNaturezaJuridica)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
       FConexao.Rollback;
-      raise Exception.Create(FMSG.MSGerroPut);
+      WriteLn('Erro no TDAONaturezaJuridica.Put - ao tentar alterar naturezajuridica: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAONaturezaJuridica.Delete: iDAONaturezaJuridica;
@@ -230,17 +242,18 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-               .Params('id', FNaturezaJuridica.Id)
-            .ExecSQL;
-    except
+    FQuery.SQL(LSQL)
+                 .Params('id', FNaturezaJuridica.Id)
+               .ExecSQL;
+  except
+    on E: Exception do
+    begin
       FConexao.Rollback;
-      raise Exception.Create(FMSG.MSGerroDelete);
+      WriteLn('Erro no TDAONaturezaJuridica.Delete - ao tentar excluír naturezajuridica: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAONaturezaJuridica.LoopRegistro(Value : Integer): Integer;

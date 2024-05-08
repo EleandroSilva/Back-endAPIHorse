@@ -23,8 +23,7 @@ type
     function Post   : iCadastrarCaixaPedido;
     function Error  : Boolean;
     //injeção de dependência
-    function CaixaPedido : iEntidadeCaixaPedido<iCadastrarCaixaPedido>;
-    function &End : iCadastrarCaixaPedido;
+    function This : iEntidadeCaixaPedido<iCadastrarCaixaPedido>;
   End;
 
 implementation

@@ -27,8 +27,8 @@ type
     function Put                                   : iDAOCondicaoPagamento; overload;
     function Put(const iDAOCondicaoPagamento)      : iDAOCondicaoPagamento; overload;
     function Delete                                : iDAOCondicaoPagamento;
-    function QuantidadeRegistro                    : Integer;
 
+    function QuantidadeRegistro                    : Integer;
     function This : iEntidadeCondicaoPagamento<iDAOCondicaoPagamento>;
   end;
 

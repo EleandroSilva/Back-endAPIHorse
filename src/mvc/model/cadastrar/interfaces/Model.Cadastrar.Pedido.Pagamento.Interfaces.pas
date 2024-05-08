@@ -17,14 +17,13 @@ uses
 
 type
   iCadastrarPedidoPagamento = Interface
-    ['{35231893-CB62-45C5-B862-88C47038233A}']
+    ['{9DBC1294-0B9E-43F3-A8C8-B7C251CC2B8A}']
     function JSONObjectPai(Value : TJSONObject) : iCadastrarPedidoPagamento; overload;
     function JSONObjectPai                      : TJSONObject;               overload;
     function Post   : iCadastrarPedidoPagamento;
     function Error  : Boolean;
     //injeção de dependência
-    function PedidoPagamento : iEntidadePedidoPagamento<iCadastrarPedidoPagamento>;
-    function &End : iCadastrarPedidoPagamento;
+    function This : iEntidadePedidoPagamento<iCadastrarPedidoPagamento>;
   End;
 
 implementation

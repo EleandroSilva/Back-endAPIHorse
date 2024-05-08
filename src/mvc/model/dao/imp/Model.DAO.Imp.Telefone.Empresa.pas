@@ -60,8 +60,8 @@ type
       function Post                              : iDAOTelefoneEmpresa;
       function Put                               : iDAOTelefoneEmpresa;
       function Delete                            : iDAOTelefoneEmpresa;
-      function QuantidadeRegistro                : Integer;
 
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeTelefoneEmpresa<iDAOTelefoneEmpresa>;
   end;
 
@@ -111,48 +111,50 @@ function TDAOTelefoneEmpresa.GetAll: iDAOTelefoneEmpresa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
-                    .Open
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                  .Open
                   .DataSet;
-    except
-     on E: Exception do
-     raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOTelefonePessoa.GetAll - ao tentar encontrar telefoneempresa todas: ' + E.Message);
+      Abort;
     end;
-  finally
-   if not FDataSet.IsEmpty then
-   begin
-     FTelefoneEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
-     QuantidadeRegistro;
-   end
-   else
-     FTelefoneEmpresa.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FTelefoneEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FTelefoneEmpresa.Id(0);
 end;
 
 function TDAOTelefoneEmpresa.GetbyId(Id: Variant): iDAOTelefoneEmpresa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where te.id=:id')
                     .Add('te.idempresa=te.idempresa')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOTelefonePessoa.GetbyId - ao tentar encontrar telefonepessoa por Id: ' + E.Message);
+      Abort;
     end;
-  finally
-    if not FDataSet.IsEmpty then
-      FTelefoneEmpresa.Id(FDataSet.FieldByName('id').AsInteger)
-    else
-      FTelefoneEmpresa.Id(0);
   end;
+  if not FDataSet.IsEmpty then
+    FTelefoneEmpresa.Id(FDataSet.FieldByName('id').AsInteger)
+    else
+    FTelefoneEmpresa.Id(0);
 end;
 
 //uso para listar no json junto com a tabela pai(empresa)
@@ -160,26 +162,27 @@ function TDAOTelefoneEmpresa.GetbyId(IdEmpresa : Integer): iDAOTelefoneEmpresa;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL)
-                     .Add('where te.idempresa=:idempresa')
-                     .Params('idempresa' , IdEmpresa)
-                   .Open
-                 .DataSet;
-   except
-     on E: Exception do
-     raise exception.Create(FMSG.MSGerroGet+E.Message);
-   end;
-  finally
-   if not FDataSet.IsEmpty then
-   begin
-     FTelefoneEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
-     QuantidadeRegistro;
-   end
-   else
-     FTelefoneEmpresa.Id(0);
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                    .Add('where te.idempresa=:idempresa')
+                    .Params('idempresa' , IdEmpresa)
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOTelefonePessoa.GetbyId - ao tentar encontrar telefonepessoa por Idempresa: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FTelefoneEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FTelefoneEmpresa.Id(0);
 end;
 
 //Verifando se consta registro na tabela
@@ -187,30 +190,31 @@ function TDAOTelefoneEmpresa.GetbyParams: iDAOTelefoneEmpresa;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL)
-                     .Add('where te.idempresa=:idempresa')
-                     .Add('and   te.ddd=:ddd')
-                     .Add('and   te.numerotelefone=:numerotelefone')
-                     .Params('idempresa'      , FTelefoneEmpresa.IdEmpresa)
-                     .Params('ddd'            , FTelefoneEmpresa.DDD)
-                     .Params('numerotelefone' , FTelefoneEmpresa.NumeroTelefone)
-                   .Open
-                 .DataSet;
-   except
-     on E: Exception do
-     raise exception.Create(FMSG.MSGerroGet+E.Message);
-   end;
-  finally
-   if not FDataSet.IsEmpty then
-   begin
-     FTelefoneEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
-     QuantidadeRegistro;
-   end
-   else
-     FTelefoneEmpresa.Id(0);
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                    .Add('where te.idempresa=:idempresa')
+                    .Add('and   te.ddd=:ddd')
+                    .Add('and   te.numerotelefone=:numerotelefone')
+                    .Params('idempresa'      , FTelefoneEmpresa.IdEmpresa)
+                    .Params('ddd'            , FTelefoneEmpresa.DDD)
+                    .Params('numerotelefone' , FTelefoneEmpresa.NumeroTelefone)
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOTelefonePessoa.GetbyParams - ao tentar encontrar telefonepessoa por Idempresa+ddd+numerotelefone: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FTelefoneEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FTelefoneEmpresa.Id(0);
 end;
 
 function TDAOTelefoneEmpresa.Post: iDAOTelefoneEmpresa;
@@ -237,31 +241,29 @@ begin
   Result := Self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('idempresa'      , FTelefoneEmpresa.IdEmpresa)
-          .Params('operadora'      , FTelefoneEmpresa.Operadora)
-          .Params('ddd'            , FTelefoneEmpresa.DDD)
-          .Params('numerotelefone' , FTelefoneEmpresa.NumeroTelefone)
-          .Params('tipotelefone'   , FTelefoneEmpresa.TipoTelefone)
-          .Params('ativo'          , FTelefoneEmpresa.Ativo)
-          .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idempresa'      , FTelefoneEmpresa.IdEmpresa)
+        .Params('operadora'      , FTelefoneEmpresa.Operadora)
+        .Params('ddd'            , FTelefoneEmpresa.DDD)
+        .Params('numerotelefone' , FTelefoneEmpresa.NumeroTelefone)
+        .Params('tipotelefone'   , FTelefoneEmpresa.TipoTelefone)
+        .Params('ativo'          , FTelefoneEmpresa.Ativo)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOTelefonePessoa.Post - ao tentar incluir telefonepessoa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FTelefoneEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                .Open
+                .DataSet;
+  FTelefoneEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAOTelefoneEmpresa.Put: iDAOTelefoneEmpresa;
@@ -277,30 +279,27 @@ const
        );
 begin
   Result := Self;
-
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'             , FTelefoneEmpresa.Id)
-          .Params('idempresa'      , FTelefoneEmpresa.IdEmpresa)
-          .Params('operadora'      , FTelefoneEmpresa.Operadora)
-          .Params('ddd'            , FTelefoneEmpresa.DDD)
-          .Params('numerotelefone' , FTelefoneEmpresa.NumeroTelefone)
-          .Params('tipotelefone'   , FTelefoneEmpresa.TipoTelefone)
-          .Params('ativo'          , FTelefoneEmpresa.Ativo)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPut+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'             , FTelefoneEmpresa.Id)
+        .Params('idempresa'      , FTelefoneEmpresa.IdEmpresa)
+        .Params('operadora'      , FTelefoneEmpresa.Operadora)
+        .Params('ddd'            , FTelefoneEmpresa.DDD)
+        .Params('numerotelefone' , FTelefoneEmpresa.NumeroTelefone)
+        .Params('tipotelefone'   , FTelefoneEmpresa.TipoTelefone)
+        .Params('ativo'          , FTelefoneEmpresa.Ativo)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOTelefonePessoa.Put - ao tentar alterar telefonepessoa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOTelefoneEmpresa.Delete: iDAOTelefoneEmpresa;
@@ -310,20 +309,18 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-               .Params('id', FTelefoneEmpresa.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroDelete+e.Message);
-      end;
+    FQuery.SQL(LSQL)
+                 .Params('id', FTelefoneEmpresa.Id)
+               .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOTelefonePessoa.Delete - ao tentar excluír telefonepessoa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOTelefoneEmpresa.LoopRegistro(Value : Integer): Integer;

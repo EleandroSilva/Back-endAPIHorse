@@ -54,6 +54,9 @@ Type
 
 implementation
 
+uses
+  Model.Entidade.Imp.Condicao.Pagamento.Item;
+
 { TEntidadeCondicaoPagamento<T> }
 
 constructor TEntidadeCondicaoPagamento<T>.Create(Parent: T);

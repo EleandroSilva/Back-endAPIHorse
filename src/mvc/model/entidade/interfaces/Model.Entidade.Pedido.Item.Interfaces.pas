@@ -31,11 +31,11 @@ type
     function ValorProduto                        : Currency;               overload;
     function ValorDescontoItem(Value : Currency) : iEntidadePedidoItem<T>; overload;
     function ValorDescontoItem                   : Currency;               overload;
-    function ValorFinalItem   (Value : Currency) : iEntidadePedidoItem<T>; overload;
-    function ValorFinalItem                      : Currency;               overload;
+    function ValorReceber     (Value : Currency) : iEntidadePedidoItem<T>; overload;
+    function ValorReceber                        : Currency;               overload;
 
     //Injeção de dependência
-    function Produto  : iEntidadeProduto<iEntidadePedidoItem<T>>;
+    function Produto : iEntidadeProduto<iEntidadePedidoItem<T>>;
 
     function &End : T;
   end;

@@ -54,7 +54,8 @@ type
       function Post                              : iDAOEmailEmpresa;
       function Put                               : iDAOEmailEmpresa;
       function Delete                            : iDAOEmailEmpresa;
-      function QuantidadeRegistro                : Integer;
+
+      function QuantidadeRegistro : Integer;
       function This : iEntidadeEmailEmpresa<iDAOEmailEmpresa>;
   end;
 
@@ -104,102 +105,106 @@ function TDAOEmailEmpresa.GetAll: iDAOEmailEmpresa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Open
                   .DataSet;
-    except
-      on E:Exception do
-      raise Exception.Create(FMSG.MSGerroGet+E.Message);
-    end;
-  finally
-    if not FDataSet.IsEmpty then
+  except
+    on E: Exception do
     begin
-      FEmailEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
-      QuantidadeRegistro;
-    end
-    else
-      FEmailEmpresa.Id(0);
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEmailEmpresa.GetAll - ao tentar encontrar emailempresa: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FEmailEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FEmailEmpresa.Id(0);
 end;
 
 function TDAOEmailEmpresa.GetbyId(Id: Variant): iDAOEmailEmpresa;
 begin
   Result := Self;
   try
-    try
-      FDataSet := FQuery
-                    .SQL(FSQL)
+    FDataSet := FQuery
+                  .SQL(FSQL)
                     .Add('where ee.id=:id')
                     .Add('and ee.ideempresa=ee.idempresa')
                     .Params('Id', Id)
-                    .Open
+                  .Open
                   .DataSet;
-    except
-      on E: Exception do
-        raise Exception.Create(FMSG.MSGerroGet+E.Message);
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEmailEmpresa.GetId - ao tentar encontrar emailempresa por Id: ' + E.Message);
+      Abort;
     end;
-  finally
+  end;
     if not FDataSet.IsEmpty then
       FEmailEmpresa.Id(FDataSet.FieldByName('id').AsInteger)
     else
       FEmailEmpresa.Id(0);
-  end;
 end;
 
 function TDAOEmailEmpresa.GetbyId(IdEmpresa : Integer) : iDAOEmailEmpresa;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL)
-                   .Add('where ee.idempresa=:idempresa')
-                   .Params('idempresa', IdEmpresa)
-                   .Open
-                 .DataSet;
-   except
-     on E:Exception do
-     raise exception.Create(FMSG.MSGerroGet+E.Message);
-   end;
-  finally
-   if not FDataSet.IsEmpty then
-   begin
-     FEmailEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
-     QuantidadeRegistro;
-   end
-   else
-     FEmailEmpresa.Id(0);
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                    .Add('where ee.idempresa=:idempresa')
+                    .Params('idempresa', IdEmpresa)
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEmailEmpresa.GetId - ao tentar encontrar emailempresa por IdEmpresa: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FEmailEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+     FEmailEmpresa.Id(0);
 end;
 
 function TDAOEmailEmpresa.GetbyParams: iDAOEmailEmpresa;
 begin
   Result := Self;
   try
-   try
-     FDataSet := FQuery
-                   .SQL(FSQL)
-                   .Add('where ee.idempresa=:idempresa')
-                   .Add('and ee.email=:email')
-                   .Params('idempresa', FEmailEmpresa.IdEmpresa)
-                   .params('email'    , FEmailEmpresa.Email)
-                   .Open
-                 .DataSet;
-   except
-     on E:Exception do
-     raise exception.Create(FMSG.MSGerroGet+E.Message);
-   end;
-  finally
-   if not FDataSet.IsEmpty then
-   begin
-     FEmailEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
-     QuantidadeRegistro;
-   end
-   else
-     FEmailEmpresa.Id(0);
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                    .Add('where ee.idempresa=:idempresa')
+                    .Add('and ee.email=:email')
+                    .Params('idempresa', FEmailEmpresa.IdEmpresa)
+                    .params('email'    , FEmailEmpresa.Email)
+                  .Open
+                  .DataSet;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEmailEmpresa.GetParams - ao tentar encontrar emailempresa idempresa+email: ' + E.Message);
+      Abort;
+    end;
   end;
+  if not FDataSet.IsEmpty then
+  begin
+    FEmailEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
+    QuantidadeRegistro;
+  end
+  else
+    FEmailEmpresa.Id(0);
 end;
 
 function TDAOEmailEmpresa.Post: iDAOEmailEmpresa;
@@ -222,29 +227,27 @@ begin
   Result := Self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('idempresa' , FEmailEmpresa.IdEmpresa)
-          .Params('email'     , FEmailEmpresa.Email)
-          .Params('tipoemail' , FEmailEmpresa.TipoEmail)
-          .Params('ativo'     , FEmailEmpresa.Ativo)
-          .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('idempresa' , FEmailEmpresa.IdEmpresa)
+        .Params('email'     , FEmailEmpresa.Email)
+        .Params('tipoemail' , FEmailEmpresa.TipoEmail)
+        .Params('ativo'     , FEmailEmpresa.Ativo)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEmailEmpresa.GetParams - ao tentar encontrar incluir emailempresa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
-    FDataSet := FQuery
-                    .SQL('select LAST_INSERT_ID () as id')
-                    .Open
-                    .DataSet;
-    FEmailEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
   end;
+  FConexao.Commit;
+  FDataSet := FQuery
+                .SQL('select LAST_INSERT_ID () as id')
+                  .Open
+                .DataSet;
+  FEmailEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
 end;
 
 function TDAOEmailEmpresa.Put: iDAOEmailEmpresa;
@@ -260,25 +263,23 @@ begin
   Result := Self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery
-        .SQL(LSQL)
-          .Params('id'        , FEmailEmpresa.Id)
-          .Params('idempresa' , FEmailEmpresa.IdEmpresa)
-          .Params('email'     , FEmailEmpresa.Email)
-          .Params('tipoemail' , FEmailEmpresa.TipoEmail)
-          .Params('ativo'     , FEmailEmpresa.Ativo)
-        .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery
+      .SQL(LSQL)
+        .Params('id'        , FEmailEmpresa.Id)
+        .Params('idempresa' , FEmailEmpresa.IdEmpresa)
+        .Params('email'     , FEmailEmpresa.Email)
+        .Params('tipoemail' , FEmailEmpresa.TipoEmail)
+        .Params('ativo'     , FEmailEmpresa.Ativo)
+      .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEmailEmpresa.GetParams - ao tentar encontrar alterar emailempresa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOEmailEmpresa.Delete: iDAOEmailEmpresa;
@@ -288,20 +289,18 @@ begin
   Result := self;
   FConexao.StartTransaction;
   try
-    try
-      FQuery.SQL(LSQL)
-               .Params('id', FEmailEmpresa.Id)
-            .ExecSQL;
-    except
-      on E: Exception do
-      begin
-        FConexao.Rollback;
-        raise Exception.Create(FMSG.MSGerroPost+E.Message);
-      end;
+    FQuery.SQL(LSQL)
+                .Params('id', FEmailEmpresa.Id)
+               .ExecSQL;
+  except
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro no TDAOEmailEmpresa.GetParams - ao tentar encontrar excluír emailempresa: ' + E.Message);
+      Abort;
     end;
-  finally
-    FConexao.Commit;
   end;
+    FConexao.Commit;
 end;
 
 function TDAOEmailEmpresa.LoopRegistro(Value: Integer): Integer;
