@@ -1,7 +1,11 @@
 {*******************************************************}
 {                    API PDV - JSON                     }
 {                      Be More Web                      }
+<<<<<<< HEAD
 {          InÌcio do projeto 26/04/2024 12:00           }
+=======
+{          In√É¬≠cio do projeto 26/04/2024 12:00           }
+>>>>>>> d8a5fdd528087124fe694cbd2594e90345ee865a
 {                 www.bemoreweb.com.br                  }
 {                     (17)98169-5336                    }
 {                        2003/2024                      }
@@ -87,7 +91,7 @@ end;
 function TViewControllerPedido.AlterarPedido(Value: TJSONObject): Boolean;
 begin
   Result := False;
-  //ObtÈm os dados JSON do corpo da requisiÁ„o da tabela('pedido')
+  //Obt√©m os dados JSON do corpo da requisi√ß√£o da tabela('pedido')
   Result := FController
               .FactoryAlterar
                 .AlterarPedido
@@ -136,7 +140,11 @@ begin
     except
       on E: Exception do
       begin
+<<<<<<< HEAD
         WriteLn('Erro durante o loop de pedidopagamento, verificar as instruÁıes SQL no DAOPedidoPagamento: ' + E.Message);
+=======
+        WriteLn('Erro durante o loop de pedidopagamento, verificar as instru√ß√µes SQL no DAOPedidoPagamento: ' + E.Message);
+>>>>>>> d8a5fdd528087124fe694cbd2594e90345ee865a
         Break;
       end;
     end;
@@ -226,7 +234,11 @@ begin
     Res.Status(201).Send('Registro encontrado com sucesso!');
   end
   else
+<<<<<<< HEAD
     Res.Status(400).Send('Registro n„o encontrado!');
+=======
+    Res.Status(400).Send('Registro n√É¬£o encontrado!');
+>>>>>>> d8a5fdd528087124fe694cbd2594e90345ee865a
 
 end;
 
@@ -256,12 +268,20 @@ begin
     Res.Status(201).Send('Registro encontrado com sucesso!');
   end
   else
+<<<<<<< HEAD
     Res.Status(400).Send('Registro n„o encontrado!');
+=======
+    Res.Status(400).Send('Registro n√É¬£o encontrado!');
+>>>>>>> d8a5fdd528087124fe694cbd2594e90345ee865a
 end;
 
 procedure TViewControllerPedido.Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 begin
+<<<<<<< HEAD
   //LÍ os dados JSON da requisiÁ„o (tabela pai='pedido')
+=======
+  //L√É¬™ os dados JSON da requisi√É¬ß√É¬£o (tabela pai='pedido')
+>>>>>>> d8a5fdd528087124fe694cbd2594e90345ee865a
   FJSONObject := Req.Body<TJSONObject>;
   if CadastrarPedido(FJSONObject) Then
   begin
@@ -272,7 +292,11 @@ begin
   begin
     FJSONObject := FDSPedido.DataSet.ToJSONObject();
     Res.Send<TJSONObject>(FJSONObject);
+<<<<<<< HEAD
     Res.Status(204).Send('Registro incluÌdo com sucesso!');
+=======
+    Res.Status(204).Send('Registro inlu√≠do com sucesso!');
+>>>>>>> d8a5fdd528087124fe694cbd2594e90345ee865a
   end;
 end;
 
@@ -282,7 +306,7 @@ begin
   FIdPedido := Req.Params['id'].ToInt64;
   if not AlterarPedido(FJSONObject) then
   begin
-    Res.Status(204).Send('Registro n„o encontrado!');
+    Res.Status(204).Send('Registro n√£o encontrado!');
     Exit;
   end
   else
@@ -310,7 +334,11 @@ begin
       on E: Exception do
       raise Res.Status(500).Send('Ocorreu um erro interno no servidor.'+ E.Message);
   End;
+<<<<<<< HEAD
     Res.Status(204).Send('Registro excluÌdo com sucesso!');
+=======
+    Res.Status(204).Send('Registro exclu√É¬≠do com sucesso!');
+>>>>>>> d8a5fdd528087124fe694cbd2594e90345ee865a
 end;
 
 procedure TViewControllerPedido.Registry;
