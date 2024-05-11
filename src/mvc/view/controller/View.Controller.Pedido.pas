@@ -1,11 +1,7 @@
 {*******************************************************}
 {                    API PDV - JSON                     }
 {                      Be More Web                      }
-<<<<<<< HEAD
-{          In�cio do projeto 26/04/2024 12:00           }
-=======
-{          InÃ­cio do projeto 26/04/2024 12:00           }
->>>>>>> d8a5fdd528087124fe694cbd2594e90345ee865a
+{          Início do projeto 26/04/2024 12:00           }
 {                 www.bemoreweb.com.br                  }
 {                     (17)98169-5336                    }
 {                        2003/2024                      }
@@ -91,7 +87,7 @@ end;
 function TViewControllerPedido.AlterarPedido(Value: TJSONObject): Boolean;
 begin
   Result := False;
-  //Obtém os dados JSON do corpo da requisição da tabela('pedido')
+  //ObtÃ©m os dados JSON do corpo da requisiÃ§Ã£o da tabela('pedido')
   Result := FController
               .FactoryAlterar
                 .AlterarPedido
@@ -130,7 +126,7 @@ begin
     except
       on E: Exception do
       begin
-        WriteLn('Erro durante o loop de pedidoitem, verificar as instru��es SQL no DAOPedidoItem: ' + E.Message);
+        WriteLn('Erro durante o loop de pedidoitem, verificar as instruções SQL no DAOPedidoItem: ' + E.Message);
         Break;
       end;
     end;
@@ -140,11 +136,7 @@ begin
     except
       on E: Exception do
       begin
-<<<<<<< HEAD
-        WriteLn('Erro durante o loop de pedidopagamento, verificar as instru��es SQL no DAOPedidoPagamento: ' + E.Message);
-=======
         WriteLn('Erro durante o loop de pedidopagamento, verificar as instruções SQL no DAOPedidoPagamento: ' + E.Message);
->>>>>>> d8a5fdd528087124fe694cbd2594e90345ee865a
         Break;
       end;
     end;
@@ -235,9 +227,9 @@ begin
   end
   else
 <<<<<<< HEAD
-    Res.Status(400).Send('Registro n�o encontrado!');
+    Res.Status(400).Send('Registro não encontrado!');
 =======
-    Res.Status(400).Send('Registro nÃ£o encontrado!');
+    Res.Status(400).Send('Registro nÃƒÂ£o encontrado!');
 >>>>>>> d8a5fdd528087124fe694cbd2594e90345ee865a
 
 end;
@@ -269,19 +261,14 @@ begin
   end
   else
 <<<<<<< HEAD
-    Res.Status(400).Send('Registro n�o encontrado!');
+    Res.Status(400).Send('Registro não encontrado!');
 =======
-    Res.Status(400).Send('Registro nÃ£o encontrado!');
+    Res.Status(400).Send('Registro nÃƒÂ£o encontrado!');
 >>>>>>> d8a5fdd528087124fe694cbd2594e90345ee865a
 end;
 
 procedure TViewControllerPedido.Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 begin
-<<<<<<< HEAD
-  //L� os dados JSON da requisi��o (tabela pai='pedido')
-=======
-  //LÃª os dados JSON da requisiÃ§Ã£o (tabela pai='pedido')
->>>>>>> d8a5fdd528087124fe694cbd2594e90345ee865a
   FJSONObject := Req.Body<TJSONObject>;
   if CadastrarPedido(FJSONObject) Then
   begin
@@ -292,11 +279,7 @@ begin
   begin
     FJSONObject := FDSPedido.DataSet.ToJSONObject();
     Res.Send<TJSONObject>(FJSONObject);
-<<<<<<< HEAD
-    Res.Status(204).Send('Registro inclu�do com sucesso!');
-=======
-    Res.Status(204).Send('Registro inluído com sucesso!');
->>>>>>> d8a5fdd528087124fe694cbd2594e90345ee865a
+    Res.Status(204).Send('Registro incluído com sucesso!');
   end;
 end;
 
@@ -306,7 +289,7 @@ begin
   FIdPedido := Req.Params['id'].ToInt64;
   if not AlterarPedido(FJSONObject) then
   begin
-    Res.Status(204).Send('Registro não encontrado!');
+    Res.Status(204).Send('Registro nÃo encontrado!');
     Exit;
   end
   else
@@ -334,11 +317,7 @@ begin
       on E: Exception do
       raise Res.Status(500).Send('Ocorreu um erro interno no servidor.'+ E.Message);
   End;
-<<<<<<< HEAD
-    Res.Status(204).Send('Registro exclu�do com sucesso!');
-=======
-    Res.Status(204).Send('Registro excluÃ­do com sucesso!');
->>>>>>> d8a5fdd528087124fe694cbd2594e90345ee865a
+    Res.Status(204).Send('Registro excluído com sucesso!');
 end;
 
 procedure TViewControllerPedido.Registry;
