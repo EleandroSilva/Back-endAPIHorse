@@ -226,12 +226,7 @@ begin
     Res.Status(201).Send('Registro encontrado com sucesso!');
   end
   else
-<<<<<<< HEAD
     Res.Status(400).Send('Registro não encontrado!');
-=======
-    Res.Status(400).Send('Registro nÃƒÂ£o encontrado!');
->>>>>>> d8a5fdd528087124fe694cbd2594e90345ee865a
-
 end;
 
 procedure TViewControllerPedido.GetbyId(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -260,11 +255,7 @@ begin
     Res.Status(201).Send('Registro encontrado com sucesso!');
   end
   else
-<<<<<<< HEAD
     Res.Status(400).Send('Registro não encontrado!');
-=======
-    Res.Status(400).Send('Registro nÃƒÂ£o encontrado!');
->>>>>>> d8a5fdd528087124fe694cbd2594e90345ee865a
 end;
 
 procedure TViewControllerPedido.Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
