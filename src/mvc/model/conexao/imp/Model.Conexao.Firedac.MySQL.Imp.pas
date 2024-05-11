@@ -133,14 +133,16 @@ begin
     FConexao.Params.DriverID    := FConfiguracaoMySQL.DriverName;
     FConexao.Params.Add('utf8mb4');
 
-    FDriverMySQL.VendorLib      := FConfiguracaoMySQL.VendorLib;
-    //FDriverMySQL.BaseDriverID   :='MySQL';
     FDriverFB.VendorLib         := FConfiguracaoMySQL.VendorLib;
     FConexao.LoginPrompt        := False;
     FConexao.Connected;
   except
-    on e: Exception do
-    raise Exception.Create('Erro ao tentar se conectar com a base de dados: ' +e.Message);
+    on E: Exception do
+    begin
+      FConexao.Rollback;
+      WriteLn('Erro ao tentar se conectar com a base de dados: ' + E.Message);
+      Abort;
+    end;
   end;
 end;
 

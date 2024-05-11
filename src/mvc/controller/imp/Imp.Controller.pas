@@ -17,26 +17,35 @@ uses
   Model.Factory.Cadastrar.Interfaces,
   Model.Factory.Pesquisar.Interfaces,
   Model.Factory.Alterar.Interfaces,
-  Model.Factory.Deletar.Interfaces;
+  Model.Factory.Deletar.Interfaces,
+  Model.Factory.Consultar.API.Interfaces,
+  Model.Factory.Uteis.Interfaces,
+  Model.Factory.De.Para.Interfaces;
 
 type
   TController = class(TInterfacedObject, iController)
     private
-      FFactoryDAO       : iFactoryDAO;
-      FFactoryCadastrar : iFactoryCadastrar;
-      FFactoryPesquisar : iFactoryPesquisar;
-      FFactoryAlterar   : iFactoryAlterar;
-      FFactoryDeletar   : iFactoryDeletar;
+      FFactoryDAO          : iFactoryDAO;
+      FFactoryCadastrar    : iFactoryCadastrar;
+      FFactoryPesquisar    :  iFactoryPesquisar;
+      FFactoryAlterar      : iFactoryAlterar;
+      FFactoryDeletar      : iFactoryDeletar;
+      FFactoryConsultarAPI : iFactoryConsultarAPI;
+      FFactoryUteis        : iFactoryUteis;
+      FFactoryDePara       : iFactoryDePara;
     public
       constructor Create;
       destructor Destroy; override;
       class function New : iController;
 
-      function FactoryDAO       : iFactoryDAO;
-      function FactoryCadastrar : iFactoryCadastrar;
-      function FactoryPesquisar : iFactoryPesquisar;
-      function FactoryAlterar   : iFactoryAlterar;
-      function FactoryDeletar   : iFactoryDeletar;
+      function FactoryDAO          : iFactoryDAO;
+      function FactoryCadastrar    : iFactoryCadastrar;
+      function FactoryPesquisar    : iFactoryPesquisar;
+      function FactoryAlterar      : iFactoryAlterar;
+      function FactoryDeletar      : iFactoryDeletar;
+      function FactoryConsultarAPI : iFactoryConsultarAPI;
+      function FactoryUteis        : iFactoryUteis;
+      function FactoryDePara       : iFactoryDePara;
   end;
 
 implementation
@@ -46,7 +55,10 @@ uses
   Model.Factory.Imp.Cadastrar,
   Model.Factory.Imp.Pesquisar,
   Model.Factory.Imp.Alterar,
-  Model.Factory.Imp.Deletar;
+  Model.Factory.Imp.Deletar,
+  Model.Factory.Imp.Consultar.API,
+  Model.Factory.Imp.Uteis,
+  Model.Factory.Imp.De.Para;
 
 { TController }
 
@@ -104,6 +116,30 @@ begin
     FFactoryDeletar := TFactoryDeletar.New;
 
   Result := FFactoryDeletar;
+end;
+
+function TController.FactoryConsultarAPI: iFactoryConsultarAPI;
+begin
+  if not Assigned(FFactoryConsultarAPI) then
+    FFactoryConsultarAPI := TFactoryConsultarAPI.New;
+
+  Result := FFactoryConsultarAPI;
+end;
+
+function TController.FactoryUteis: iFactoryUteis;
+begin
+  if not Assigned(FFactoryUteis) then
+    FFactoryUteis := TFactoryUteis.New;
+
+  Result := FFactoryUteis;
+end;
+
+function TController.FactoryDePara: iFactoryDePara;
+begin
+  if not Assigned(FFactoryDePara) then
+    FFactoryDePara := TFactoryDePara.New;
+
+  Result := FFactoryDePara;
 end;
 
 end.

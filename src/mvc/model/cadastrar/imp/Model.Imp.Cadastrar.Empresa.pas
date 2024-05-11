@@ -14,7 +14,7 @@ interface
 uses
   Data.DB,
   System.JSON,
-  System.SysUtils,
+  FireDAC.Comp.Client,
 
   DataSet.Serialize,
   Controller.Interfaces,
@@ -33,8 +33,8 @@ type
 
       FDSEmpresa  : TDataSource;
       FIdEmpresa  : Integer;
+      FDMemTable  : TFDMemTable;
 
-      FFound : Boolean;
       FError : Boolean;
 
       function CadastrarEndereco : Boolean;
@@ -47,9 +47,8 @@ type
 
       function JSONObject(Value : TJSONObject) : iCadastrarEmpresa; overload;
       function JSONObject                      : TJSONObject;       overload;
-      function Post   : iCadastrarEmpresa;
+      function Post   : Boolean;
 
-      function Found : Boolean;
       function Error : Boolean;
       //injeção de dependência
       function Empresa : iEntidadeEmpresa<iCadastrarEmpresa>;
@@ -60,7 +59,7 @@ implementation
 
 uses
   Imp.Controller,
-  Model.Entidade.Imp.Empresa;
+  Model.Entidade.Imp.Empresa, System.SysUtils;
 
 { TCadastrarEmpresa }
 
@@ -69,8 +68,7 @@ begin
   FController := TController.New;
   FEmpresa    := TEntidadeEmpresa<iCadastrarEmpresa>.New(Self);
   FDSEmpresa  := TDataSource.Create(nil);
-
-  FFound := False;
+  FDMemTable  := TFDMemTable.Create(nil);
   FError := False;
 end;
 
@@ -95,9 +93,9 @@ begin
   Result := FJSONObject;
 end;
 
-function TCadastrarEmpresa.Post: iCadastrarEmpresa;
+function TCadastrarEmpresa.Post: Boolean;
 begin
-  Result := Self;
+  Result := False;
   try
     if not FController
             .FactoryPesquisar
@@ -105,18 +103,21 @@ begin
                 .GetbyCNPJ(FEmpresa.CNPJ)
                   .Found then
     begin
-      FJSONObjectEmpresa := FJSONObject;
+      FDMemTable.LoadFromJSON(FController
+                      .FactoryDePara
+                        .DeParaReceitaWSEmpresa
+                          .ConsultarDadosPorCNPJ(FEmpresa.CNPJ).Format());
       FController
        .FactoryDAO
          .DAOEmpresa
            .This
-             .CNPJ                 (FJSONObjectEmpresa.GetValue<String>   ('cnpj'))
-             .InscricaoEstadual    (FJSONObjectEmpresa.GetValue<String>   ('inscricaoestadual'))
-             .NomeEmpresarial      (FJSONObjectEmpresa.GetValue<String>   ('nomeempresarial'))
-             .NomeFantasia         (FJSONObjectEmpresa.GetValue<String>   ('nomefantasia'))
-             .IdNaturezaJuridica   (FJSONObjectEmpresa.GetValue<Integer>  ('idnaturezajuridica'))
-             .DataHoraEmissao      (FJSONObjectEmpresa.GetValue<TDateTime>('datahoraemissao'))
-             .DataSituacaoCadastral(FJSONObjectEmpresa.GetValue<TDateTime>('datasituacaocadastral'))
+             .CNPJ                 (FDMemTable.FieldByName('cnpj').AsString)
+             .InscricaoEstadual    ('Isento')
+             .NomeEmpresarial      (FDMemTable.FieldByName('nome').AsString)
+             .NomeFantasia         (FDMemTable.FieldByName('fantasia').AsString)
+             .IdNaturezaJuridica   (2)
+             .DataHoraEmissao      (Now)
+             .DataSituacaoCadastral(StrToDate(FDMemTable.FieldByName('abertura').AsString))
              .Ativo                (1)
            .&End
          .Post
@@ -128,19 +129,16 @@ begin
       if not CadastrarEndereco then
         if not CadastrarEmail then
           CadastrarTelefone;
-    end;
+    end
+    else
+      Result := True;
   except
     on E: Exception do
     begin
-      WriteLn('Erro ao tentar incluir registro: ' + E.Message);
+      WriteLn('Erro ao tentar incluir registro na tabela empresa, consultar TDAOEmpresa: ' + E.Message);
       FError := True;
     end;
   end;
-end;
-
-function TCadastrarEmpresa.Found: Boolean;
-begin
-  Result := FFound;
 end;
 
 function TCadastrarEmpresa.Error: Boolean;

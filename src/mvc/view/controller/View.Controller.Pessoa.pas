@@ -288,7 +288,7 @@ begin
   FJSONObjectPessoa := TJSONObject.ParseJSONValue(Req.Body) as TJSONObject;
   FCPFCNPJ := FJSONObjectPessoa.GetValue('cpfcnpj').Value;
   FController
-    .FactoryDAO
+    .FactoryUteis
       .Uteis
         .ValidaCnpjCeiCpf(FCPFCNPJ, True);
   FIdPessoa := FJSONObjectPessoa.GetValue<Integer>('idpessoa');

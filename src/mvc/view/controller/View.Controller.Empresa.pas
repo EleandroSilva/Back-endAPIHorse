@@ -257,8 +257,7 @@ begin
                     .CNPJ(FCNPJ)
                   .&End
                 .JSONObject(Value)
-                .Post
-                .Found;
+                .Post;
 
   FError := FController
               .FactoryCadastrar
@@ -292,7 +291,7 @@ begin
   //Lê os dados JSON da requisição (tabela pai='empresa')
   FJSONObjectEmpresa := TJSONObject.ParseJSONValue(Req.Body) as TJSONObject;
   FCNPJ              := FJSONObjectEmpresa.GetValue('cnpj').Value;
-  FController.FactoryDAO.Uteis.ValidaCnpjCeiCpf(FCNPJ, True);
+  FController.FactoryUteis.Uteis.ValidaCnpjCeiCpf(FCNPJ, True);
   FJSONObjectEmpresa := Req.Body<TJSONObject>;
 
   if CadastrarEmpresa(FJSONObjectEmpresa) Then

@@ -97,6 +97,7 @@ begin
       .FactoryDAO
         .DAOPedido
           .This
+            .Id                 (FJSONObject.GetValue<Integer>  ('id'))
             .IdEmpresa          (FJSONObject.GetValue<Integer>  ('idempresa'))
             .IdCaixa            (FJSONObject.GetValue<Integer>  ('idcaixa'))
             .IdPessoa           (FJSONObject.GetValue<Integer>  ('idpessoa'))
@@ -105,11 +106,12 @@ begin
             .ValorProduto       (FJSONObject.GetValue<Currency> ('valorproduto'))
             .ValorDesconto      (FJSONObject.GetValue<Currency> ('valordesconto'))
             .ValorReceber       (FJSONObject.GetValue<Currency> ('valorreceber'))
+            .ValorDescontoItem  (FJSONObject.GetValue<Currency> ('valordescontoitem'))
             .DataHoraEmissao    (FJSONObject.GetValue<TDateTime>('datahoraemissao'))
             .Status             (FJSONObject.GetValue<Integer>  ('status')) //(CRIAR PARAMENTO DA EMPRESA, INFORMAR SE NA DIGITAÇÃO TIPO DE INFORMAÇÃO)0-Pedido como orçamento 1-Pedido faturado 3-Pedido Cancelado
             .Excluido           (FJSONObject.GetValue<Integer>  ('excluido'))//0-Pedido estado normal; 1-Pedido excluído
           .&End
-        .Post
+        .Put
         .DataSet(FDSPedido);
     //Pegando os id(s), necessários para inserir na tabela caixapedido
     FIdPedido  := FDSPedido.DataSet.FieldByName('id').AsInteger;

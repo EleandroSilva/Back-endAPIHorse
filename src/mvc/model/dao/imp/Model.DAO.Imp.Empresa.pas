@@ -166,6 +166,7 @@ function TDAOEmpresa.GetbyCNPJ(CNPJ: String): iDAOEmpresa;
 begin
   Result := Self;
   FUteis.ValidaCnpjCeiCpf(CNPJ, True);
+  CNPJ := FUteis.MaskCNPJ(CNPJ);
   try
     FDataSet := FQuery
                   .SQL(FSQL)

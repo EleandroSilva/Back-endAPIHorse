@@ -78,11 +78,11 @@ uses
 
 constructor TDAOCaixa.Create;
 begin
-  FCaixa := TEntidadeCaixa<iDAOCaixa>.New(Self);
-  FConexao     := TModelConexaoFiredacMySQL.New;
-  FQuery       := TQuery.New;
-  FUteis       := TUteis.New;
-  FMSG         := TMensagens.Create;
+  FCaixa   := TEntidadeCaixa<iDAOCaixa>.New(Self);
+  FConexao := TModelConexaoFiredacMySQL.New;
+  FQuery   := TQuery.New;
+  FUteis   := TUteis.New;
+  FMSG     := TMensagens.Create;
 end;
 
 destructor TDAOCaixa.Destroy;

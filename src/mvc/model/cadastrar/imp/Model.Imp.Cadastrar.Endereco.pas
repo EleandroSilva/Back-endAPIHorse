@@ -110,7 +110,7 @@ begin
     begin
       //Extraindo os dados do endereço e salvando no banco de dados
       FJSONObjectEndereco := FJSONArrayEndereco.Items[I] as TJSONObject;
-      //verificando se já consta este cep cadastrado na tabela endereco(se não estiver insiro o mesmo)
+      //verificando se já consta este cep cadastrado na tabela endereco(se não estiver insert o mesmo)
       if not FController
                .FactoryPesquisar
                  .PesquisarEndereco

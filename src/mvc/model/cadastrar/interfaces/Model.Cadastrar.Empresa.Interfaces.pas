@@ -20,9 +20,8 @@ type
     ['{468AD080-8AAC-416F-A3FB-D9060183AAFB}']
     function JSONObject(Value : TJSONObject) : iCadastrarEmpresa; overload;
     function JSONObject                      : TJSONObject;       overload;
-    function Post   : iCadastrarEmpresa;
+    function Post   : Boolean;
 
-    function Found  : Boolean;
     function Error  : Boolean;
     //injeção de dependência
     function Empresa : iEntidadeEmpresa<iCadastrarEmpresa>;

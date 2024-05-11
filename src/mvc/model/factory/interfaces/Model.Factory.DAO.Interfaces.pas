@@ -12,7 +12,6 @@ unit Model.Factory.DAO.Interfaces;
 interface
 
 uses
-  Uteis.Interfaces,
   Model.DAO.Usuario.Interfaces,
   Model.DAO.Empresa.Interfaces,
   Model.DAO.Categoria.Produto.Interfaces,
@@ -46,7 +45,6 @@ uses
 type
   iFactoryDAO = interface
     ['{88D4F535-E18B-46F2-BBC2-33BAD5C7A389}']
-    function Uteis                : iUteis;
     function DAOUsuario           : iDAOUsuario;
     function DAOEmpresa           : iDAOEmpresa;
     function DAOEnderecoEmpresa   : iDAOEnderecoEmpresa;
